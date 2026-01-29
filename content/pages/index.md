@@ -15,9 +15,13 @@ sections:
     backgroundSize: full
     title: Abhishek Selvakumar
     subtitle: >-
-      This is my info—I’m sharing it all this with ya’ll to impress you with all
-      the hard work I’ve done in the past few years. Once you’re impressed, you
-      can continue to scroll down to see more details and credentials about me.
+      Results-driven software developer and gameplay programmer with proven
+      experience delivering full-stack applications and high-performance games
+      using Unity, C#, Java, Python, React, and AI technologies. Demonstrated
+      success leading technical teams, optimizing performance-critical systems,
+      and integrating machine learning into real-world products. Passionate
+      about building polished, scalable solutions at the intersection of
+      software engineering, game development, and AI.
     styles:
       self:
         height: auto
