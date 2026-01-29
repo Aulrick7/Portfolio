@@ -68,7 +68,7 @@ sections:
         textAlign: left
     subtitle: Game Projects
   - type: FeaturedProjectsSection
-    subtitle: 'Projects:'
+    subtitle: Software/Web Projects
     actions:
       - type: Link
         label: See all projects
