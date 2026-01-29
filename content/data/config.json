@@ -23,7 +23,7 @@
             {
                 "type": "Social",
                 "altText": "Twitter",
-                "label": "Twitter",
+                "label": "LinkedIn",
                 "url": "https://twitter.com/netlify",
                 "icon": "twitter"
             },
