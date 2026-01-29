@@ -78,7 +78,8 @@ sections:
         icon: arrowRight
         iconPosition: right
         elementId: ''
-    projects: []
+    projects:
+      - content/pages/projects/project-four.md
     colors: colors-f
     variant: variant-b
     elementId: ''
