@@ -11,7 +11,7 @@ backgroundImage:
   opacity: 75
 sections:
   - elementId: ''
-    colors: colors-a
+    colors: colors-b
     backgroundSize: full
     title: Abhishek Selvakumar
     subtitle: >-
