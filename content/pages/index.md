@@ -80,6 +80,7 @@ sections:
         elementId: ''
     projects:
       - content/pages/projects/project-four.md
+      - content/pages/projects/project-five.md
     colors: colors-f
     variant: variant-b
     elementId: ''
