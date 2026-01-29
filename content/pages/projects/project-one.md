@@ -1,7 +1,7 @@
 ---
 type: ProjectLayout
 title: Knights Divide
-colors: colors-c
+colors: colors-a
 date: '2021-10-15'
 client: Awesome client
 description: >-
