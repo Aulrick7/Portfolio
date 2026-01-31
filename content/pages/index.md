@@ -82,7 +82,7 @@ sections:
       - content/pages/projects/project-four.md
       - content/pages/projects/project-five.md
       - content/pages/projects/project-six.md
-    colors: colors-c
+    colors: colors-f
     variant: variant-b
     elementId: ''
     showDate: false
