@@ -11,7 +11,7 @@ description: >-
   sometimes-maze-like dungeons and caverns that make up the map, defeating
   enemies, and concluding with a boss fight that will gain the player entry to
   the next level. The player beats Knights Divide once they’ve ascended to the
-  highest level and destroyed the mysterious final boss.
+  highest level and destroy the mysterious final boss.
 media:
   type: ImageBlock
   url: /images/bg1.jpg
