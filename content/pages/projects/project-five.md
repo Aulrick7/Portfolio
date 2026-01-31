@@ -17,3 +17,21 @@ backgroundImage:
   backgroundRepeat: no-repeat
   opacity: 100
 ---
+## Github
+
+ Sorry, Signed a NDA for this
+
+## About the project
+
+I was one of the main developers for this project, I developed the authentication, authorization and the rating functionalities. Apart from the functionalities, I prioritized fixing bugs and creating new j-unit and espresso tests to ensure the app is stable. We used firebase to store data for each users and the items sold.
+
+## Most notable feats
+
+*   Architected and presented a full-featured Android barter trading platform with secure user authentication and transaction handling, enabling peer-to-peer item exchange without cash dependency.
+
+*   Enforced TDD and CI/CD pipelines, reducing regression bugs and accelerating stable feature deployment across iterations.
+
+*   Outlined and refined responsive UI/UX workflows based on user research, significantly improving usability and engagement.
+
+*   Integrated backend services and database management to ensure data consistency, scalability, and system reliability.
+
