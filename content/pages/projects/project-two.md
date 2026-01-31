@@ -2,7 +2,7 @@
 type: ProjectLayout
 title: Gambit
 colors: colors-a
-date: '2021-12-20'
+date: '2024-04-20'
 client: Awesome client
 description: >-
   Gambit is a project where the user connects to an EEG device and use brain
