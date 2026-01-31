@@ -19,7 +19,7 @@ backgroundImage:
 bottomSections:
   - type: LabelsSection
     title: Skills
-    subtitle: The section subtitle
+    subtitle: ''
     items:
       - type: Label
         label: Android (Java)
