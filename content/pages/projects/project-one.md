@@ -12,10 +12,6 @@ description: >-
   enemies, and concluding with a boss fight that will gain the player entry to
   the next level. The player beats Knights Divide once they’ve ascended to the
   highest level and destroy the mysterious final boss.
-media:
-  type: ImageBlock
-  url: /images/bg1.jpg
-  altText: Project image
 metaTitle: Knights Divide
 ---
 
