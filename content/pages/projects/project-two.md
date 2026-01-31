@@ -15,7 +15,7 @@ Sorry signed a NDA for this
 
 ## About the game
 
-This project was build in a 7 person team, and I was a senior developer for this game. This game was completely build in Unity with the OpenMaze Framework and LSL4. This is a 3d game that is solely build to utilise the brainwaves from eeg device to move an object through a maze filled with obstacles and puzzles.
+This project was build in a 7 person team, and I was a senior developer for this game. This game was completely build in Unity with the OpenMaze Framework and LSL4. This is a 3d game that is solely build to utilise the brainwaves from eeg device to move an object through a maze filled with obstacles and puzzles. My main job here was to guide junior developers and solve merge conflicts while also optimizing and automating them by integrating smart merge, debug mode, and developer level.
 
 ## Notable Feats.
 
