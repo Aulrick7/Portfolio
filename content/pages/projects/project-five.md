@@ -43,7 +43,7 @@ bottomSections:
         label: Git
         url: ''
       - type: Label
-        label: Swift
+        label: Figma
         url: ''
     colors: colors-f
     elementId: ''
