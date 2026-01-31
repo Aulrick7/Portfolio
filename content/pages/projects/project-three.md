@@ -2,7 +2,7 @@
 type: ProjectLayout
 title: Mikmaw Educational Game
 colors: colors-a
-date: '0002-12-01'
+date: '2023-12-01'
 client: Awesome client
 description: >-
   This is a project that helped us develop a game for the Mi'kmaqi community in
