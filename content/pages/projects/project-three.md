@@ -5,9 +5,9 @@ colors: colors-a
 date: '2022-01-22'
 client: Awesome client
 description: >-
-  It’s hard to imagine that I’ve that I wrote all this code by myself, probably
-  because I worked with an entire team :) but they definitely followed my lead
-  most of the time.
+  This is a project that helped us develop a game for the Mi'kmaqi community in
+  Nova Scotia where it consists of the player traversing in 2d platforming, with
+  countless mi'kmaw word puzzles and fun bossfights.
 media:
   type: ImageBlock
   url: /images/bg3.jpg
