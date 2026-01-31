@@ -28,7 +28,7 @@ bottomSections:
         label: Firebase
         url: ''
       - type: Label
-        label: Microsoft Office
+        label: CI/CD
         url: ''
       - type: Label
         label: Next.js
