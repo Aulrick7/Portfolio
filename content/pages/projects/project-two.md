@@ -11,7 +11,7 @@ description: >-
 featuredImage:
   type: ImageBlock
   url: /images/138418711_364a8956-d8bf-45e6-b577-4cb3a0a30141.jpg
-  altText: Project thumbnail image
+  altText: 'Gambit '
 media:
   type: ImageBlock
   url: /images/bg2.jpg
