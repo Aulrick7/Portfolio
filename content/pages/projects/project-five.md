@@ -3,9 +3,7 @@ type: ProjectLayout
 title: Barter Trade App
 date: '2026-01-29'
 client: Awesome client
-description: >-
-  Nunc rutrum felis dui, ut consequat sapien scelerisque vel. Integer
-  condimentum dignissim justo vel faucibus.
+description: 'This is an android app that lets you '
 addTitleSuffix: true
 colors: colors-a
 backgroundImage:
