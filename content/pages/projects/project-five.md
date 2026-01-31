@@ -31,7 +31,7 @@ bottomSections:
         label: CI/CD
         url: ''
       - type: Label
-        label: Next.js
+        label: Agile
         url: ''
       - type: Label
         label: Netlify
