@@ -1,7 +1,7 @@
 ---
 type: ProjectLayout
 title: Barter Trade App
-date: '2026-01-29'
+date: '2024-04-29'
 client: ''
 description: >-
   This is a trading android app where users can trade their items with one
