@@ -11,7 +11,7 @@ description: >-
 featuredImage:
   type: ImageBlock
   url: /images/Screenshot 2026-01-31 191354.png
-  altText: Project thumbnail image
+  altText: Knights Divide Main Character
 media:
   type: ImageBlock
   url: /images/bg1.jpg
