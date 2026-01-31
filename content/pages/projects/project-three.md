@@ -6,8 +6,8 @@ date: '2022-01-22'
 client: Awesome client
 description: >-
   This is a project that helped us develop a game for the Mi'kmaqi community in
-  Nova Scotia where it consists of the player traversing in 2d platforming, with
-  countless mi'kmaw word puzzles and fun bossfights.
+  Nova Scotia where it consists of 2d platforming, with countless mi'kmaw word
+  puzzles and fun bossfights.
 ---
 ## Github
 
