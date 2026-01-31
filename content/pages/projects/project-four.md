@@ -19,9 +19,7 @@ backgroundImage:
 ---
 ## Github
 
-Sorry signed a NDA for this
+Sorry, signed a NDA for this
 
 ## About the project
-
-
 
