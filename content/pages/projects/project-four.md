@@ -1,7 +1,7 @@
 ---
 type: ProjectLayout
 title: DEEBug
-date: '2024-12-29'
+date: '2024-12-01'
 client: Awesome client
 description: >-
   Nunc rutrum felis dui, ut consequat sapien scelerisque vel. Integer
