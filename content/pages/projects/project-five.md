@@ -34,7 +34,7 @@ bottomSections:
         label: Agile
         url: ''
       - type: Label
-        label: Netlify
+        label: TDD
         url: ''
       - type: Label
         label: Pancakes
