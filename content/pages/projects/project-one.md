@@ -2,7 +2,7 @@
 type: ProjectLayout
 title: Knights Divide
 colors: colors-a
-date: '2021-10-15'
+date: '2024-11-15'
 client: ''
 description: >-
   Knights Divide is a 2D action-RPG consisting of five levels where the player
