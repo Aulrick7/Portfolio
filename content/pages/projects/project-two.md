@@ -6,7 +6,8 @@ date: '2021-12-20'
 client: Awesome client
 description: >-
   Gambit is a project where the user connects to an EEG device and use brain
-  waves to control an object in a game.
+  waves to control an object in a game. Each level consist of a maze with
+  obstacles and the player gets to traverse through them to find an exit
 media:
   type: ImageBlock
   url: /images/bg2.jpg
