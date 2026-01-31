@@ -8,10 +8,6 @@ description: >-
   It’s hard to imagine that I’ve that I wrote all this code by myself, probably
   because I worked with an entire team :) but they definitely followed my lead
   most of the time.
-featuredImage:
-  type: ImageBlock
-  url: /images/Screenshot 2026-01-31 191354.png
-  altText: Knights Divide Main Character
 media:
   type: ImageBlock
   url: /images/bg1.jpg
