@@ -8,10 +8,6 @@ description: >-
   It’s hard to imagine that I’ve that I wrote all this code by myself, probably
   because I worked with an entire team :) but they definitely followed my lead
   most of the time.
-featuredImage:
-  type: ImageBlock
-  url: /images/138418711_364a8956-d8bf-45e6-b577-4cb3a0a30141.jpg
-  altText: 'Gambit '
 media:
   type: ImageBlock
   url: /images/bg2.jpg
