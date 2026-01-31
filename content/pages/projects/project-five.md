@@ -40,7 +40,7 @@ bottomSections:
         label: UX Research
         url: ''
       - type: Label
-        label: C++
+        label: gIT
         url: ''
       - type: Label
         label: Swift
