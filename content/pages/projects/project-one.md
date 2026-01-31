@@ -4,7 +4,14 @@ title: Knights Divide
 colors: colors-a
 date: '2021-10-15'
 client: Awesome client
-description: ''
+description: >-
+  Knights Divide is a 2D action-RPG consisting of five levels where the player
+  alternates between playing as Lancelot the melee specialist, and Raevyn the
+  highly mobile ranged character. Levels consist of navigating the
+  sometimes-maze-like dungeons and caverns that make up the map, defeating
+  enemies, and concluding with a boss fight that will gain the player entry to
+  the next level. The player beats Knights Divide once they’ve ascended to the
+  highest level and destroyed the mysterious final boss.
 media:
   type: ImageBlock
   url: /images/bg1.jpg
