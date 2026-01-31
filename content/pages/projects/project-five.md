@@ -37,7 +37,7 @@ bottomSections:
         label: TDD
         url: ''
       - type: Label
-        label: Pancakes
+        label: UX Research
         url: ''
       - type: Label
         label: C++
