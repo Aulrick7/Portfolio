@@ -25,7 +25,7 @@ bottomSections:
         label: Android (Java)
         url: ''
       - type: Label
-        label: React
+        label: Firebase
         url: ''
       - type: Label
         label: Microsoft Office
