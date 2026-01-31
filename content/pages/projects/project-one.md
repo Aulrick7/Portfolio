@@ -10,7 +10,7 @@ description: >-
   most of the time.
 featuredImage:
   type: ImageBlock
-  url: /images/bg1.jpg
+  url: /images/Screenshot 2026-01-31 191354.png
   altText: Project thumbnail image
 media:
   type: ImageBlock
