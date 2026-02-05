@@ -52,12 +52,12 @@ export default function MatrixPillChoice() {
         <div className="matrix-container">
             {/* Matrix rain background effect */}
             <div className="matrix-rain">
-                {[...Array(20)].map((_, i) => (
+                {[...Array(100)].map((_, i) => (
                     <div
                         key={i}
                         className="rain-column"
                         style={{
-                            left: `${i * 5}%`,
+                            left: `${i * 1}%`,
                             animationDelay: `${Math.random() * 5}s`,
                             animationDuration: `${10 + Math.random() * 10}s`
                         }}
@@ -165,7 +165,7 @@ export default function MatrixPillChoice() {
                     left: 0;
                     width: 100%;
                     height: 100%;
-                    opacity: 0.1;
+                    opacity: 0.5;
                     pointer-events: none;
                 }
 
