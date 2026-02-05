@@ -11,7 +11,7 @@
             {
                 "type": "Link",
                 "label": "Info",
-                "url": "/info"
+                "url": "/custom"
             },
             {
                 "type": "Link",
@@ -88,12 +88,7 @@
         "styles": {
             "self": {
                 "width": "narrow",
-                "padding": [
-                    "pt-16",
-                    "pb-16",
-                    "pr-4",
-                    "pl-4"
-                ]
+                "padding": ["pt-16", "pb-16", "pr-4", "pl-4"]
             }
         }
     }

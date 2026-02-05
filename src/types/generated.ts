@@ -20,7 +20,8 @@ export type SectionModels =
     | RecentPostsSection
     | RecentProjectsSection
     | TestimonialsSection
-    | TextSection;
+    | TextSection
+    | MatrixPillChoice;
 
 export type ContentObject =
     | BackgroundImage
@@ -65,7 +66,8 @@ export type ContentObject =
     | TextFormControl
     | TextSection
     | ThemeStyle
-    | VideoBlock;
+    | VideoBlock
+    | MatrixPillChoice;
 
 export type ContentObjectType =
     | 'BackgroundImage'
@@ -110,6 +112,7 @@ export type ContentObjectType =
     | 'TextFormControl'
     | 'TextSection'
     | 'ThemeStyle'
+    | 'MatrixPillChoice'
     | 'VideoBlock';
 
 export type BackgroundImage = BaseContentObject & {
@@ -697,4 +700,11 @@ export type VideoBlock = BaseContentObject & {
     muted?: boolean;
     controls?: boolean;
     aspectRatio?: '4:3' | '16:9';
+};
+
+export type MatrixPillChoice = BaseContentObject & {
+    type: 'MatrixPillChoice';
+    elementId?: string;
+    colors?: 'colors-a' | 'colors-b' | 'colors-c' | 'colors-d' | 'colors-e' | 'colors-f';
+    styles?: any;
 };

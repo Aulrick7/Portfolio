@@ -1,7 +1,7 @@
+import { ContentObject, GlobalProps } from '@/types';
 import dynamic from 'next/dynamic';
 import { ComponentType } from 'react';
 import { Annotated } from './Annotated';
-import { ContentObject, GlobalProps } from '@/types';
 
 /**
  * Since the layout of pages is dynamic (e.g. a page can have sections of different types, sections can have blocks of various types, etc.),
@@ -58,6 +58,7 @@ const components = {
     HeroSection: dynamic(() => import('./sections/HeroSection')),
     ImageBlock: dynamic(() => import('./molecules/ImageBlock')),
     MediaGallerySection: dynamic(() => import('./sections/MediaGallerySection')),
+    MatrixPillChoice: dynamic(() => import('./sections/MatrixPillChoice')),
     PostFeedSection: dynamic(() => import('./sections/PostFeedSection')),
     ProjectFeedSection: dynamic(() => import('./sections/ProjectFeedSection')),
     RecentPostsSection: dynamic(() => import('./sections/RecentPostsSection')),
