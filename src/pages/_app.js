@@ -1,3 +1,4 @@
+import MatrixPageTransition from '@/components/MatrixPageTransition';
 import { generateGlobalCssVariables } from '@/utils/theme-style-utils';
 import { useEffect, useState } from 'react';
 import '../css/main.css';
@@ -21,7 +22,11 @@ export default function MyApp({ Component, pageProps }) {
                     ${cssVars}
                 }
             `}</style>
-            {isMounted ? <Component {...pageProps} /> : null}
+            {isMounted ? (
+                <MatrixPageTransition>
+                    <Component {...pageProps} />
+                </MatrixPageTransition>
+            ) : null}
         </>
     );
 }

@@ -1,10 +1,17 @@
 import { BaseContentObject } from './base';
 
 export type DataModelType = Config | Person | ThemeStyle;
-export type PageModelType = PageLayout | PostFeedLayout | PostLayout | ProjectFeedLayout | ProjectLayout;
+export type PageModelType = PageLayout | PostFeedLayout | PostLayout | ProjectFeedLayout | ProjectLayout | PillLayout;
 
 export const DATA_MODEL_NAMES = ['Config', 'Person', 'ThemeStyle'];
-export const PAGE_MODEL_NAMES = ['PageLayout', 'PostFeedLayout', 'PostLayout', 'ProjectFeedLayout', 'ProjectLayout'];
+export const PAGE_MODEL_NAMES = [
+    'PageLayout',
+    'PostFeedLayout',
+    'PostLayout',
+    'ProjectFeedLayout',
+    'ProjectLayout',
+    'PillLayout'
+];
 
 export type SectionModels =
     | ContactSection
@@ -67,6 +74,7 @@ export type ContentObject =
     | TextSection
     | ThemeStyle
     | VideoBlock
+    | PillLayout
     | MatrixPillChoice;
 
 export type ContentObjectType =
@@ -98,6 +106,7 @@ export type ContentObjectType =
     | 'PostFeedLayout'
     | 'PostFeedSection'
     | 'PostLayout'
+    | 'PillLayout'
     | 'ProjectFeedLayout'
     | 'ProjectFeedSection'
     | 'ProjectLayout'
@@ -707,4 +716,11 @@ export type MatrixPillChoice = BaseContentObject & {
     elementId?: string;
     colors?: 'colors-a' | 'colors-b' | 'colors-c' | 'colors-d' | 'colors-e' | 'colors-f';
     styles?: any;
+    pills?: PillLayout[];
+};
+export type PillLayout = BaseContentObject & {
+    type: 'PillLayout';
+    title: string;
+    description: string;
+    url: string;
 };

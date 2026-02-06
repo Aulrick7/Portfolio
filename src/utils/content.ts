@@ -1,16 +1,17 @@
-import * as fs from 'fs';
-import path from 'path';
-import glob from 'glob';
-import frontmatter from 'front-matter';
 import { allModels } from '.stackbit/models';
 import * as types from '@/types';
-import { isDev } from './common';
 import { PAGE_MODEL_NAMES, PageModelType } from '@/types/generated';
+import frontmatter from 'front-matter';
+import * as fs from 'fs';
+import glob from 'glob';
+import path from 'path';
+import { isDev } from './common';
 
 const contentBaseDir = 'content';
 const pagesBaseDir = contentBaseDir + '/pages';
 
 const allReferenceFields = {};
+
 allModels.forEach((model) => {
     model.fields.forEach((field) => {
         if (field.type === 'reference' || (field.type === 'list' && field.items?.type === 'reference')) {
@@ -22,7 +23,7 @@ allModels.forEach((model) => {
 function isRefField(modelName: string, fieldName: string) {
     return !!allReferenceFields[modelName + ':' + fieldName];
 }
-
+allReferenceFields['MatrixPillChoice:pills'] = true;
 const supportedFileTypes = ['md', 'json'];
 function contentFilesInPath(dir: string) {
     const globPattern = `${dir}/**/*.{${supportedFileTypes.join(',')}}`;
@@ -109,7 +110,9 @@ export function allContent(): types.ContentObject[] {
         obj.__metadata.urlPath = contentUrl(obj);
     });
 
-    const fileToContent: Record<string, types.ContentObject> = Object.fromEntries(objects.map((e) => [e.__metadata.id, e]));
+    const fileToContent: Record<string, types.ContentObject> = Object.fromEntries(
+        objects.map((e) => [e.__metadata.id, e])
+    );
     objects.forEach((e) => resolveReferences(e, fileToContent));
 
     objects = objects.map((e) => deepClone(e));
@@ -137,13 +140,15 @@ function annotateContentObject(o: any, prefix = '', depth = 0) {
     if (depth === 0) {
         if (o.__metadata?.id) {
             o[types.objectIdAttr] = o.__metadata.id;
-            if (logAnnotations) console.log('[annotateContentObject] added object ID:', depthPrefix, o[types.objectIdAttr]);
+            if (logAnnotations)
+                console.log('[annotateContentObject] added object ID:', depthPrefix, o[types.objectIdAttr]);
         } else {
             if (logAnnotations) console.warn('[annotateContentObject] NO object ID:', o);
         }
     } else {
         o[types.fieldPathAttr] = prefix;
-        if (logAnnotations) console.log('[annotateContentObject] added field path:', depthPrefix, o[types.fieldPathAttr]);
+        if (logAnnotations)
+            console.log('[annotateContentObject] added field path:', depthPrefix, o[types.fieldPathAttr]);
     }
 
     Object.entries(o).forEach(([k, v]) => {
