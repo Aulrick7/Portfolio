@@ -1,11 +1,18 @@
 ---
 type: PageLayout
-title: Project Choices
+title: Choose Your Path
 colors: colors-a
 sections:
-  - type: MatrixPillChoice
-    elementId: 'matrix-choice'
-    pills:
-      - content/pages/projectsChoice/gameProjects.md
-      - content/pages/projectsChoice/softwareProjects.md
+  - type: ProjectChoiceSection
+    elementId: project-choice
+    colors: colors-f
+    styles:
+      self:
+        height: screen
+        width: full
+        padding:
+          - pt-0
+          - pb-0
+          - pl-0
+          - pr-0
 ---
