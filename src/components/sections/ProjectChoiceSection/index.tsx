@@ -191,7 +191,7 @@ export default function ProjectChoiceSection(props) {
             </div>
 
             {/* Tron Transition */}
-            <TronTransition isActive={isTransitioning} direction={direction} onComplete={handleTransitionComplete} />
+            <TronTransition isActive={isTransitioning} direction={direction} />
 
             <style jsx>{`
                 .tron-grid {

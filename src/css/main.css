@@ -348,10 +348,12 @@ layer(base);
 
 .pill-wrapper:hover {
     transform: translateY(-5px);
+    border: 2px solid #00ff41;
 }
 
 .pill-wrapper.selected {
     transform: scale(1.05);
+    border: 2px solid #00ff41;
 }
 
 .pill-wrapper.faded {

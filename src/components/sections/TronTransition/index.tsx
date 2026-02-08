@@ -1,3 +1,4 @@
+import router from 'next/router';
 import { useEffect, useState } from 'react';
 
 interface TronTransitionProps {
@@ -6,7 +7,7 @@ interface TronTransitionProps {
     direction?: 'left' | 'right' | null;
 }
 
-export default function TronTransition({ isActive, onComplete, direction }: TronTransitionProps) {
+export default function TronTransition({ isActive, direction }: TronTransitionProps) {
     const [stage, setStage] = useState<'glitch' | 'disk' | 'complete'>('glitch');
     const [diskRotation, setDiskRotation] = useState(0);
 
@@ -20,21 +21,27 @@ export default function TronTransition({ isActive, onComplete, direction }: Tron
 
         // Disk loading stage (2 seconds)
         const diskTimer = setTimeout(() => {
-            setStage('complete');
-            onComplete?.();
-        }, 3000);
+            handleTransitionComplete?.();
+        }, 2000);
 
         // Disk rotation animation
         const rotationInterval = setInterval(() => {
             setDiskRotation((prev) => (prev + 10) % 360);
         }, 16);
 
+        const handleTransitionComplete = () => {
+            if (direction === 'left') {
+                router.push('/projects?filter=game');
+            } else if (direction === 'right') {
+                router.push('/projects?filter=software');
+            }
+        };
         return () => {
             clearTimeout(glitchTimer);
             clearTimeout(diskTimer);
             clearInterval(rotationInterval);
         };
-    }, [isActive, onComplete]);
+    }, [isActive]);
 
     if (!isActive) return null;
 

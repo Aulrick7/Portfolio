@@ -23,8 +23,13 @@ export default function MatrixPageTransition({ children }) {
 
     useEffect(() => {
         const handleRouteChangeStart = (url: string) => {
-            // Don't transition if we're already on the page
-            if (url !== router.asPath) {
+            // Only show transition if:
+            // 1. We're leaving home page (router.asPath === '/')
+            // 2. OR we're going to home page (url === '/')
+            const isLeavingHome = router.asPath === '/';
+            const isGoingToHome = url === '/';
+
+            if ((isLeavingHome || isGoingToHome) && url !== router.asPath) {
                 setIsTransitioning(true);
                 setShowPage(false);
             }
