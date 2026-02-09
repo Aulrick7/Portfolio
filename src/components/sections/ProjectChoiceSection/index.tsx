@@ -9,7 +9,7 @@ export default function ProjectChoiceSection(props) {
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [direction, setDirection] = useState<'left' | 'right' | null>(null);
     const [videoLoaded, setVideoLoaded] = useState(false);
-    const [videoSrc, setVideoSrc] = useState('/videos/tron-lightcycle-loop.mp4');
+
     const videoRef = useRef<HTMLVideoElement>(null);
 
     const handleChoice = (choice: 'left' | 'right') => {
@@ -17,12 +17,12 @@ export default function ProjectChoiceSection(props) {
 
         // Change to turn video
         const turnVideo = `/videos/tron-lightcycle-${choice}.mp4`;
-        setVideoSrc(turnVideo);
+        // setVideoSrc(turnVideo);
 
         // Wait for turn video to play, then start transition
         setTimeout(() => {
             setIsTransitioning(true);
-        }, 2000); // 2 second turn video duration
+        }); // 2 second turn video duration
     };
 
     const handleTransitionComplete = () => {
@@ -44,7 +44,7 @@ export default function ProjectChoiceSection(props) {
                 <div className="absolute inset-0">
                     <video
                         ref={videoRef}
-                        key={videoSrc}
+                        // key={videoSrc}
                         autoPlay
                         loop={!direction}
                         muted
@@ -55,7 +55,7 @@ export default function ProjectChoiceSection(props) {
                         )}
                         onLoadedData={() => setVideoLoaded(true)}
                     >
-                        <source src={videoSrc} type="video/mp4" />
+                        {/* <source src={videoSrc} type="video/mp4" /> */}
                     </video>
 
                     {/* Fallback animation if video doesn't load */}
@@ -196,35 +196,35 @@ export default function ProjectChoiceSection(props) {
             <style jsx>{`
                 .tron-grid {
                     background-image:
-                        linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+                        linear-gradient(rgba(0, 255, 255, 0.15) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0, 255, 255, 0.15) 1px, transparent 1px);
                     background-size: 50px 50px;
-                    animation: gridMove 20s linear infinite;
+                    animation: gridMove 10s linear infinite;
                 }
 
                 @keyframes gridMove {
                     0% {
-                        transform: perspective(500px) rotateX(60deg) translateY(0);
+                        transform: translateY(0px);
                     }
                     100% {
-                        transform: perspective(500px) rotateX(60deg) translateY(50px);
+                        transform: translateY(250px);
                     }
                 }
 
                 .lightcycle-path {
                     position: absolute;
-                    bottom: 40%;
-                    left: -10%;
+                    bottom: 20%;
+                    left: -20%;
                     width: 120%;
                     height: 4px;
-                    background: linear-gradient(90deg, transparent 0%, rgba(0, 255, 255, 0.8) 50%, transparent 100%);
-                    box-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+                    background: linear-gradient(90deg, transparent 0%, rgba(0, 255, 255, 1) 100%, transparent 100%);
+                    box-shadow: 0 0 20px rgba(0, 255, 255, 1);
                     animation: lightcycleMove 5s ease-in-out infinite;
                 }
 
                 @keyframes lightcycleMove {
                     0% {
-                        transform: translateX(-50%) scaleX(0.5);
+                        transform: translateX(-100%) scaleX(0.5);
                         opacity: 0.5;
                     }
                     50% {
@@ -232,7 +232,7 @@ export default function ProjectChoiceSection(props) {
                         opacity: 1;
                     }
                     100% {
-                        transform: translateX(50%) scaleX(0.5);
+                        transform: translateX(100%) scaleX(0.5);
                         opacity: 0.5;
                     }
                 }
