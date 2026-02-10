@@ -2,13 +2,15 @@
 type: ProjectLayout
 title: Gambit
 colors: colors-a
-date: '2024-04-01'
+startdate: '2024-01'
+enddate: '2024-04'
 client: Awesome client
 description: >-
   Gambit is a project where the user connects to an EEG device and use brain
   waves to control an object in a game. Each level consist of a maze with
   obstacles and the player gets to traverse through them to find an exit
 ---
+
 ## Github
 
 Sorry signed a NDA for this
@@ -19,11 +21,10 @@ This project was build in a 7 person team, and I was a senior developer for this
 
 ## Notable Feats.
 
-*   Integrated EEG brainwave inputs using the OpenMaze framework to create adaptive, player-responsive gameplay systems, increasing player engagement by \~20% through real-time adaptive gameplay systems.
+- Integrated EEG brainwave inputs using the OpenMaze framework to create adaptive, player-responsive gameplay systems, increasing player engagement by \~20% through real-time adaptive gameplay systems.
 
-*   Led advanced gameplay and system implementations, mentoring junior developers and enforcing engineering best practices.
+- Led advanced gameplay and system implementations, mentoring junior developers and enforcing engineering best practices.
 
-*   Boosted code efficiency by 30%, reducing performance overhead and increasing gameplay stability.
+- Boosted code efficiency by 30%, reducing performance overhead and increasing gameplay stability.
 
-*   Coordinated cross-team development efforts, strengthening communication and delivery timelines.
-
+- Coordinated cross-team development efforts, strengthening communication and delivery timelines.

@@ -551,7 +551,8 @@ export type ProjectFeedSection = BaseContentObject & {
 export type ProjectLayout = BaseContentObject & {
     type: 'ProjectLayout';
     title: string;
-    date: string;
+    startdate: string;
+    enddate: string;
     client?: string;
     description?: string;
     featuredImage?: ImageBlock;

@@ -2,13 +2,15 @@
 type: ProjectLayout
 title: Mikmaw Educational Game
 colors: colors-a
-date: '2023-12-01'
+startdate: '2023-08'
+enddate: '2023-12'
 client: Awesome client
 description: >-
   This is a project that helped us develop a game for the Mi'kmaqi community in
   Nova Scotia where it consists of 2d platforming, with countless mi'kmaw word
   puzzles and fun bossfights.
 ---
+
 ## Github
 
 Sorry signed a NDA for this
@@ -19,11 +21,10 @@ The game is fully made in Unity in team of 7. I was a Junior developer for this 
 
 ## Most Notable feats
 
-*   Enhanced a culturally focused 2D Unity educational game, increasing learner engagement and comprehension by 20%.
+- Enhanced a culturally focused 2D Unity educational game, increasing learner engagement and comprehension by 20%.
 
-*   Expanded and implemented an inventory-based power-up system including speed boosts and temporary invincibility mechanics.
+- Expanded and implemented an inventory-based power-up system including speed boosts and temporary invincibility mechanics.
 
-*   Streamlined performance and stability through continuous profiling, debugging, and refactoring.
+- Streamlined performance and stability through continuous profiling, debugging, and refactoring.
 
-*   Contributed to CI pipelines and Agile sprint cycles to maintain consistent release quality.
-
+- Contributed to CI pipelines and Agile sprint cycles to maintain consistent release quality.

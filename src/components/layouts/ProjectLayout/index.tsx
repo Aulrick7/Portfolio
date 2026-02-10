@@ -20,7 +20,8 @@ type ComponentProps = PageComponentProps &
 const Component: React.FC<ComponentProps> = (props) => {
     const {
         title,
-        date,
+        startdate,
+        enddate,
         client,
         description,
         markdownContent,
@@ -29,8 +30,8 @@ const Component: React.FC<ComponentProps> = (props) => {
         nextProject,
         bottomSections = []
     } = props;
-    const dateTimeAttr = dayjs(date).format('YYYY-MM-DD HH:mm:ss');
-    const formattedDate = dayjs(date).format('YYYY-MM-DD');
+    const dateTimeAttr = dayjs(startdate).format('YYYY-MM-DD HH:mm:ss');
+    const formattedDate = dayjs(startdate).format('YYYY-MM-DD');
 
     return (
         <BaseLayout {...props}>

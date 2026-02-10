@@ -1,6 +1,6 @@
 ---
 type: ProjectFeedLayout
-title: Projects
+title: Projects Timeline
 colors: colors-a
 backgroundImage:
   type: BackgroundImage
@@ -8,41 +8,54 @@ backgroundImage:
   backgroundSize: cover
   backgroundPosition: center
   backgroundRepeat: no-repeat
-  opacity: 50
+  opacity: 30
 projectFeed:
   type: ProjectFeedSection
   colors: colors-f
   showDate: false
-  showDescription: true
-  showReadMoreLink: true
-  showFeaturedImage: true
+  showDescription: false
+  showReadMoreLink: false
+  showFeaturedImage: false
   variant: variant-a
   styles:
     self:
-      width: narrow
+      width: full
       padding:
         - pt-0
-        - pl-4
-        - pr-4
-        - pb-12
-topSections:
-  - type: HeroSection
-    title: Projects
-    subtitle: ''
-    actions: []
-    colors: colors-f
-    backgroundSize: full
-    elementId: ''
-    styles:
-      self:
-        height: auto
-        width: narrow
-        padding:
-          - pt-16
-          - pb-16
-          - pl-4
-          - pr-4
-        flexDirection: row
-        textAlign: left
-bottomSections: []
+        - pl-0
+        - pr-0
+        - pb-0
+# topSections:
+#   - type: HeroSection
+#     title: PROJECT TIMELINE
+#     subtitle: 'Navigate through my development journey • Scroll down to explore'
+#     text: |
+#       An interactive timeline showcasing game development and software engineering projects.
+#       Each node represents a milestone in creating immersive experiences and solving complex technical challenges.
+#     colors: colors-f
+#     backgroundSize: full
+#     elementId: timeline-hero
+#     styles:
+#       self:
+#         height: auto
+#         width: wide
+#         padding:
+#           - pt-20
+#           - pb-12
+#           - pl-4
+#           - pr-4
+#         flexDirection: col
+#         textAlign: center
+#   - type: DividerSection
+#     styles:
+#       self:
+#         width: full
+#         padding:
+#           - pt-4
+#           - pb-4
+#           - pl-4
+#           - pr-4
+#         borderWidth: 1
+#         borderStyle: solid
+# bottomSections: []
 ---

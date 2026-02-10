@@ -1,7 +1,8 @@
 ---
 type: ProjectLayout
 title: The Portfolio page
-date: '2026-01-29'
+startdate: '2026-01'
+enddate: '2026-02'
 client: Awesome client
 description: >-
   Nunc rutrum felis dui, ut consequat sapien scelerisque vel. Integer

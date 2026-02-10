@@ -1,8 +1,8 @@
 ---
 type: ProjectLayout
 title: Barter Trade App
-date: '2024-04-01'
-client: ''
+startdate: '2024-01'
+enddate: '2024-04'
 description: >-
   This is a trading android app where users can trade their items with one
   other. This app consisted of location services, inventory, rating, user
@@ -58,9 +58,10 @@ bottomSections:
           - pr-4
         textAlign: left
 ---
+
 ## Github
 
- Sorry, Signed a NDA for this
+Sorry, Signed a NDA for this
 
 ## About the project
 
@@ -68,11 +69,10 @@ I was one of the main developers for this project, I developed the authenticatio
 
 ## Most notable feats
 
-*   Architected and presented a full-featured Android barter trading platform with secure user authentication and transaction handling, enabling peer-to-peer item exchange without cash dependency.
+- Architected and presented a full-featured Android barter trading platform with secure user authentication and transaction handling, enabling peer-to-peer item exchange without cash dependency.
 
-*   Enforced TDD and CI/CD pipelines, reducing regression bugs and accelerating stable feature deployment across iterations.
+- Enforced TDD and CI/CD pipelines, reducing regression bugs and accelerating stable feature deployment across iterations.
 
-*   Outlined and refined responsive UI/UX workflows based on user research, significantly improving usability and engagement.
+- Outlined and refined responsive UI/UX workflows based on user research, significantly improving usability and engagement.
 
-*   Integrated backend services and database management to ensure data consistency, scalability, and system reliability.
-
+- Integrated backend services and database management to ensure data consistency, scalability, and system reliability.

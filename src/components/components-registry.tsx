@@ -63,6 +63,7 @@ const components = {
     TronTransition: dynamic(() => import('./sections/TronTransition')),
     PostFeedSection: dynamic(() => import('./sections/PostFeedSection')),
     ProjectFeedSection: dynamic(() => import('./sections/ProjectFeedSection')),
+    ProjectsTimeline: dynamic(() => import('./sections/ProjectsTimeline')),
     RecentPostsSection: dynamic(() => import('./sections/RecentPostsSection')),
     RecentProjectsSection: dynamic(() => import('./sections/RecentProjectsSection')),
     QuoteSection: dynamic(() => import('./sections/QuoteSection')),

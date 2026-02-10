@@ -1,7 +1,8 @@
 ---
 type: ProjectLayout
 title: DEEBug
-date: '2024-12-01'
+startdate: '2024-08'
+enddate: '2024-12'
 client: ''
 description: >-
   Project DEEBug is an ambitious project where we build a web app that lets you
@@ -17,6 +18,7 @@ backgroundImage:
   backgroundRepeat: no-repeat
   opacity: 100
 ---
+
 ## Github
 
 Sorry, signed a NDA for this
@@ -27,13 +29,12 @@ Project DEEBug consisted of 9 members and I acted out as a technical director fo
 
 ## Most notable feats
 
-*   Guided a 9-person cross-functional team to design and deliver an AI-powered debugging assistant integrating LLMs, React, and TensorFlow.
+- Guided a 9-person cross-functional team to design and deliver an AI-powered debugging assistant integrating LLMs, React, and TensorFlow.
 
-*   Boosted model accuracy from 30% to 70% by engineering advanced few-shot learning pipelines and refining data processing strategies.
+- Boosted model accuracy from 30% to 70% by engineering advanced few-shot learning pipelines and refining data processing strategies.
 
-*   Planned the system architecture and development roadmap, accelerating feature delivery while maintaining high code quality.
+- Planned the system architecture and development roadmap, accelerating feature delivery while maintaining high code quality.
 
-*   Acted as primary technical liaison for clients, translating business requirements into scalable engineering solutions.
+- Acted as primary technical liaison for clients, translating business requirements into scalable engineering solutions.
 
-*   Introduced Agile workflow improvements that increased sprint predictability and team velocity. 
-
+- Introduced Agile workflow improvements that increased sprint predictability and team velocity.

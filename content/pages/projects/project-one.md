@@ -2,7 +2,8 @@
 type: ProjectLayout
 title: Knights Divide
 colors: colors-a
-date: '2024-12-01'
+startdate: '2024-08'
+enddate: '2024-12'
 client: ''
 description: >-
   Knights Divide is a 2D action-RPG consisting of five levels where the player
@@ -14,6 +15,7 @@ description: >-
   highest level and destroy the mysterious final boss.
 metaTitle: Knights Divide
 ---
+
 ## Github Link
 
 Source: <https://github.com/Aulrick7/KnightsDivide-Source>
@@ -62,9 +64,9 @@ The development of Knights Divide brought several technical challenges, particul
 
 One of the earliest and most persistent challenges was managing version control. With multiple team members working on different aspects of the game simultaneously, merge conflicts became a frequent issue. Early on, the team faced accidental overwriting of work due to poor synchronization of changes. To address this, Plastic SCM was adopted as the primary version control system, offering robust branching and merging capabilities. Additionally, a strict workflow was introduced, where updates were pushed to individual branches, followed by peer reviews before merging into the main branch. This approach minimized conflicts and ensured a smoother development process.
 
-Managing the game’s growing library of assets posed challenges related to performance and organization. As more textures, animations, and sound effects were added, the project began to suffer from longer load times and increased memory usage, particularly during testing. To address this, the team compressed large assets and streamlined the project by removing unused resources.  The synchronization of animations with gameplay mechanics required careful attention. Custom animation events were added to Unity’s Animator Controller, ensuring that actions such as damage application and cooldowns aligned perfectly with the corresponding animations.
+Managing the game’s growing library of assets posed challenges related to performance and organization. As more textures, animations, and sound effects were added, the project began to suffer from longer load times and increased memory usage, particularly during testing. To address this, the team compressed large assets and streamlined the project by removing unused resources. The synchronization of animations with gameplay mechanics required careful attention. Custom animation events were added to Unity’s Animator Controller, ensuring that actions such as damage application and cooldowns aligned perfectly with the corresponding animations.
 
-<img width="872" height="461" alt="Image" src="https://github.com/user-attachments/assets/0a9da6ef-d462-4350-a582-61552b7ef60f" /> 
+<img width="872" height="461" alt="Image" src="https://github.com/user-attachments/assets/0a9da6ef-d462-4350-a582-61552b7ef60f" />
 
 (figure 4: plastic SCM’s branches)
 
@@ -82,7 +84,7 @@ Each level is equipped with a new boss that player must defeat to progress throu
 
 Lighting plays a crucial role in level 3 and 4 as it creates the atmosphere needed to feel isolated and alone. Unity's 2D lighting tools were used to craft a sense of depth and immersion, with torchlight illuminating the dungeon's corridors. These lighting effects not only enhance the visual appeal but also impact gameplay, as dimly lit areas conceal enemies, encouraging players to explore carefully. The use of lighting also helps to subtly guide players, with brighter areas often signaling key objectives or paths forward.
 
-<img width="770" height="228" alt="Image" src="https://github.com/user-attachments/assets/26e5f668-fa85-4794-9e0a-6f18dd4deaa6" /> 
+<img width="770" height="228" alt="Image" src="https://github.com/user-attachments/assets/26e5f668-fa85-4794-9e0a-6f18dd4deaa6" />
 
 (figure 5: level 1 design)
 
@@ -106,7 +108,7 @@ The game uses bright colors for enemies and players, and earthy colors for dunge
 
 ## Assets
 
-All characters, enemies, backgrounds, tiles and environmental elements were carefully selected to maintain a cohesive art style. Most of the assets in the game were primarily sourced from free resources available on the Unity Asset Store for example, the audio, tiles for tile mapping, main character prefabs etc.  These pre-made assets saved development time while still delivering a polished aesthetic. The final boss, however, was entirely designed by the team to ensure it stood out from others and had a unique touch to final level.
+All characters, enemies, backgrounds, tiles and environmental elements were carefully selected to maintain a cohesive art style. Most of the assets in the game were primarily sourced from free resources available on the Unity Asset Store for example, the audio, tiles for tile mapping, main character prefabs etc. These pre-made assets saved development time while still delivering a polished aesthetic. The final boss, however, was entirely designed by the team to ensure it stood out from others and had a unique touch to final level.
 
 For audio, the game incorporates dungeon-themed sound effects and background music, all sourced from free online libraries, with ominous tones to match the dungeon’s dark and mysterious vibe, while combat sounds like sword clash and enemy growls enhance immersion. Our assets also consist of various scenes and Main Menu, teaching the users what the controls are and the option to start or choose any level. Many C# scripts can also be found in the assets of our game, which are further attached to the prefabs and scenes of the game to perform a specific task or action, like character movement, changing levels, audio system etc.
 
@@ -114,7 +116,7 @@ For audio, the game incorporates dungeon-themed sound effects and background mus
 
 (figure 7: Lancelot)
 
-<img width="297" height="297" alt="Image" src="https://github.com/user-attachments/assets/642ed446-b27c-462a-9659-7796960bfabf" />          
+<img width="297" height="297" alt="Image" src="https://github.com/user-attachments/assets/642ed446-b27c-462a-9659-7796960bfabf" />
 
 (figure 8: Raevyn)
 
