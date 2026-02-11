@@ -21,6 +21,7 @@ const ProjectsTimeline: React.FC<ProjectsTimelineProps> = ({ projects }) => {
     const [scrollProgress, setScrollProgress] = useState(0);
     const containerRef = useRef<HTMLDivElement>(null);
     const timelineRef = useRef<HTMLDivElement>(null);
+    const [selected, setSelected] = useState(false);
 
     // Extract tech stack from project's LabelsSection
     const extractTechStack = (project: ProjectLayout): string[] => {
@@ -71,7 +72,8 @@ const ProjectsTimeline: React.FC<ProjectsTimelineProps> = ({ projects }) => {
         }
     }, []);
 
-    const handleNodeClick = (url: string) => {
+    const handleNodeClick = () => {};
+    const viewProjectClick = (url: string) => {
         if (url && url !== '#') {
             window.location.href = url;
         }
@@ -169,26 +171,25 @@ const ProjectsTimeline: React.FC<ProjectsTimelineProps> = ({ projects }) => {
                                 )}
 
                                 {/* Circuit Node */}
-                                <div className="group relative">
+                                <div className="group relative ">
                                     {/* Glow effect */}
                                     <div
-                                        className={`absolute ${project.position === 'above' ? '' : 'top-50'} inset-0 rounded-lg transition-all duration-300
+                                        className={`absolute  inset-0 rounded-lg transition-all duration-300 
                                             ${
                                                 scrollProgress * timelineProjects.length > index
-                                                    ? 'bg-cyan-400 blur-xl opacity-30 group-hover:opacity-60'
+                                                    ? 'bg-cyan-400 blur-xl opacity-30 group-hover:opacity-100'
                                                     : 'bg-gray-600 blur-xl opacity-10'
                                             }`}
                                     />
 
                                     {/* Node Core */}
                                     <div
-                                        className={`relative w-16 h-16 rounded-lg border-2 transition-all duration-300 cursor-pointer
+                                        className={`relative w-16 h-16 rounded-lg border-2 transition-all duration-300 cursor-pointer group-hover:border-cyan-400
                                             ${
                                                 scrollProgress * timelineProjects.length > index
-                                                    ? 'border-cyan-400 bg-black group-hover:scale-110'
+                                                    ? 'border-cyan-400 bg-black group-hover:scale-110 '
                                                     : 'border-gray-600 bg-black'
                                             }`}
-                                        onClick={() => handleNodeClick(project.url)}
                                     >
                                         {/* Circuit pattern */}
                                         <div className="absolute inset-2 border border-cyan-400/30 rounded" />
@@ -200,14 +201,17 @@ const ProjectsTimeline: React.FC<ProjectsTimelineProps> = ({ projects }) => {
                                         <div className="absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-cyan-400" />
                                         <div className="absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-cyan-400" />
                                     </div>
-
                                     {/* Expanded Card on Hover */}
                                     <div
                                         className={`absolute ${project.position === 'below' ? 'bottom-20' : 'top-20'} 
                                             left-1/2 transform -translate-x-1/2 w-80 bg-black border-2 border-cyan-400 
-                                            rounded-lg p-6 opacity-0 group-hover:opacity-100 transition-all duration-300 
-                                            pointer-events-none group-hover:pointer-events-auto z-10
-                                            shadow-[0_0_20px_rgba(0,255,255,0.3)]`}
+                                            rounded-lg p-6 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:pointer-events-auto z-10
+                                            shadow-[0_0_20px_rgba(0,255,255,0.3)]
+                                            ${
+                                                scrollProgress * timelineProjects.length > index
+                                                    ? 'opacity-100 '
+                                                    : 'opacity-0'
+                                            }`}
                                     >
                                         {/* Card glow */}
                                         <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/10 to-blue-500/10 rounded-lg" />
@@ -245,7 +249,7 @@ const ProjectsTimeline: React.FC<ProjectsTimelineProps> = ({ projects }) => {
 
                                             {/* View Project Button */}
                                             <button
-                                                onClick={() => handleNodeClick(project.url)}
+                                                onClick={() => viewProjectClick(project.url)}
                                                 className="w-full py-2 border border-cyan-400 text-cyan-400 font-mono text-sm rounded hover:bg-cyan-400/10 transition-colors"
                                             >
                                                 VIEW PROJECT →
