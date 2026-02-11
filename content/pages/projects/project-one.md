@@ -4,7 +4,7 @@ title: Knights Divide
 colors: colors-a
 startdate: '2024-08'
 enddate: '2024-12'
-client: ''
+filter: 'game'
 description: >-
   Knights Divide is a 2D action-RPG consisting of five levels where the player
   alternates between playing as Lancelot the melee specialist, and Raevyn the

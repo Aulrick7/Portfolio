@@ -4,7 +4,7 @@ title: Gambit
 colors: colors-a
 startdate: '2024-01'
 enddate: '2024-04'
-client: Awesome client
+filter: 'game'
 description: >-
   Gambit is a project where the user connects to an EEG device and use brain
   waves to control an object in a game. Each level consist of a maze with

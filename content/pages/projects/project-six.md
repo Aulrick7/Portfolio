@@ -3,7 +3,7 @@ type: ProjectLayout
 title: The Portfolio page
 startdate: '2026-01'
 enddate: '2026-02'
-client: Awesome client
+filter: 'software'
 description: >-
   Nunc rutrum felis dui, ut consequat sapien scelerisque vel. Integer
   condimentum dignissim justo vel faucibus.

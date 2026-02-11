@@ -11,6 +11,7 @@ interface TimelineProject {
     title: string;
     startdate: string;
     enddate: string;
+    filter: string;
     description: string;
     tech: string[];
     position: 'above' | 'below';
@@ -53,12 +54,12 @@ const ProjectsTimeline: React.FC<ProjectsTimelineProps> = ({ projects }) => {
             title: project.title,
             startdate: dayjs(project.startdate).format('YYYY-MM'),
             enddate: dayjs(project.enddate).format('YYYY-MM'),
+            filter: project.filter,
             description: project.description || 'Click to view project details',
             tech: extractTechStack(project),
             position: index % 2 === 0 ? 'above' : 'below',
             url: project.__metadata?.urlPath || '#'
         }));
-
     // Handle scroll for desktop (vertical scroll -> horizontal movement)
     useEffect(() => {
         if (isMobile) return;
@@ -137,11 +138,11 @@ const ProjectsTimeline: React.FC<ProjectsTimelineProps> = ({ projects }) => {
                 <div
                     ref={containerRef}
                     className="absolute inset-0 scrollbar-hide"
-                    style={{ 
-                        height: '100vh', 
+                    style={{
+                        height: '100vh',
                         overflowY: 'scroll',
-                        scrollbarWidth: 'none', /* Firefox */
-                        msOverflowStyle: 'none'  /* IE and Edge */
+                        scrollbarWidth: 'none' /* Firefox */,
+                        msOverflowStyle: 'none' /* IE and Edge */
                     }}
                 >
                     {/* Spacer to enable scrolling */}
@@ -150,20 +151,26 @@ const ProjectsTimeline: React.FC<ProjectsTimelineProps> = ({ projects }) => {
             )}
 
             {/* Timeline Container */}
-            <div className={`absolute inset-0 flex items-center ${isMobile ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+            <div
+                className={`absolute inset-0 flex items-center ${isMobile ? 'pointer-events-auto' : 'pointer-events-none'}`}
+            >
                 <div
                     ref={timelineRef}
                     className={`flex items-center transition-transform ${isMobile ? 'overflow-x-scroll scrollbar-hide pointer-events-auto px-10' : 'duration-100 ease-linear pointer-events-auto'}`}
-                    style={isMobile ? {
-                        width: '100%',
-                        scrollSnapType: 'x proximity',
-                        WebkitOverflowScrolling: 'touch',
-                        scrollbarWidth: 'none', /* Firefox */
-                        msOverflowStyle: 'none'  /* IE and Edge */
-                    } : {
-                        width: `${timelineProjects.length * 600}px`,
-                        willChange: 'transform'
-                    }}
+                    style={
+                        isMobile
+                            ? {
+                                  width: '100%',
+                                  scrollSnapType: 'x proximity',
+                                  WebkitOverflowScrolling: 'touch',
+                                  scrollbarWidth: 'none' /* Firefox */,
+                                  msOverflowStyle: 'none' /* IE and Edge */
+                              }
+                            : {
+                                  width: `${timelineProjects.length * 600}px`,
+                                  willChange: 'transform'
+                              }
+                    }
                 >
                     {/* Start Node */}
                     <div className={`flex flex-col items-center ${isMobile ? 'mx-10' : 'mx-20'} flex-shrink-0`}>
@@ -175,7 +182,11 @@ const ProjectsTimeline: React.FC<ProjectsTimelineProps> = ({ projects }) => {
 
                     {/* Projects */}
                     {timelineProjects.map((project, index) => (
-                        <div key={project.id} className="flex items-center flex-shrink-0" style={isMobile ? { scrollSnapAlign: 'center' } : {}}>
+                        <div
+                            key={project.id}
+                            className="flex items-center flex-shrink-0"
+                            style={isMobile ? { scrollSnapAlign: 'center' } : {}}
+                        >
                             {/* Connecting Line */}
                             <div className={`relative h-1 ${isMobile ? 'w-40 sm:w-60' : 'w-96'}`}>
                                 {/* Gray base line */}
@@ -197,7 +208,7 @@ const ProjectsTimeline: React.FC<ProjectsTimelineProps> = ({ projects }) => {
 
                             {/* Project Node */}
                             <div
-                                className={`flex flex-col items-center ${isMobile ? (project.position === 'above' ? '-mt-48 sm:-mt-64' : 'mt-48 sm:mt-64') : (project.position === 'above' ? '-mt-80' : 'mt-80')}`}
+                                className={`flex flex-col items-center ${isMobile ? (project.position === 'above' ? '-mt-48 sm:-mt-64' : 'mt-48 sm:mt-64') : project.position === 'above' ? '-mt-80' : 'mt-80'}`}
                             >
                                 {project.position === 'below' && (
                                     <div
@@ -221,7 +232,7 @@ const ProjectsTimeline: React.FC<ProjectsTimelineProps> = ({ projects }) => {
                                 )}
 
                                 {/* Circuit Node */}
-                                <div 
+                                <div
                                     className="group relative cursor-pointer"
                                     onClick={() => handleNodeClick(project.id)}
                                 >
@@ -246,7 +257,9 @@ const ProjectsTimeline: React.FC<ProjectsTimelineProps> = ({ projects }) => {
                                     >
                                         {/* Circuit pattern */}
                                         <div className="absolute inset-2 border border-cyan-400/30 rounded" />
-                                        <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ${isMobile ? 'w-2 h-2' : 'w-3 h-3'} bg-cyan-400 rounded-full animate-pulse`} />
+                                        <div
+                                            className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ${isMobile ? 'w-2 h-2' : 'w-3 h-3'} bg-cyan-400 rounded-full animate-pulse`}
+                                        />
 
                                         {/* Corner details */}
                                         <div className="absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-cyan-400" />
@@ -257,13 +270,16 @@ const ProjectsTimeline: React.FC<ProjectsTimelineProps> = ({ projects }) => {
 
                                     {/* Expanded Card - Mobile: on click, Desktop: on hover */}
                                     <div
-                                        className={`absolute ${project.position === 'below' ? (isMobile ? 'bottom-16' : 'bottom-20') : (isMobile ? 'top-16' : 'top-20')} 
+                                        className={`absolute ${project.position === 'below' ? (isMobile ? 'bottom-16' : 'bottom-20') : isMobile ? 'top-16' : 'top-20'} 
                                             left-1/2 transform -translate-x-1/2 ${isMobile ? 'w-72' : 'w-80'} bg-black border-2 border-cyan-400 
                                             rounded-lg ${isMobile ? 'p-4' : 'p-6'} transition-all duration-300 z-10
                                             shadow-[0_0_20px_rgba(0,255,255,0.3)]
                                             ${
-                                                isMobile 
-                                                    ? (expandedProject === project.id && scrollProgress * timelineProjects.length > index ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none')
+                                                isMobile
+                                                    ? expandedProject === project.id &&
+                                                      scrollProgress * timelineProjects.length > index
+                                                        ? 'opacity-100 pointer-events-auto'
+                                                        : 'opacity-0 pointer-events-none'
                                                     : `opacity-0 group-hover:opacity-100 group-hover:pointer-events-auto ${scrollProgress * timelineProjects.length > index ? '' : 'opacity-0'}`
                                             }`}
                                         onClick={(e) => e.stopPropagation()}
@@ -279,12 +295,16 @@ const ProjectsTimeline: React.FC<ProjectsTimelineProps> = ({ projects }) => {
                                             </div>
 
                                             {/* Title */}
-                                            <h3 className={`text-white font-bold ${isMobile ? 'text-lg' : 'text-xl'} mb-3 border-l-2 border-cyan-400 pl-3`}>
+                                            <h3
+                                                className={`text-white font-bold ${isMobile ? 'text-lg' : 'text-xl'} mb-3 border-l-2 border-cyan-400 pl-3`}
+                                            >
                                                 {project.title}
                                             </h3>
 
                                             {/* Description */}
-                                            <p className={`text-gray-300 ${isMobile ? 'text-xs' : 'text-sm'} mb-4 leading-relaxed`}>
+                                            <p
+                                                className={`text-gray-300 ${isMobile ? 'text-xs' : 'text-sm'} mb-4 leading-relaxed`}
+                                            >
                                                 {project.description}
                                             </p>
 

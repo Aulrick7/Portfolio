@@ -3,7 +3,7 @@ type: ProjectLayout
 title: DEEBug
 startdate: '2024-08'
 enddate: '2024-12'
-client: ''
+filter: 'software'
 description: >-
   Project DEEBug is an ambitious project where we build a web app that lets you
   optimise LLM to be more efficient and accurate in finding bugs in machine

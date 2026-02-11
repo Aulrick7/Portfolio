@@ -3,6 +3,7 @@ type: ProjectLayout
 title: Barter Trade App
 startdate: '2024-01'
 enddate: '2024-04'
+filter: 'software'
 description: >-
   This is a trading android app where users can trade their items with one
   other. This app consisted of location services, inventory, rating, user

@@ -4,7 +4,7 @@ title: Mikmaw Educational Game
 colors: colors-a
 startdate: '2023-08'
 enddate: '2023-12'
-client: Awesome client
+filter: 'game'
 description: >-
   This is a project that helped us develop a game for the Mi'kmaqi community in
   Nova Scotia where it consists of 2d platforming, with countless mi'kmaw word
