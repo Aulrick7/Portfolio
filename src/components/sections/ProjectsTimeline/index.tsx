@@ -1,7 +1,6 @@
 import { ProjectLayout } from '@/types';
 import dayjs from 'dayjs';
 import React, { useEffect, useRef, useState } from 'react';
-
 interface ProjectsTimelineProps {
     projects: ProjectLayout[];
 }
@@ -31,6 +30,7 @@ const ProjectsTimeline: React.FC<ProjectsTimelineProps> = ({ projects }) => {
             setIsMobile(window.innerWidth < 768);
         };
         checkMobile();
+
         window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
@@ -116,6 +116,24 @@ const ProjectsTimeline: React.FC<ProjectsTimelineProps> = ({ projects }) => {
             window.location.href = url;
         }
     };
+
+    // Reset scroll position when projects change (filter change)
+    useEffect(() => {
+        // Reset scroll progress
+        setScrollProgress(0);
+        setExpandedProject(null);
+
+        // Reset desktop scroll
+        if (containerRef.current) {
+            containerRef.current.scrollTop = 0;
+        }
+
+        // Reset mobile scroll
+        if (timelineRef.current) {
+            timelineRef.current.scrollLeft = 0;
+            timelineRef.current.style.transform = 'translateX(0px)';
+        }
+    }, [projects]);
 
     return (
         <div className="relative w-full h-screen overflow-hidden bg-black">
@@ -273,14 +291,14 @@ const ProjectsTimeline: React.FC<ProjectsTimelineProps> = ({ projects }) => {
                                         className={`absolute ${project.position === 'below' ? (isMobile ? 'bottom-16' : 'bottom-20') : isMobile ? 'top-16' : 'top-20'} 
                                             left-1/2 transform -translate-x-1/2 ${isMobile ? 'w-72' : 'w-80'} bg-black border-2 border-cyan-400 
                                             rounded-lg ${isMobile ? 'p-4' : 'p-6'} transition-all duration-300 z-10
-                                            shadow-[0_0_20px_rgba(0,255,255,0.3)]
+                                            shadow-[0_0_20px_rgba(0,255,255,0.3)] 
                                             ${
                                                 isMobile
                                                     ? expandedProject === project.id &&
                                                       scrollProgress * timelineProjects.length > index
                                                         ? 'opacity-100 pointer-events-auto'
                                                         : 'opacity-0 pointer-events-none'
-                                                    : `opacity-0 group-hover:opacity-100 group-hover:pointer-events-auto ${scrollProgress * timelineProjects.length > index ? '' : 'opacity-0'}`
+                                                    : `opacity-0 group-hover:opacity-100 group-hover:pointer-events-auto ${scrollProgress * timelineProjects.length > index ? 'opacity-100' : 'opacity-0 '}`
                                             }`}
                                         onClick={(e) => e.stopPropagation()}
                                     >

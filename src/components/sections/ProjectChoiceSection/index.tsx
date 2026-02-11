@@ -25,14 +25,6 @@ export default function ProjectChoiceSection(props) {
         }); // 2 second turn video duration
     };
 
-    const handleTransitionComplete = () => {
-        if (direction === 'left') {
-            router.push('/projects?filter=game');
-        } else if (direction === 'right') {
-            router.push('/projects?filter=software');
-        }
-    };
-
     return (
         <>
             <div
@@ -88,6 +80,47 @@ export default function ProjectChoiceSection(props) {
                         </h1>
 
                         {/* Choice Buttons */}
+                        {/* All Projects */}
+                        <button
+                            onClick={() => handleChoice(null)}
+                            className="group relative"
+                            disabled={isTransitioning}
+                        >
+                            <div className="relative overflow-hidden">
+                                {/* Hexagon shape */}
+                                <div
+                                    className="w-64 h-64 flex items-center justify-center transition-all duration-300 group-hover:scale-110"
+                                    style={{
+                                        clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                                        background:
+                                            'linear-gradient(135deg, rgba(0, 255, 0, 0.1) 0%, rgba(0, 255, 100, 0.1) 100%)',
+                                        border: '2px solid rgba(0, 255, 0, 0.5)',
+                                        boxShadow: '0 0 30px rgba(0, 255, 0, 0.3)'
+                                    }}
+                                >
+                                    <div className="text-center">
+                                        <div className="text-5xl mb-4"></div>
+                                        <div className="text-2xl font-bold text-green-300">All</div>
+                                        <div className="text-lg text-green-400">PROJECTS</div>
+                                    </div>
+                                </div>
+
+                                {/* Hover glow effect */}
+                                <div
+                                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                                    style={{
+                                        clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                                        background: 'radial-gradient(circle, rgba(0, 255, 0, 0.3) 0%, transparent 70%)',
+                                        filter: 'blur(10px)'
+                                    }}
+                                ></div>
+
+                                {/* Direction arrow */}
+                                <div className="absolute -left-16 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:-translate-x-4">
+                                    <div className="text-green-400 text-6xl">←</div>
+                                </div>
+                            </div>
+                        </button>
                         <div className="flex gap-12 justify-center items-center">
                             {/* Left Choice - Game Projects */}
                             <button

@@ -44,6 +44,8 @@ export default function TronTransition({ isActive, onComplete, direction }: Tron
                 router.push('/projects?filter=game');
             } else if (direction === 'right') {
                 router.push('/projects?filter=software');
+            } else {
+                router.push('/projects');
             }
         };
         return () => {
