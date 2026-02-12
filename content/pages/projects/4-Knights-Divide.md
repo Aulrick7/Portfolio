@@ -50,8 +50,6 @@ bottomSections:
 
 ## Github Link
 
-Source: <https://github.com/Aulrick7/KnightsDivide-Source>
-
 Deployed: <https://github.com/Aulrick7/KnightsDivide-Deployed>
 
 ## Timeline

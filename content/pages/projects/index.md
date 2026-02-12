@@ -2,13 +2,6 @@
 type: ProjectFeedLayout
 title: Projects Timeline
 colors: colors-a
-backgroundImage:
-  type: BackgroundImage
-  url: /images/bg1.jpg
-  backgroundSize: cover
-  backgroundPosition: center
-  backgroundRepeat: no-repeat
-  opacity: 30
 projectFeed:
   type: ProjectFeedSection
   colors: colors-f
