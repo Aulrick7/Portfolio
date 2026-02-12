@@ -12,7 +12,9 @@ import {
     ProjectLayout,
     RecentPostsSection,
     RecentProjectsSection,
-    ThemeStyle
+    ThemeStyle,
+    WorkXPFeedLayout,
+    WorkXPLayout
 } from '@/types';
 import { deepMapObject } from './data-utils';
 
@@ -69,11 +71,30 @@ const PropsResolvers: Partial<Record<ContentObjectType, ResolverFunction>> = {
             nextProject
         };
     },
+    WorkXPLayout: (props, allData) => {
+        const allWorkXP = getAllWorkXPSorted(allData);
+        const currentWorkXPId = props.__metadata?.id;
+        const currentWorkXPIndex = allWorkXP.findIndex((WorkXP) => WorkXP.__metadata?.id === currentWorkXPId);
+        const prevWorkXP = currentWorkXPIndex > 0 ? allWorkXP[currentWorkXPIndex - 1] : null;
+        const nextWorkXP = currentWorkXPIndex < allWorkXP.length - 1 ? allWorkXP[currentWorkXPIndex + 1] : null;
+        return {
+            ...props,
+            prevWorkXP,
+            nextWorkXP
+        };
+    },
     ProjectFeedLayout: (props, allData) => {
         const allProjects = getAllProjectsSorted(allData);
         return {
             ...(props as ProjectFeedLayout),
             items: allProjects
+        };
+    },
+    WorkXPFeedLayout: (props, allData) => {
+        const allWorkXP = getAllWorkXPSorted(allData);
+        return {
+            ...(props as WorkXPFeedLayout),
+            items: allWorkXP
         };
     },
     RecentProjectsSection: (props, allData) => {
@@ -96,6 +117,13 @@ function getAllPostsSorted(objects: ContentObject[]) {
 
 function getAllProjectsSorted(objects: ContentObject[]) {
     const all = objects.filter((object) => object.__metadata?.modelName === 'ProjectLayout') as ProjectLayout[];
+    const sorted = all.sort(
+        (projectA, projectB) => new Date(projectB.startdate).getTime() - new Date(projectA.startdate).getTime()
+    );
+    return sorted;
+}
+function getAllWorkXPSorted(allData: ContentObject[]) {
+    const all = allData.filter((object) => object.__metadata?.modelName === 'WorkXPLayout') as WorkXPLayout[];
     const sorted = all.sort(
         (projectA, projectB) => new Date(projectB.startdate).getTime() - new Date(projectA.startdate).getTime()
     );

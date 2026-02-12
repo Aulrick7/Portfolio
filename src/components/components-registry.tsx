@@ -64,6 +64,7 @@ const components = {
     PostFeedSection: dynamic(() => import('./sections/PostFeedSection')),
     ProjectFeedSection: dynamic(() => import('./sections/ProjectFeedSection')),
     ProjectsTimeline: dynamic(() => import('./sections/ProjectsTimeline')),
+    WorkXPTimeline: dynamic(() => import('./sections/WorkXPTimeline')),
     RecentPostsSection: dynamic(() => import('./sections/RecentPostsSection')),
     RecentProjectsSection: dynamic(() => import('./sections/RecentProjectsSection')),
     QuoteSection: dynamic(() => import('./sections/QuoteSection')),
@@ -79,5 +80,7 @@ const components = {
     PostFeedLayout: dynamic(() => import('./layouts/PostFeedLayout')),
     ProjectLayout: dynamic(() => import('./layouts/ProjectLayout')),
     ProjectFeedLayout: dynamic(() => import('./layouts/ProjectFeedLayout')),
+    WorkXPLayout: dynamic(() => import('./layouts/WorkXPLayout')),
+    WorkXPFeedLayout: dynamic(() => import('./layouts/WorkXPFeedLayout')),
     PillLayout: dynamic(() => import('./layouts/PillLayout'))
 };

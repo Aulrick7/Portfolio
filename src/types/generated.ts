@@ -1,7 +1,15 @@
 import { BaseContentObject } from './base';
 
 export type DataModelType = Config | Person | ThemeStyle;
-export type PageModelType = PageLayout | PostFeedLayout | PostLayout | ProjectFeedLayout | ProjectLayout | PillLayout;
+export type PageModelType =
+    | PageLayout
+    | PostFeedLayout
+    | PostLayout
+    | ProjectFeedLayout
+    | ProjectLayout
+    | PillLayout
+    | WorkXPFeedLayout
+    | WorkXPLayout;
 
 export const DATA_MODEL_NAMES = ['Config', 'Person', 'ThemeStyle'];
 export const PAGE_MODEL_NAMES = [
@@ -10,7 +18,9 @@ export const PAGE_MODEL_NAMES = [
     'PostLayout',
     'ProjectFeedLayout',
     'ProjectLayout',
-    'PillLayout'
+    'PillLayout',
+    'WorkXPFeedLayout',
+    'WorkXPLayout'
 ];
 
 export type SectionModels =
@@ -62,6 +72,8 @@ export type ContentObject =
     | ProjectFeedLayout
     | ProjectFeedSection
     | ProjectLayout
+    | WorkXPFeedLayout
+    | WorkXPLayout
     | QuoteSection
     | RecentPostsSection
     | RecentProjectsSection
@@ -110,6 +122,8 @@ export type ContentObjectType =
     | 'ProjectFeedLayout'
     | 'ProjectFeedSection'
     | 'ProjectLayout'
+    | 'WorkXPLayout'
+    | 'WorkXPFeedLayout'
     | 'QuoteSection'
     | 'RecentPostsSection'
     | 'RecentProjectsSection'
@@ -532,6 +546,21 @@ export type ProjectFeedLayout = BaseContentObject & {
     backgroundImage?: BackgroundImage;
     styles?: any;
 };
+export type WorkXPFeedLayout = BaseContentObject & {
+    type: 'WorkXPFeedLayout';
+    title?: string;
+    projectFeed?: ProjectFeedSection;
+    topSections?: SectionModels[];
+    bottomSections?: SectionModels[];
+    metaTitle?: string;
+    metaDescription?: string;
+    addTitleSuffix?: boolean;
+    socialImage?: string;
+    metaTags?: MetaTag[];
+    colors?: 'colors-a' | 'colors-b' | 'colors-c' | 'colors-d' | 'colors-e';
+    backgroundImage?: BackgroundImage;
+    styles?: any;
+};
 
 export type ProjectFeedSection = BaseContentObject & {
     type: 'ProjectFeedSection';
@@ -550,6 +579,26 @@ export type ProjectFeedSection = BaseContentObject & {
 
 export type ProjectLayout = BaseContentObject & {
     type: 'ProjectLayout';
+    title: string;
+    startdate: string;
+    enddate: string;
+    filter: string;
+    client?: string;
+    description?: string;
+    featuredImage?: ImageBlock;
+    media?: ImageBlock | VideoBlock;
+    bottomSections?: SectionModels[];
+    metaTitle?: string;
+    metaDescription?: string;
+    addTitleSuffix?: boolean;
+    socialImage?: string;
+    metaTags?: MetaTag[];
+    colors?: 'colors-a' | 'colors-b' | 'colors-c' | 'colors-d' | 'colors-e';
+    backgroundImage?: BackgroundImage;
+    markdownContent: string;
+};
+export type WorkXPLayout = BaseContentObject & {
+    type: 'WorkXPLayout';
     title: string;
     startdate: string;
     enddate: string;
