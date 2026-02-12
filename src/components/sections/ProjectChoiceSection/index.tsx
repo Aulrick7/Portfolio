@@ -9,15 +9,17 @@ export default function ProjectChoiceSection(props) {
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [direction, setDirection] = useState<'left' | 'right' | null>(null);
     const [videoLoaded, setVideoLoaded] = useState(false);
-
     const videoRef = useRef<HTMLVideoElement>(null);
+    const [colourChoice, setColourChoice] = useState<'green' | 'cyan' | 'pink'>('green');
 
-    const handleChoice = (choice: 'left' | 'right') => {
+    const handleChoice = (choice: 'left' | 'right' | null, colourChoice: 'green' | 'cyan' | 'pink') => {
         setDirection(choice);
-
+        setColourChoice(colourChoice);
         // Change to turn video
-        const turnVideo = `/videos/tron-lightcycle-${choice}.mp4`;
-        // setVideoSrc(turnVideo);
+        if (choice) {
+            const turnVideo = `/videos/tron-lightcycle-${choice}.mp4`;
+            // setVideoSrc(turnVideo);
+        }
 
         // Wait for turn video to play, then start transition
         setTimeout(() => {
@@ -82,7 +84,7 @@ export default function ProjectChoiceSection(props) {
                         {/* Choice Buttons */}
                         {/* All Projects */}
                         <button
-                            onClick={() => handleChoice(null)}
+                            onClick={() => handleChoice(null, 'green')}
                             className="group relative"
                             disabled={isTransitioning}
                         >
@@ -124,7 +126,7 @@ export default function ProjectChoiceSection(props) {
                         <div className="flex gap-12 justify-center items-center">
                             {/* Left Choice - Game Projects */}
                             <button
-                                onClick={() => handleChoice('left')}
+                                onClick={() => handleChoice('left', 'cyan')}
                                 className="group relative"
                                 disabled={isTransitioning}
                             >
@@ -170,7 +172,7 @@ export default function ProjectChoiceSection(props) {
 
                             {/* Right Choice - Software Projects */}
                             <button
-                                onClick={() => handleChoice('right')}
+                                onClick={() => handleChoice('right', 'pink')}
                                 className="group relative"
                                 disabled={isTransitioning}
                             >
@@ -224,7 +226,7 @@ export default function ProjectChoiceSection(props) {
             </div>
 
             {/* Tron Transition */}
-            <TronTransition isActive={isTransitioning} direction={direction} />
+            <TronTransition isActive={isTransitioning} direction={direction} colour={colourChoice} />
 
             <style jsx>{`
                 .tron-grid {

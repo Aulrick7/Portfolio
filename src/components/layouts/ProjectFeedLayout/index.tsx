@@ -11,7 +11,19 @@ const Component: React.FC<ComponentProps> = (props) => {
     const { topSections = [], bottomSections = [], items } = props;
     const router = useRouter();
     const filterParam = router.query.filter as string | undefined;
-
+    
+    // Determine color based on URL filter parameter
+    const colour = React.useMemo<'green' | 'cyan' | 'pink'>(() => {
+        if (!filterParam || filterParam === 'all') {
+            return 'green';
+        } else if (filterParam === 'game') {
+            return 'cyan';
+        } else if (filterParam === 'software') {
+            return 'pink';
+        }
+        return 'green';
+    }, [filterParam]);
+    
     // Filter projects based on URL query parameter
     const filteredProjects = React.useMemo(() => {
         if (!filterParam || filterParam === 'all') {
@@ -35,13 +47,13 @@ const Component: React.FC<ComponentProps> = (props) => {
             })}
 
             {/* Filter Switcher */}
-            <div className="fixed top-6 right-6 z-20 flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <div className="fixed top-20 z-20 flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <button
                     onClick={() => handleFilterChange('all')}
                     className={`px-4 sm:px-6 py-2 sm:py-3 font-mono text-xs sm:text-sm border-2 rounded-lg transition-all duration-300 ${
                         !filterParam || filterParam === 'all'
-                            ? 'bg-cyan-400/20 border-cyan-400 text-cyan-400 shadow-[0_0_20px_rgba(0,255,255,0.3)]'
-                            : 'bg-black/80 border-gray-600 text-gray-400 hover:border-cyan-400 hover:text-cyan-400'
+                            ? 'bg-green-400/20 border-green-400 text-green-400 shadow-[0_0_20px_rgba(0,255,0,0.3)]'
+                            : 'bg-black/80 border-gray-600 text-gray-400 hover:border-green-400 hover:text-green-400'
                     }`}
                 >
                     ALL
@@ -69,7 +81,7 @@ const Component: React.FC<ComponentProps> = (props) => {
             </div>
 
             {/* Replace the grid with timeline */}
-            <ProjectsTimeline projects={filteredProjects} />
+            <ProjectsTimeline projects={filteredProjects} colour={colour} />
             {bottomSections?.map((section, index) => {
                 return <DynamicComponent key={index} {...section} />;
             })}
