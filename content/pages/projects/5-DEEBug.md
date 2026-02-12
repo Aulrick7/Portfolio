@@ -10,13 +10,56 @@ description: >-
   learning code.
 addTitleSuffix: true
 colors: colors-a
-backgroundImage:
-  type: BackgroundImage
-  url: /images/bg2.jpg
-  backgroundSize: cover
-  backgroundPosition: center
-  backgroundRepeat: no-repeat
-  opacity: 100
+bottomSections:
+  - type: LabelsSection
+    title: Skills
+    subtitle: ''
+    items:
+      - type: Label
+        label: React
+        url: ''
+      - type: Label
+        label: TensorFlow
+        url: ''
+      - type: Label
+        label: CI/CD
+        url: ''
+      - type: Label
+        label: Agile
+        url: ''
+      - type: Label
+        label: LLMs
+        url: ''
+      - type: Label
+        label: GeminiAPI
+        url: ''
+      - type: Label
+        label: Git
+        url: ''
+      - type: Label
+        label: Python
+        url: ''
+      - type: Label
+        label: RESTFul API
+        url: ''
+      - type: Label
+        label: System Architecture
+        url: ''
+      - type: Label
+        label: Docker
+        url: ''
+    colors: colors-f
+    elementId: ''
+    styles:
+      self:
+        height: auto
+        width: wide
+        padding:
+          - pt-36
+          - pb-36
+          - pl-4
+          - pr-4
+        textAlign: left
 ---
 
 ## Github

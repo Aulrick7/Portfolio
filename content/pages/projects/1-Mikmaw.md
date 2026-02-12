@@ -9,6 +9,44 @@ description: >-
   This is a project that helped us develop a game for the Mi'kmaqi community in
   Nova Scotia where it consists of 2d platforming, with countless mi'kmaw word
   puzzles and fun bossfights.
+bottomSections:
+  - type: LabelsSection
+    title: Skills
+    subtitle: ''
+    items:
+      - type: Label
+        label: Unity
+        url: ''
+      - type: Label
+        label: C#
+        url: ''
+      - type: Label
+        label: Agile Development
+        url: ''
+      - type: Label
+        label: Game Design
+        url: ''
+      - type: Label
+        label: Performance Optimization
+        url: ''
+      - type: Label
+        label: CI/CD
+        url: ''
+      - type: Label
+        label: Git
+        url: ''
+    colors: colors-f
+    elementId: ''
+    styles:
+      self:
+        height: auto
+        width: wide
+        padding:
+          - pt-36
+          - pb-36
+          - pl-4
+          - pr-4
+        textAlign: left
 ---
 
 ## Github

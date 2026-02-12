@@ -9,6 +9,50 @@ description: >-
   Gambit is a project where the user connects to an EEG device and use brain
   waves to control an object in a game. Each level consist of a maze with
   obstacles and the player gets to traverse through them to find an exit
+bottomSections:
+  - type: LabelsSection
+    title: Skills
+    subtitle: ''
+    items:
+      - type: Label
+        label: Unity
+        url: ''
+      - type: Label
+        label: C#
+        url: ''
+      - type: Label
+        label: OpenMaze
+        url: ''
+      - type: Label
+        label: EEG Integration
+        url: ''
+      - type: Label
+        label: Performance Optimization
+        url: ''
+      - type: Label
+        label: CI/CD
+        url: ''
+      - type: Label
+        label: Git
+        url: ''
+      - type: Label
+        label: Agile Development
+        url: ''
+      - type: Label
+        label: Game Design
+        url: ''
+    colors: colors-f
+    elementId: ''
+    styles:
+      self:
+        height: auto
+        width: wide
+        padding:
+          - pt-36
+          - pb-36
+          - pl-4
+          - pr-4
+        textAlign: left
 ---
 
 ## Github

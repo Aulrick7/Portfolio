@@ -85,9 +85,9 @@ function ProjectGrid(props) {
                             />
                         </div>
                     )}
-                    {showDate && project.date && (
+                    {showDate && project.startdate && project.enddate && (
                         <div className="mb-3">
-                            <ProjectDate date={project.date} />
+                            <ProjectDate date={project.startdate} /> - <ProjectDate date={project.enddate} />
                         </div>
                     )}
                     <TitleTag className="text-3xl sm:text-4xl">{project.title}</TitleTag>
@@ -139,9 +139,9 @@ function ProjectList(props) {
                             </div>
                         )}
                         <div className="md:grow">
-                            {showDate && project.date && (
+                            {showDate && project.startdate && project.enddate && (
                                 <div className="mb-3">
-                                    <ProjectDate date={project.date} />
+                                    <ProjectDate date={project.startdate} /> - <ProjectDate date={project.enddate} />
                                 </div>
                             )}
                             <TitleTag className="text-3xl sm:text-4xl">{project.title}</TitleTag>
@@ -165,6 +165,6 @@ function ProjectList(props) {
 
 function ProjectDate({ date }) {
     const dateTimeAttr = dayjs(date).format('YYYY-MM-DD HH:mm:ss');
-    const formattedDate = dayjs(date).format('YYYY-MM-DD');
+    const formattedDate = dayjs(date).format('YYYY-MM');
     return <time dateTime={dateTimeAttr}>{formattedDate}</time>;
 }

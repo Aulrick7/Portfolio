@@ -97,7 +97,7 @@ function getAllPostsSorted(objects: ContentObject[]) {
 function getAllProjectsSorted(objects: ContentObject[]) {
     const all = objects.filter((object) => object.__metadata?.modelName === 'ProjectLayout') as ProjectLayout[];
     const sorted = all.sort(
-        (projectA, projectB) => new Date(projectB.date).getTime() - new Date(projectA.date).getTime()
+        (projectA, projectB) => new Date(projectB.startdate).getTime() - new Date(projectA.startdate).getTime()
     );
     return sorted;
 }

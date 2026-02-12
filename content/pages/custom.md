@@ -2,13 +2,7 @@
 type: PageLayout
 title: Home
 colors: colors-a
-backgroundImage:
-  type: BackgroundImage
-  url: /images/bg1.jpg
-  backgroundSize: cover
-  backgroundPosition: center
-  backgroundRepeat: no-repeat
-  opacity: 75
+
 sections:
   - elementId: ''
     colors: colors-f
@@ -53,9 +47,9 @@ sections:
     showReadMoreLink: true
     variant: variant-b
     projects:
-      - content/pages/projects/project-one.md
-      - content/pages/projects/project-two.md
-      - content/pages/projects/project-three.md
+      - content/pages/projects/1-Mikmaw.md
+      - content/pages/projects/3-Gambit.md
+      - content/pages/projects/4-Knights-Divide.md
     styles:
       self:
         height: auto
@@ -79,9 +73,9 @@ sections:
         iconPosition: right
         elementId: ''
     projects:
-      - content/pages/projects/project-four.md
-      - content/pages/projects/project-five.md
-      - content/pages/projects/project-six.md
+      - content/pages/projects/2-Barter-Trade-App.md
+      - content/pages/projects/5-DEEBug.md
+      - content/pages/projects/6-Portfolio.md
     colors: colors-f
     variant: variant-b
     elementId: ''

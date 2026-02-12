@@ -14,6 +14,38 @@ description: >-
   the next level. The player beats Knights Divide once they’ve ascended to the
   highest level and destroy the mysterious final boss.
 metaTitle: Knights Divide
+bottomSections:
+  - type: LabelsSection
+    title: Skills
+    subtitle: ''
+    items:
+      - type: Label
+        label: Unity
+        url: ''
+      - type: Label
+        label: C#
+        url: ''
+      - type: Label
+        label: Gameplay Programming
+        url: ''
+      - type: Label
+        label: AI Systems
+        url: ''
+      - type: Label
+        label: Game Design
+        url: ''
+    colors: colors-f
+    elementId: ''
+    styles:
+      self:
+        height: auto
+        width: wide
+        padding:
+          - pt-36
+          - pb-36
+          - pl-4
+          - pr-4
+        textAlign: left
 ---
 
 ## Github Link

@@ -24,7 +24,7 @@ const ProjectsTimeline: React.FC<ProjectsTimelineProps> = ({ projects, colour = 
     const [isMobile, setIsMobile] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const timelineRef = useRef<HTMLDivElement>(null);
-    
+
     // Color configuration based on filter
     const colorConfig = React.useMemo(() => {
         const configs = {
@@ -329,7 +329,9 @@ const ProjectsTimeline: React.FC<ProjectsTimelineProps> = ({ projects, colour = 
                                             }`}
                                     >
                                         {/* Circuit pattern */}
-                                        <div className={`absolute inset-2 border ${colorConfig.borderOpacity} rounded`} />
+                                        <div
+                                            className={`absolute inset-2 border ${colorConfig.borderOpacity} rounded`}
+                                        />
                                         <div
                                             className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ${isMobile ? 'w-2 h-2' : 'w-3 h-3'} ${colorConfig.bg} rounded-full animate-pulse`}
                                         />

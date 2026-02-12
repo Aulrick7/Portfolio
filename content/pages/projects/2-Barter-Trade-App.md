@@ -10,13 +10,6 @@ description: >-
   authentication and authorization, finally e-commerce.
 addTitleSuffix: true
 colors: colors-a
-backgroundImage:
-  type: BackgroundImage
-  url: /images/bg2.jpg
-  backgroundSize: cover
-  backgroundPosition: center
-  backgroundRepeat: no-repeat
-  opacity: 100
 bottomSections:
   - type: LabelsSection
     title: Skills
@@ -45,6 +38,9 @@ bottomSections:
         url: ''
       - type: Label
         label: Figma
+        url: ''
+      - type: Label
+        label: RESTFul API
         url: ''
     colors: colors-f
     elementId: ''

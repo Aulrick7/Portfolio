@@ -55,7 +55,7 @@ function SectionFullWidth(props: SectionProps) {
                 'flex flex-col justify-center items-center',
                 mapStyles({ height: styles.height ?? 'auto' }),
                 styles.margin,
-                styles.padding ?? 'py-12 px-4',
+                styles.padding ?? 'py-2',
                 styles.borderColor,
                 styles.borderStyle ? mapStyles({ borderStyle: styles.borderStyle }) : null,
                 styles.borderRadius ? mapStyles({ borderRadius: styles.borderRadius }) : null
