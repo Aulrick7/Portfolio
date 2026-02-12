@@ -11,36 +11,87 @@
  * - Green matrix rain overlay during transition
  * - Page fade-in animation
  * - Smooth entry/exit animations
+ * - Red Tron transition for WorkXP navigation
  */
 
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import TronTransition from '../components/sections/TronTransition';
 
 export default function MatrixPageTransition({ children }) {
     const router = useRouter();
     const [isTransitioning, setIsTransitioning] = useState(false);
     const [showPage, setShowPage] = useState(true);
+    const [showTronTransition, setShowTronTransition] = useState(false);
+    const [targetUrl, setTargetUrl] = useState<string | null>(null);
 
     useEffect(() => {
         const handleRouteChangeStart = (url: string) => {
+            // Check if we're going to WorkXP
+            const isGoingToWorkXP = url?.toLowerCase().includes('workxp');
+            const currentlyOnWorkXP = router.asPath?.toLowerCase().includes('workxp');
+
+            // Check if we're on home page (where MatrixPillChoice is)
+            const isOnHomePage = router.asPath === '/';
+
             // Only show transition if:
-            // 1. We're leaving home page (router.asPath === '/')
-            // 2. OR we're going to home page (url === '/')
+            // 1. Going to WorkXP from home page (MatrixPillChoice) - show Matrix wipe
+            // 2. Leaving/going to home page (but not to WorkXP) - show Matrix wipe
             const isLeavingHome = router.asPath === '/';
             const isGoingToHome = url === '/';
 
-            if ((isLeavingHome || isGoingToHome) && url !== router.asPath) {
+            if (isGoingToWorkXP && !currentlyOnWorkXP) {
+                // Going to WorkXP - only show Matrix if coming from home page
+                if (isOnHomePage) {
+                    setTargetUrl(url);
+                    setIsTransitioning(true);
+                    setShowPage(false);
+                } else {
+                    // Coming from non-home page - skip Matrix, go straight to Tron
+                    setTargetUrl(url);
+                    setShowPage(false);
+                    setShowTronTransition(true);
+                }
+            } else if (isLeavingHome && url !== router.asPath && !isGoingToWorkXP) {
+                // Normal home navigation (not to WorkXP)
+                setTargetUrl(url);
                 setIsTransitioning(true);
                 setShowPage(false);
             }
         };
 
         const handleRouteChangeComplete = () => {
-            // Small delay to let the wipe complete
-            setTimeout(() => {
-                setIsTransitioning(false);
-                setShowPage(true);
-            }, 1000);
+            // Check if we're going to WorkXP
+            const isGoingToWorkXP = targetUrl?.toLowerCase().includes('workxp');
+
+            if (isGoingToWorkXP && isTransitioning) {
+                // Coming from home page - Matrix wipe already played, now show Tron
+                setTimeout(() => {
+                    setIsTransitioning(false);
+                    setShowTronTransition(true);
+                }, 500);
+
+                // After Tron transition completes (~2000ms more), show page
+                setTimeout(() => {
+                    setShowTronTransition(false);
+                    setShowPage(true);
+                    setTargetUrl(null);
+                }, 2500);
+            } else if (isGoingToWorkXP && !isTransitioning) {
+                // Coming from non-home page - Tron is already showing, just wait for it to finish
+                setTimeout(() => {
+                    setShowTronTransition(false);
+                    setShowPage(true);
+                    setTargetUrl(null);
+                }, 2000);
+            } else {
+                // For other routes, just do the normal matrix transition
+                setTimeout(() => {
+                    setIsTransitioning(false);
+                    setShowPage(true);
+                    setTargetUrl(null);
+                }, 1000);
+            }
         };
 
         // Subscribe to route change events
@@ -53,7 +104,7 @@ export default function MatrixPageTransition({ children }) {
             router.events.off('routeChangeComplete', handleRouteChangeComplete);
             router.events.off('routeChangeError', handleRouteChangeComplete);
         };
-    }, [router]);
+    }, [router, targetUrl, isTransitioning]);
 
     return (
         <>
@@ -100,6 +151,16 @@ export default function MatrixPageTransition({ children }) {
                         </span>
                     </div>
                 </div>
+            )}
+
+            {/* Tron Transition for WorkXP */}
+            {showTronTransition && (
+                <TronTransition
+                    isActive={showTronTransition}
+                    direction="down"
+                    colour="red"
+                    onComplete={() => setShowTronTransition(false)}
+                />
             )}
 
             {/* Page Content with fade-in */}
@@ -247,8 +308,8 @@ export default function MatrixPageTransition({ children }) {
                     opacity: 0;
                     transform: scale(0.98);
                     transition:
-                        opacity 0.5s ease-out,
-                        transform 0.5s ease-out;
+                        opacity 0.1s ease-out,
+                        transform 0.1s ease-out;
                 }
 
                 .page-content.visible {

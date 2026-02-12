@@ -248,7 +248,7 @@ export default function ProjectChoiceSection(props) {
 
                 .lightcycle-path {
                     position: absolute;
-                    bottom: 20%;
+                    bottom: 15%;
                     left: -20%;
                     width: 120%;
                     height: 4px;

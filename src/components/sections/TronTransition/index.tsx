@@ -4,8 +4,8 @@ import React, { useEffect, useState } from 'react';
 interface TronTransitionProps {
     isActive: boolean;
     onComplete?: () => void;
-    direction?: 'left' | 'right' | null;
-    colour?: 'green' | 'cyan' | 'pink';
+    direction?: 'left' | 'right' | 'down' | null;
+    colour?: 'green' | 'cyan' | 'pink' | 'red';
 }
 
 export default function TronTransition({ isActive, onComplete, direction, colour = 'green' }: TronTransitionProps) {
@@ -50,6 +50,18 @@ export default function TronTransition({ isActive, onComplete, direction, colour
                 text: 'text-pink-400',
                 bgOpacity: 'bg-pink-400/10',
                 borderOpacity: 'border-pink-400/30'
+            },
+            red: {
+                primary: 'rgb(239, 68, 68)', // red-500
+                light: 'rgb(248, 113, 113)', // red-400
+                rgb: '255, 0, 0',
+                hex1: '#EF4444', // red-500
+                hex2: '#F87171', // red-400
+                border: 'border-red-400',
+                bg: 'bg-red-400',
+                text: 'text-red-400',
+                bgOpacity: 'bg-red-400/10',
+                borderOpacity: 'border-red-400/30'
             }
         };
         return configs[colour];
@@ -86,6 +98,9 @@ export default function TronTransition({ isActive, onComplete, direction, colour
                 router.push('/projects?filter=game');
             } else if (direction === 'right') {
                 router.push('/projects?filter=software');
+            } else if (direction === 'down') {
+                router.push('/workXP');
+                setStage('complete');
             } else {
                 router.push('/projects');
             }
@@ -100,11 +115,11 @@ export default function TronTransition({ isActive, onComplete, direction, colour
     if (!isActive) return null;
 
     return (
-        <div className="fixed inset-0 z-50 top-0 bottom-0 pointer-events-none">
+        <div className="fixed inset-0 z-[9999] pointer-events-none ">
             {/* Identity Disk Loading */}
             {stage === 'disk' && (
-                <div className="absolute inset-0 bg-black flex items-center justify-center">
-                    <div className="relative bottom-100 w-64 h-64">
+                <div className="absolute inset-0 bg-black flex flex-col items-center justify-center gap-12">
+                    <div className="relative w-64 h-64">
                         {/* Progress Circle (SVG) */}
                         <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 256 256">
                             {/* Background circle (dark) */}
@@ -202,9 +217,7 @@ export default function TronTransition({ isActive, onComplete, direction, colour
                     </div>
 
                     {/* Loading text */}
-                    <div
-                        className={`absolute bottom-225 left-205 ${colorConfig.text} text-xl tracking-widest font-mono`}
-                    >
+                    <div className={`${colorConfig.text} text-xl tracking-widest font-mono`}>
                         INITIALIZING SYSTEM...
                     </div>
 

@@ -63,8 +63,8 @@ const PropsResolvers: Partial<Record<ContentObjectType, ResolverFunction>> = {
         const allProjects = getAllProjectsSorted(allData);
         const currentProjectId = props.__metadata?.id;
         const currentProjectIndex = allProjects.findIndex((project) => project.__metadata?.id === currentProjectId);
-        const nextProject = currentProjectIndex > 0 ? allProjects[currentProjectIndex - 1] : null;
-        const prevProject = currentProjectIndex < allProjects.length - 1 ? allProjects[currentProjectIndex + 1] : null;
+        const prevProject = currentProjectIndex > 0 ? allProjects[currentProjectIndex - 1] : null;
+        const nextProject = currentProjectIndex < allProjects.length - 1 ? allProjects[currentProjectIndex + 1] : null;
         return {
             ...props,
             prevProject,

@@ -25,6 +25,9 @@ bottomSections:
       - type: Label
         label: Software Programming
         url: ''
+      - type: Label
+        label: Git
+        url: ''
     colors: colors-f
     elementId: ''
     styles:
@@ -45,16 +48,14 @@ https://github.com/Aulrick7/Portfolio
 
 ## About the project
 
-I intially used one of the available templates from netlify created by https://github.com/TomasBankauskas, to which I designed and developed the rest on my own using react.
+I intially used one of the available templates from netlify created by https://github.com/TomasBankauskas, to which I designed and implemented site structure, UI components, and responsive layouts. Hosted the code and deployment setup on GitHub.
 
 ## Most notable feats
 
-- Guided a 9-person cross-functional team to design and deliver an AI-powered debugging assistant integrating LLMs, React, and TensorFlow.
+- Built and maintained a professional online portfolio website to showcase projects, skills, and personal profile.
 
-- Boosted model accuracy from 30% to 70% by engineering advanced few-shot learning pipelines and refining data processing strategies.
+- Implemented using modern front-end frameworks and tooling (Next.js, React, TypeScript, CSS).
 
-- Planned the system architecture and development roadmap, accelerating feature delivery while maintaining high code quality.
+- Organized repository with clean project structure and managed workflows using Git.
 
-- Acted as primary technical liaison for clients, translating business requirements into scalable engineering solutions.
-
-- Introduced Agile workflow improvements that increased sprint predictability and team velocity.
+- Deployed and version-controlled via GitHub, demonstrating real-world application of web development practices.

@@ -101,7 +101,7 @@ function PillsRender({ pills }) {
         setSelectedPill(pillColor);
         setGlitchText(true);
 
-        // Navigate after animation
+        // Navigate after animation - MatrixPageTransition will handle the Tron effect for workXP
         setTimeout(() => {
             router.push(url);
         }, 1500);

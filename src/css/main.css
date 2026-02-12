@@ -226,7 +226,7 @@ layer(base);
     max-width: 900px;
     opacity: 0;
     transform: translateY(20px);
-    transition: all 1s ease-out;
+    transition: all 0.5s ease-out;
 }
 
 .content-wrapper.visible {

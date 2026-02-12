@@ -39,7 +39,7 @@ const Component: React.FC<ComponentProps> = (props) => {
                 return <DynamicComponent key={index} {...section} />;
             })}
 
-            {/* Filter Switcher */}
+            {/* Filter Switcher
             <div className="fixed top-20 z-20 flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <button
                     onClick={() => handleFilterChange('all')}
@@ -61,7 +61,7 @@ const Component: React.FC<ComponentProps> = (props) => {
                 >
                     💼 WORK
                 </button>
-            </div>
+            </div> */}
 
             {/* Replace the grid with timeline */}
             <WorkXPTimeline workExperiences={filteredWorkXP} colour={colour} />

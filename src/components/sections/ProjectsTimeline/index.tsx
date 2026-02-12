@@ -35,7 +35,7 @@ const ProjectsTimeline: React.FC<ProjectsTimelineProps> = ({ projects, colour = 
                 border: 'border-green-400',
                 bg: 'bg-green-400',
                 text: 'text-green-400',
-                bgOpacity: 'bg-green-400/10',
+                bgOpacity: 'bg-green-400/10 !important',
                 borderOpacity: 'border-green-400/30'
             },
             cyan: {
@@ -305,10 +305,7 @@ const ProjectsTimeline: React.FC<ProjectsTimelineProps> = ({ projects, colour = 
                                 )}
 
                                 {/* Circuit Node */}
-                                <div
-                                    className="group relative cursor-pointer"
-                                    onClick={() => handleNodeClick(project.id)}
-                                >
+                                <div className="group relative" onClick={() => handleNodeClick(project.id)}>
                                     {/* Glow effect */}
                                     <div
                                         className={`absolute inset-0 rounded-lg transition-all duration-300 blur-xl
@@ -321,7 +318,7 @@ const ProjectsTimeline: React.FC<ProjectsTimelineProps> = ({ projects, colour = 
 
                                     {/* Node Core */}
                                     <div
-                                        className={`relative ${isMobile ? 'w-12 h-12' : 'w-16 h-16'} rounded-lg border-2 transition-all duration-300 ${isMobile ? (expandedProject === project.id ? `${colorConfig.border} scale-110` : '') : `group-hover:${colorConfig.border} group-hover:scale-110`}
+                                        className={`cursor-pointer relative ${isMobile ? 'w-12 h-12' : 'w-16 h-16'} rounded-lg border-2 transition-all duration-300 ${isMobile ? (expandedProject === project.id ? `${colorConfig.border} scale-110` : '') : `group-hover:${colorConfig.border} group-hover:scale-110`}
                                             ${
                                                 scrollProgress * timelineProjects.length > index
                                                     ? `${colorConfig.border} bg-black`
@@ -426,7 +423,13 @@ const ProjectsTimeline: React.FC<ProjectsTimelineProps> = ({ projects, colour = 
                                             {/* View Project Button */}
                                             <button
                                                 onClick={(e) => viewProjectClick(project.url, e)}
-                                                className={`w-full ${isMobile ? 'py-2' : 'py-2'} border ${colorConfig.border} ${colorConfig.text} font-mono ${isMobile ? 'text-xs' : 'text-sm'} rounded hover:${colorConfig.bgOpacity} transition-colors`}
+                                                onMouseEnter={(e) => {
+                                                    e.currentTarget.style.backgroundColor = `rgba(${colorConfig.shadowRgb}, 0.1)`;
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.currentTarget.style.backgroundColor = 'transparent';
+                                                }}
+                                                className={`cursor-pointer w-full ${isMobile ? 'py-2' : 'py-2'} border ${colorConfig.border} ${colorConfig.text} font-mono ${isMobile ? 'text-xs' : 'text-sm'} rounded transition-colors`}
                                             >
                                                 VIEW PROJECT →
                                             </button>
