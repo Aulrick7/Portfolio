@@ -14,14 +14,17 @@ sections:
     colors: colors-f
     backgroundSize: full
     text: >+
-      # Hey I’m a developer. I’ve been born and raised in the world, and that’s
-      also where I’m based. I’m currently a free agent, ex-this, ex-that,
-      ex-super big name. When I’m not coding, writing or creating, I eat
-      cereals. I have a dog, check her out [@mygod](https://www.stackbit.com/).
+      ## Results-driven software developer and gameplay programmer with proven
+      experience delivering full-stack applications and high-performance games
+      using Unity, C#, Java, Python, React, and AI technologies. Demonstrated
+      success leading technical teams, optimizing performance-critical systems,
+      and integrating machine learning into real-world products. Passionate
+      about building polished, scalable solutions at the intersection of
+      software engineering, game development, and AI.
 
     media:
       type: ImageBlock
-      url: /images/about.jpg
+      url: /images/about.jpeg
       altText: Hero image
     styles:
       self:
@@ -55,27 +58,15 @@ sections:
     subtitle: 'I worked with these folks:'
     images:
       - type: ImageBlock
-        url: /images/logo1.svg
-        altText: Logo one
-        caption: Logo one
+        url: /images/PoweredEV.jpg
+        altText: PoweredEV
+        caption: PoweredEV
       - type: ImageBlock
-        url: /images/logo2.svg
-        altText: Logo two
-        caption: Logo two
-      - type: ImageBlock
-        url: /images/logo3.svg
-        altText: Logo three
-        caption: Logo three
-      - type: ImageBlock
-        url: /images/logo4.svg
-        altText: Logo four
-        caption: Logo four
-      - type: ImageBlock
-        url: /images/logo5.svg
-        altText: Logo five
-        caption: Logo five
-    spacing: 3
-    columns: 5
+        url: /images/New-Dawn-IT-Solution.png
+        altText: New Dawn IT Solution
+        caption: New Dawn IT Solution
+    spacing: 100
+    columns: 2
     aspectRatio: auto
     showCaption: false
     enableHover: false
@@ -108,15 +99,7 @@ sections:
         actions:
           - type: Link
             label: GitHub
-            url: 'https://github.com/'
-        styles:
-          self:
-            textAlign: left
-      - type: FeaturedItem
-        actions:
-          - type: Link
-            label: Twitter
-            url: 'https://twitter.com/'
+            url: 'https://github.com/Aulrick7'
         styles:
           self:
             textAlign: left
@@ -124,35 +107,11 @@ sections:
         actions:
           - type: Link
             label: LinkedIn
-            url: 'https://www.linkedin.com/'
+            url: 'https://www.linkedin.com/in/abhishek-selvakumar/'
         styles:
           self:
             textAlign: left
-      - type: FeaturedItem
-        actions:
-          - type: Link
-            label: CodePen
-            url: 'https://codepen.io/'
-        styles:
-          self:
-            textAlign: left
-      - type: FeaturedItem
-        actions:
-          - type: Link
-            label: Discord
-            url: 'https://discord.com/'
-        styles:
-          self:
-            textAlign: left
-      - type: FeaturedItem
-        actions:
-          - type: Link
-            label: Instagram
-            url: 'https://www.instagram.com/'
-        styles:
-          self:
-            textAlign: left
-    columns: 3
+    columns: 2
     spacingX: 120
     spacingY: 16
     styles:
@@ -177,24 +136,76 @@ sections:
         borderStyle: solid
   - type: LabelsSection
     colors: colors-f
-    subtitle: 'Skills:'
+    subtitle: 'Skills'
     items:
       - type: Label
-        label: 'WEB 1, 2, 3'
+        label: Agile
+      - type: Label
+        label: Agile Development
+      - type: Label
+        label: AI Systems
+      - type: Label
+        label: Android (Java)
+      - type: Label
+        label: C#
+      - type: Label
+        label: CI/CD
+      - type: Label
+        label: CSS
+      - type: Label
+        label: Docker
+      - type: Label
+        label: EEG Integration
+      - type: Label
+        label: Figma
+      - type: Label
+        label: Firebase
+      - type: Label
+        label: Game Design
+      - type: Label
+        label: Gameplay Programming
+      - type: Label
+        label: GeminiAPI
+      - type: Label
+        label: Git
+      - type: Label
+        label: HTML
+      - type: Label
+        label: JavaScript
+      - type: Label
+        label: LLMs
+      - type: Label
+        label: Node.js
+      - type: Label
+        label: Open AI API
+      - type: Label
+        label: OpenMaze
+      - type: Label
+        label: Performance Optimisation
+      - type: Label
+        label: Python
       - type: Label
         label: React
       - type: Label
-        label: Microsoft Office
+        label: RESTFul API
       - type: Label
-        label: Next.js
+        label: Software Programming
       - type: Label
-        label: Netlify
+        label: System Architecture
       - type: Label
-        label: Pancakes
+        label: TDD
       - type: Label
-        label: C++
+        label: TensorFlow
       - type: Label
-        label: Swift
+        label: Unity
+      - type: Label
+        label: UX Design
+      - type: Label
+        label: UX Research
+      - type: Label
+        label: Web Development
+      - type: Label
+        label: WordPress
   - type: DividerSection
     styles:
       self:
@@ -206,12 +217,30 @@ sections:
           - pr-4
         borderWidth: 1
         borderStyle: solid
-  - type: TextSection
-    variant: variant-a
-    subtitle: 'Contact:'
+  - type: FeaturedItemsSection
     colors: colors-f
-    text: |
-      [thisismyemail.@myemail.me](mailto:thisismyemail.@myemail.me)
+    items:
+      - type: FeaturedItem
+        subtitle: 'Contact:'
+        text: |-
+          [selvakumarabhishek521@gmail.com](mailto:selvakumarabhishek521@gmail.com)
+          Primary Phone: [+1-437-432-2484](tel:+1-437-432-2484)
+          Secondary Phone: [+974-66015127](tel:+974-66015127)
+        styles:
+          self:
+            textAlign: left
+    spacingX: 60
+    spacingY: 60
+    styles:
+      self:
+        height: auto
+        width: wide
+        padding:
+          - pt-8
+          - pb-8
+          - pl-4
+          - pr-4
+        textAlign: left
   - type: DividerSection
     styles:
       self:
@@ -231,40 +260,21 @@ sections:
         text: |-
           **Current**
 
-          * freelance @freelance.me
+          * freelance @https://poweredev.ca/
 
-          **2018-2021**
+          **2024**
 
-          * fullstack at this startup
+          * Intern @https://newdawnit.in/home
 
-          **2015**
-
-          * senior front-end at this place
-
-          **2013**
-
-          * intern developer at a big company
-
-          **2011**
-
-          * flipping burgers
         styles:
           self:
             textAlign: left
       - type: FeaturedItem
         subtitle: 'Education:'
         text: |-
-          **2015-2018**
+          **2021-2024**
 
-          * ba computer sciense at a semi fancy school
-
-          **2014**
-
-          * react certificate somewhere
-
-          **2011**
-
-          * my highschool
+          * Bachelor of Applied Computer Science in Dalhousie University
         styles:
           self:
             textAlign: left
@@ -280,77 +290,5 @@ sections:
           - pb-8
           - pl-4
           - pr-4
-        textAlign: left
-  - type: DividerSection
-    styles:
-      self:
-        width: wide
-        padding:
-          - pt-12
-          - pb-12
-          - pl-4
-          - pr-4
-        borderWidth: 1
-        borderStyle: solid
-  - type: ContactSection
-    backgroundSize: full
-    title: "Let’s talk... \U0001F4AC"
-    colors: colors-f
-    form:
-      type: FormBlock
-      elementId: sign-up-form
-      fields:
-        - name: firstName
-          label: First Name
-          hideLabel: true
-          placeholder: First Name
-          isRequired: true
-          width: 1/2
-          type: TextFormControl
-        - name: lastName
-          label: Last Name
-          hideLabel: true
-          placeholder: Last Name
-          isRequired: false
-          width: 1/2
-          type: TextFormControl
-        - name: email
-          label: Email
-          hideLabel: true
-          placeholder: Email
-          isRequired: true
-          width: full
-          type: EmailFormControl
-        - name: message
-          label: Message
-          hideLabel: true
-          placeholder: Tell me about your project
-          isRequired: true
-          width: full
-          type: TextareaFormControl
-        - name: updatesConsent
-          label: Sign me up to recieve my words
-          isRequired: false
-          width: full
-          type: CheckboxFormControl
-      submitLabel: "Submit \U0001F680"
-      styles:
-        self:
-          textAlign: center
-    styles:
-      self:
-        height: auto
-        width: narrow
-        margin:
-          - mt-0
-          - mb-0
-          - ml-4
-          - mr-4
-        padding:
-          - pt-12
-          - pb-12
-          - pr-4
-          - pl-4
-        flexDirection: row
         textAlign: left
 ---

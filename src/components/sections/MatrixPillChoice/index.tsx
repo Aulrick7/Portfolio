@@ -9,6 +9,8 @@
 
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+import TronTransition from '../TronTransition';
 
 export default function MatrixPillChoice(props) {
     const router = useRouter();
@@ -67,14 +69,17 @@ function PillsRender({ pills }) {
     const router = useRouter();
     const [glitchText, setGlitchText] = useState(false);
     const [selectedPill, setSelectedPill] = useState<'red' | 'blue' | null>(null);
+    const [showTronTransition, setShowTronTransition] = useState(false);
+    const [tronDirection, setTronDirection] = useState<'left' | 'right' | 'down' | null>(null);
+    const [tronColour, setTronColour] = useState<'green' | 'cyan' | 'pink' | 'red'>('green');
 
     // SOLUTION: Reset selection when user navigates back to home page
     useEffect(() => {
         const handleRouteChange = (url: string) => {
             // If navigating back to home, reset the selection
-
             setSelectedPill(null);
             setGlitchText(false);
+            setShowTronTransition(false);
         };
 
         // Listen for route changes
@@ -97,14 +102,32 @@ function PillsRender({ pills }) {
         );
     }
 
-    const handlePillClick = (pillColor: 'red' | 'blue', url: string) => {
+    const handlePillClick = (pillColor: 'red' | 'blue', url: string, pillIndex: number) => {
         setSelectedPill(pillColor);
         setGlitchText(true);
 
-        // Navigate after animation - MatrixPageTransition will handle the Tron effect for workXP
+        // Determine Tron transition settings based on pill
+        // Blue pill (index 0) = Projects = cyan/green
+        // Red pill (index 1) = Work Experience = red
+        if (pillIndex === 1) {
+            // Work Experience pill
+            setTronDirection('down');
+            setTronColour('red');
+        }
+
+        // Start Tron transition after a brief delay
+        setTimeout(() => {
+            if (pillIndex === 1) {
+                setShowTronTransition(true);
+            } else {
+                router.push(url);
+            }
+        }, 1000);
+
+        // Navigate after Tron transition completes (~2000ms)
         setTimeout(() => {
             router.push(url);
-        }, 1500);
+        }, 3000);
     };
 
     const getPillColor = (index: number): 'blue' | 'red' => {
@@ -142,7 +165,7 @@ function PillsRender({ pills }) {
                         <div
                             key={index}
                             className={`pill-wrapper ${isSelected ? 'selected' : ''} ${isFaded ? 'faded' : ''}`}
-                            onClick={() => !selectedPill && handlePillClick(pillColor, pill.url)}
+                            onClick={() => !selectedPill && handlePillClick(pillColor, pill.url, index)}
                         >
                             <div className={`pill ${getPillClass(index)}`}>
                                 <div className="pill-shine"></div>
@@ -170,6 +193,19 @@ function PillsRender({ pills }) {
                     </div>
                 </div>
             )}
+
+            {/* Tron Transition - Rendered outside body using Portal */}
+            {typeof window !== 'undefined' &&
+                showTronTransition &&
+                createPortal(
+                    <TronTransition
+                        isActive={showTronTransition}
+                        direction={tronDirection}
+                        colour={tronColour}
+                        onComplete={() => setShowTronTransition(false)}
+                    />,
+                    document.body
+                )}
         </div>
     );
 }

@@ -11,7 +11,7 @@
             {
                 "type": "Link",
                 "label": "Info",
-                "url": "/custom"
+                "url": "/info"
             },
             {
                 "type": "Link",
@@ -84,7 +84,7 @@
             "addressAltText": "Address",
             "elementId": ""
         },
-        "copyrightText": "Powered by [Netlify](https://www.netlify.com/)",
+        "copyrightText": "Powered by [Netlify](https://www.netlify.com/) and React",
         "styles": {
             "self": {
                 "width": "narrow",

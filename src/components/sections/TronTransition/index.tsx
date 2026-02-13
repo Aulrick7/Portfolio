@@ -100,7 +100,6 @@ export default function TronTransition({ isActive, onComplete, direction, colour
                 router.push('/projects?filter=software');
             } else if (direction === 'down') {
                 router.push('/workXP');
-                setStage('complete');
             } else {
                 router.push('/projects');
             }

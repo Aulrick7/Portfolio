@@ -17,7 +17,7 @@ export default function LabelsSection(props) {
                         'justify-end': sectionAlign === 'right'
                     })}
                 >
-                    {title}:
+                    {title || subtitle}:
                     {items.map((item, index) => (
                         <LabelItem key={index} {...item} />
                     ))}
