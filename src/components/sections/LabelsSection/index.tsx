@@ -12,7 +12,7 @@ export default function LabelsSection(props) {
             {items.length > 0 && (
                 <div
                     className={classNames('flex flex-wrap gap-2', {
-                        'inline-flex py-1 text-lg items-center': title || subtitle,
+                        'inline-flex py-1 px-5 text-lg items-center': title || subtitle,
                         'justify-center': sectionAlign === 'center',
                         'justify-end': sectionAlign === 'right'
                     })}

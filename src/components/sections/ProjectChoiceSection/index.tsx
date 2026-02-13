@@ -69,12 +69,12 @@ export default function ProjectChoiceSection(props) {
                 {/* Overlay gradient */}
                 <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80"></div>
 
-                {/* Navigation UI */}
-                <div className="relative z-10 h-full flex items-center justify-center px-4 py-8 md:px-0 md:py-0">
-                    <div className="text-center">
+                {/* Navigation UI - Enhanced with better flex centering */}
+                <div className="relative z-10 flex items-center justify-center min-h-screen px-4 py-8 md:px-0 md:py-0">
+                    <div className="flex flex-col items-center justify-center w-full max-w-7xl gap-8 sm:gap-12 md:gap-16">
                         {/* Title */}
                         <h1
-                            className="text-3xl sm:text-4xl md:text-6xl lg:text-8xl font-bold mb-8 sm:mb-12 md:mb-16 text-cyan-400"
+                            className="text-3xl sm:text-4xl md:text-6xl lg:text-8xl font-bold text-cyan-400"
                             style={{
                                 textShadow: '0 0 20px rgba(0, 255, 255, 0.8), 0 0 40px rgba(0, 255, 255, 0.5)'
                             }}
@@ -82,141 +82,151 @@ export default function ProjectChoiceSection(props) {
                             CHOOSE YOUR PATH
                         </h1>
 
-                        {/* Choice Buttons */}
-                        {/* All Projects */}
-                        <button
-                            onClick={() => handleChoice(null, 'green')}
-                            className="group relative mb-6 sm:mb-8 md:mb-0"
-                            disabled={isTransitioning}
-                        >
-                            <div className="relative overflow-hidden">
-                                {/* Hexagon shape */}
-                                <div
-                                    className="w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 lg:w-64 lg:h-64 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-active:scale-105"
-                                    style={{
-                                        clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                                        background:
-                                            'linear-gradient(135deg, rgba(0, 255, 0, 0.1) 0%, rgba(0, 255, 100, 0.1) 100%)',
-                                        border: '2px solid rgba(0, 255, 0, 0.5)',
-                                        boxShadow: '0 0 30px rgba(0, 255, 0, 0.3)'
-                                    }}
+                        {/* Choice Buttons Container */}
+                        <div className="flex flex-col items-center justify-center gap-6 sm:gap-8">
+                            {/* All Projects Button */}
+                            <div className="flex justify-center flex-shrink-0">
+                                <button
+                                    onClick={() => handleChoice(null, 'green')}
+                                    className="group relative"
+                                    disabled={isTransitioning}
                                 >
-                                    <div className="text-center">
-                                        <div className="text-3xl sm:text-4xl md:text-5xl mb-2 md:mb-4"></div>
-                                        <div className="text-lg sm:text-xl md:text-2xl font-bold text-green-300">All</div>
-                                        <div className="text-sm sm:text-base md:text-lg text-green-400">PROJECTS</div>
+                                    <div className="relative overflow-hidden">
+                                        {/* Hexagon shape */}
+                                        <div
+                                            className="w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 lg:w-64 lg:h-64 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-active:scale-105"
+                                            style={{
+                                                clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                                                background:
+                                                    'linear-gradient(135deg, rgba(0, 255, 0, 0.1) 0%, rgba(0, 255, 100, 0.1) 100%)',
+                                                border: '2px solid rgba(0, 255, 0, 0.5)',
+                                                boxShadow: '0 0 30px rgba(0, 255, 0, 0.3)'
+                                            }}
+                                        >
+                                            <div className="text-center">
+                                                <div className="text-3xl sm:text-4xl md:text-5xl mb-2 md:mb-4"></div>
+                                                <div className="text-lg sm:text-xl md:text-2xl font-bold text-green-300">All</div>
+                                                <div className="text-sm sm:text-base md:text-lg text-green-400">PROJECTS</div>
+                                            </div>
+                                        </div>
+
+                                        {/* Hover glow effect */}
+                                        <div
+                                            className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                                            style={{
+                                                clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                                                background: 'radial-gradient(circle, rgba(0, 255, 0, 0.3) 0%, transparent 70%)',
+                                                filter: 'blur(10px)'
+                                            }}
+                                        ></div>
+
+                                        {/* Direction arrow - hidden on mobile */}
+                                        <div className="hidden md:block absolute -left-16 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:-translate-x-4">
+                                            <div className="text-green-400 text-6xl">←</div>
+                                        </div>
                                     </div>
+                                </button>
+                            </div>
+
+                            {/* Game vs Software - Flex wrapper for better responsiveness */}
+                            <div className="flex flex-col items-center justify-center flex-wrap gap-6 sm:gap-8 md:flex-row md:gap-12">
+                                {/* Left Choice - Game Projects */}
+                                <div className="flex justify-center flex-shrink-0">
+                                    <button
+                                        onClick={() => handleChoice('left', 'cyan')}
+                                        className="group relative"
+                                        disabled={isTransitioning}
+                                    >
+                                        <div className="relative overflow-hidden">
+                                            {/* Hexagon shape */}
+                                            <div
+                                                className="w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 lg:w-64 lg:h-64 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-active:scale-105"
+                                                style={{
+                                                    clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                                                    background:
+                                                        'linear-gradient(135deg, rgba(0, 255, 255, 0.1) 0%, rgba(0, 100, 255, 0.1) 100%)',
+                                                    border: '2px solid rgba(0, 255, 255, 0.5)',
+                                                    boxShadow: '0 0 30px rgba(0, 255, 255, 0.3)'
+                                                }}
+                                            >
+                                                <div className="text-center">
+                                                    <div className="text-3xl sm:text-4xl md:text-5xl mb-2 md:mb-4">🎮</div>
+                                                    <div className="text-lg sm:text-xl md:text-2xl font-bold text-cyan-300">GAME</div>
+                                                    <div className="text-sm sm:text-base md:text-lg text-cyan-400">PROJECTS</div>
+                                                </div>
+                                            </div>
+
+                                            {/* Hover glow effect */}
+                                            <div
+                                                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                                                style={{
+                                                    clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                                                    background:
+                                                        'radial-gradient(circle, rgba(0, 255, 255, 0.3) 0%, transparent 70%)',
+                                                    filter: 'blur(10px)'
+                                                }}
+                                            ></div>
+
+                                            {/* Direction arrow - hidden on mobile */}
+                                            <div className="hidden md:block absolute -left-16 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:-translate-x-4">
+                                                <div className="text-cyan-400 text-6xl">←</div>
+                                            </div>
+                                        </div>
+                                    </button>
                                 </div>
 
-                                {/* Hover glow effect */}
-                                <div
-                                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                                    style={{
-                                        clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                                        background: 'radial-gradient(circle, rgba(0, 255, 0, 0.3) 0%, transparent 70%)',
-                                        filter: 'blur(10px)'
-                                    }}
-                                ></div>
+                                {/* Divider - horizontal on mobile, vertical on desktop */}
+                                <div className="w-40 h-0.5 md:w-0.5 md:h-40 lg:h-64 bg-gradient-to-r md:bg-gradient-to-b from-transparent via-cyan-400 to-transparent flex-shrink-0"></div>
 
-                                {/* Direction arrow - hidden on mobile */}
-                                <div className="hidden md:block absolute -left-16 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:-translate-x-4">
-                                    <div className="text-green-400 text-6xl">←</div>
+                                {/* Right Choice - Software Projects */}
+                                <div className="flex justify-center flex-shrink-0">
+                                    <button
+                                        onClick={() => handleChoice('right', 'pink')}
+                                        className="group relative"
+                                        disabled={isTransitioning}
+                                    >
+                                        <div className="relative overflow-hidden">
+                                            {/* Hexagon shape */}
+                                            <div
+                                                className="w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 lg:w-64 lg:h-64 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-active:scale-105"
+                                                style={{
+                                                    clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                                                    background:
+                                                        'linear-gradient(135deg, rgba(255, 0, 255, 0.1) 0%, rgba(255, 0, 100, 0.1) 100%)',
+                                                    border: '2px solid rgba(255, 0, 255, 0.5)',
+                                                    boxShadow: '0 0 30px rgba(255, 0, 255, 0.3)'
+                                                }}
+                                            >
+                                                <div className="text-center">
+                                                    <div className="text-3xl sm:text-4xl md:text-5xl mb-2 md:mb-4">💻</div>
+                                                    <div className="text-lg sm:text-xl md:text-2xl font-bold text-pink-300">SOFTWARE</div>
+                                                    <div className="text-sm sm:text-base md:text-lg text-pink-400">PROJECTS</div>
+                                                </div>
+                                            </div>
+
+                                            {/* Hover glow effect */}
+                                            <div
+                                                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                                                style={{
+                                                    clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                                                    background:
+                                                        'radial-gradient(circle, rgba(255, 0, 255, 0.3) 0%, transparent 70%)',
+                                                    filter: 'blur(10px)'
+                                                }}
+                                            ></div>
+
+                                            {/* Direction arrow - hidden on mobile */}
+                                            <div className="hidden md:block absolute -right-16 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-4">
+                                                <div className="text-pink-400 text-6xl">→</div>
+                                            </div>
+                                        </div>
+                                    </button>
                                 </div>
                             </div>
-                        </button>
-                        <div className="flex flex-col md:flex-row gap-6 sm:gap-8 md:gap-12 justify-center items-center">
-                            {/* Left Choice - Game Projects */}
-                            <button
-                                onClick={() => handleChoice('left', 'cyan')}
-                                className="group relative"
-                                disabled={isTransitioning}
-                            >
-                                <div className="relative overflow-hidden">
-                                    {/* Hexagon shape */}
-                                    <div
-                                        className="w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 lg:w-64 lg:h-64 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-active:scale-105"
-                                        style={{
-                                            clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                                            background:
-                                                'linear-gradient(135deg, rgba(0, 255, 255, 0.1) 0%, rgba(0, 100, 255, 0.1) 100%)',
-                                            border: '2px solid rgba(0, 255, 255, 0.5)',
-                                            boxShadow: '0 0 30px rgba(0, 255, 255, 0.3)'
-                                        }}
-                                    >
-                                        <div className="text-center">
-                                            <div className="text-3xl sm:text-4xl md:text-5xl mb-2 md:mb-4">🎮</div>
-                                            <div className="text-lg sm:text-xl md:text-2xl font-bold text-cyan-300">GAME</div>
-                                            <div className="text-sm sm:text-base md:text-lg text-cyan-400">PROJECTS</div>
-                                        </div>
-                                    </div>
-
-                                    {/* Hover glow effect */}
-                                    <div
-                                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                                        style={{
-                                            clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                                            background:
-                                                'radial-gradient(circle, rgba(0, 255, 255, 0.3) 0%, transparent 70%)',
-                                            filter: 'blur(10px)'
-                                        }}
-                                    ></div>
-
-                                    {/* Direction arrow - hidden on mobile */}
-                                    <div className="hidden md:block absolute -left-16 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:-translate-x-4">
-                                        <div className="text-cyan-400 text-6xl">←</div>
-                                    </div>
-                                </div>
-                            </button>
-
-                            {/* Divider - horizontal on mobile, vertical on desktop */}
-                            <div className="w-40 h-0.5 md:w-0.5 md:h-40 lg:h-64 bg-gradient-to-r md:bg-gradient-to-b from-transparent via-cyan-400 to-transparent"></div>
-
-                            {/* Right Choice - Software Projects */}
-                            <button
-                                onClick={() => handleChoice('right', 'pink')}
-                                className="group relative"
-                                disabled={isTransitioning}
-                            >
-                                <div className="relative overflow-hidden">
-                                    {/* Hexagon shape */}
-                                    <div
-                                        className="w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 lg:w-64 lg:h-64 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-active:scale-105"
-                                        style={{
-                                            clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                                            background:
-                                                'linear-gradient(135deg, rgba(255, 0, 255, 0.1) 0%, rgba(255, 0, 100, 0.1) 100%)',
-                                            border: '2px solid rgba(255, 0, 255, 0.5)',
-                                            boxShadow: '0 0 30px rgba(255, 0, 255, 0.3)'
-                                        }}
-                                    >
-                                        <div className="text-center">
-                                            <div className="text-3xl sm:text-4xl md:text-5xl mb-2 md:mb-4">💻</div>
-                                            <div className="text-lg sm:text-xl md:text-2xl font-bold text-pink-300">SOFTWARE</div>
-                                            <div className="text-sm sm:text-base md:text-lg text-pink-400">PROJECTS</div>
-                                        </div>
-                                    </div>
-
-                                    {/* Hover glow effect */}
-                                    <div
-                                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                                        style={{
-                                            clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                                            background:
-                                                'radial-gradient(circle, rgba(255, 0, 255, 0.3) 0%, transparent 70%)',
-                                            filter: 'blur(10px)'
-                                        }}
-                                    ></div>
-
-                                    {/* Direction arrow - hidden on mobile */}
-                                    <div className="hidden md:block absolute -right-16 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-4">
-                                        <div className="text-pink-400 text-6xl">→</div>
-                                    </div>
-                                </div>
-                            </button>
                         </div>
 
                         {/* Instruction text */}
-                        <p className="mt-6 sm:mt-8 md:mt-12 text-base sm:text-lg md:text-xl text-cyan-300 opacity-75">SELECT YOUR DESTINATION</p>
+                        <p className="text-base sm:text-lg md:text-xl text-cyan-300 opacity-75">SELECT YOUR DESTINATION</p>
                     </div>
                 </div>
 

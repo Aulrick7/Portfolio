@@ -32,44 +32,56 @@ const Component: React.FC<ComponentProps> = (props) => {
 
     return (
         <BaseLayout {...props}>
-            <article className="px-4 py-14 lg:py-20">
-                <header className="max-w-5xl mx-auto mb-10 sm:mb-14">
+            <article className="flex flex-col px-4 py-14 lg:py-20">
+                <header className="flex flex-col w-full max-w-5xl mx-auto mb-10 sm:mb-14">
                     {client && <div className="text-lg uppercase md:mb-6">{client}</div>}
-                    <div className="flex flex-col md:flex-row md:justify-between">
-                        <time className="text-lg md:order-last" dateTime={startdate}>
+                    <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-end">
+                        <h1 className="text-5xl sm:text-6xl md:max-w-2xl md:flex-1">{title}</h1>
+                        <time className="text-lg md:flex-shrink-0" dateTime={startdate}>
                             {startdate} - {enddate}
                         </time>
-                        <h1 className="text-5xl sm:text-6xl md:max-w-2xl md:grow">{title}</h1>
                     </div>
                     {bottomSections?.map((section, index) => {
                         return <DynamicComponent key={index} {...section} />;
                     })}
                 </header>
                 {description && (
-                    <div className="max-w-3xl mx-auto mb-10 text-lg uppercase sm:text-xl sm:mb-14">{description}</div>
+                    <div className="flex justify-center w-full mb-10 sm:mb-14">
+                        <div className="w-full max-w-3xl text-lg uppercase sm:text-xl">{description}</div>
+                    </div>
                 )}
                 {media && (
-                    <figure className="max-w-5xl mx-auto mb-10 sm:mb-14">
-                        <ProjectMedia media={media} />
+                    <figure className="flex justify-center w-full mb-10 sm:mb-14">
+                        <div className="w-full max-w-5xl">
+                            <ProjectMedia media={media} />
+                        </div>
                     </figure>
                 )}
 
                 {markdownContent && (
-                    <Markdown
-                        options={{ forceBlock: true, overrides: { pre: HighlightedPreBlock } }}
-                        className="max-w-3xl mx-auto prose sm:prose-lg"
-                    >
-                        {markdownContent}
-                    </Markdown>
+                    <div className="flex justify-center w-full">
+                        <Markdown
+                            options={{ forceBlock: true, overrides: { pre: HighlightedPreBlock } }}
+                            className="w-full max-w-3xl prose sm:prose-lg"
+                        >
+                            {markdownContent}
+                        </Markdown>
+                    </div>
                 )}
             </article>
 
             {(prevProject || nextProject) && (
-                <nav className="px-4 mt-12 mb-20">
-                    <div className="grid max-w-5xl mx-auto gap-x-6 gap-y-12 sm:grid-cols-2 lg:gap-x-8">
-                        {nextProject && <ProjectNavItem project={nextProject} className={undefined} />}
+                <nav className="flex justify-center px-4 mt-12 mb-20">
+                    <div className="flex flex-col w-full max-w-5xl gap-12 sm:flex-row sm:justify-between sm:items-start">
+                        {nextProject && (
+                            <div className="flex flex-1 w-full sm:w-auto">
+                                <ProjectNavItem project={nextProject} className={undefined} />
+                            </div>
+                        )}
                         {prevProject && (
-                            <ProjectNavItem project={prevProject} className="sm:items-end sm:col-start-2" />
+                            <div className="flex flex-1 w-full sm:w-auto sm:justify-end">
+                                <ProjectNavItem project={prevProject} className="sm:items-end" />
+                            </div>
                         )}
                     </div>
                 </nav>
@@ -86,7 +98,7 @@ function ProjectMedia({ media }) {
 function ProjectNavItem({ project, className }) {
     return (
         <Annotated content={project}>
-            <Link className={classNames('group flex flex-col gap-6 items-start', className)} href={project}>
+            <Link className={classNames('group flex flex-col gap-6 items-start w-full', className)} href={project}>
                 {project.featuredImage && (
                     <div className="w-full overflow-hidden aspect-3/2">
                         <ImageBlock

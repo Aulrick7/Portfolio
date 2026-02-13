@@ -193,15 +193,19 @@ const WorkXPTimeline: React.FC<WorkXPTimelineProps> = ({ workExperiences, colour
             >
                 <div
                     ref={timelineRef}
-                    className={`flex items-center transition-transform ${isMobile ? 'overflow-x-scroll scrollbar-hide pointer-events-auto px-10' : 'duration-100 ease-linear pointer-events-auto'}`}
+                    className={`flex items-center transition-transform timeline-container ${isMobile ? 'overflow-x-scroll pointer-events-auto px-10' : 'duration-100 ease-linear pointer-events-auto'}`}
                     style={
                         isMobile
                             ? {
                                   width: '100%',
+                                  minWidth: '100%',
+                                  touchAction: 'pan-x',
                                   scrollSnapType: 'x proximity',
                                   WebkitOverflowScrolling: 'touch',
-                                  scrollbarWidth: 'none' /* Firefox */,
-                                  msOverflowStyle: 'none' /* IE and Edge */
+                                  scrollbarWidth: 'none',
+                                  msOverflowStyle: 'none',
+                                  overflowX: 'scroll',
+                                  overflowY: 'hidden'
                               }
                             : {
                                   width: `${timelineWorkXPs.length * 600}px`,
@@ -505,8 +509,16 @@ const WorkXPTimeline: React.FC<WorkXPTimelineProps> = ({ workExperiences, colour
 
             {/* Global styles for hiding scrollbar */}
             <style jsx>{`
-                .scrollbar-hide::-webkit-scrollbar {
+                /* Hide scrollbar while maintaining scroll functionality */
+                .timeline-container::-webkit-scrollbar {
                     display: none;
+                    width: 0;
+                    height: 0;
+                }
+
+                /* Ensure smooth touch scrolling on iOS */
+                .timeline-container {
+                    -webkit-overflow-scrolling: touch;
                 }
             `}</style>
         </div>
