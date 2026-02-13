@@ -12,10 +12,10 @@ const Component: React.FC<ComponentProps> = (props) => {
     const router = useRouter();
     const filterParam = router.query.filter as string | undefined;
 
-    // Determine color based on URL filter parameter - using red for work experience
+    // Determine color - using red for work experience (filterParam not needed since color is always red)
     const colour = React.useMemo<'red'>(() => {
         return 'red';
-    }, [filterParam]);
+    }, []);
 
     // Filter work experiences based on URL query parameter
     const filteredWorkXP = React.useMemo(() => {

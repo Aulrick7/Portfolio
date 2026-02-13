@@ -15,7 +15,7 @@ const BaseLayout: React.FC<BaseLayoutProps> = (props) => {
 
     return (
         <div className="flex flex-col grow">
-            {page?.backgroundImage && <BackgroundImage {...page?.backgroundImage} />}
+            {'backgroundImage' in page && page?.backgroundImage && <BackgroundImage {...page?.backgroundImage} />}
             {site.header && (
                 <Annotated content={site}>
                     <Annotated content={site.header}>

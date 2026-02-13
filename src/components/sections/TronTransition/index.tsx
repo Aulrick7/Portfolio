@@ -109,7 +109,7 @@ export default function TronTransition({ isActive, onComplete, direction, colour
             clearInterval(rotationInterval);
             if (progressInterval) clearInterval(progressInterval);
         };
-    }, [isActive, onComplete, stage]);
+    }, [isActive, onComplete, stage, direction]);
 
     if (!isActive) return null;
 

@@ -20,7 +20,9 @@ const Component: React.FC<ComponentProps> = (props) => {
             <div className="terminal-content">
                 {/* Quote section */}
                 <div className={`quote-section`}>
-                    <p className="quote-text">"This is your last chance. After this, there is no turning back."</p>
+                    <p className="quote-text">
+                        `&quot;`This is your last chance. After this, there is no turning back.`&quot;`
+                    </p>
                     <p className="quote-author">— Morpheus</p>
                 </div>
 
