@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import { useRouter } from 'next/router';
 import { useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import TronTransition from '../TronTransition';
 
 export default function ProjectChoiceSection(props) {
@@ -225,8 +226,12 @@ export default function ProjectChoiceSection(props) {
                 </div>
             </div>
 
-            {/* Tron Transition */}
-            <TronTransition isActive={isTransitioning} direction={direction} colour={colourChoice} />
+            {/* Tron Transition - Rendered outside body using Portal */}
+            {typeof window !== 'undefined' &&
+                createPortal(
+                    <TronTransition isActive={isTransitioning} direction={direction} colour={colourChoice} />,
+                    document.body
+                )}
 
             <style jsx>{`
                 .tron-grid {
