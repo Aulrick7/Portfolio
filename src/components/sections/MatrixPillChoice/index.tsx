@@ -55,11 +55,6 @@ export default function MatrixPillChoice(props) {
                     </div>
                     <PillsRender pills={pills} />
                 </div>
-
-                {/* Bottom navigation hint */}
-                <div className="bottom-hint">
-                    <p>Press ESC to explore the rest of the site</p>
-                </div>
             </div>
         </div>
     );
