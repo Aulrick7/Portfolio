@@ -30,11 +30,7 @@ export default function ProjectChoiceSection(props) {
 
     return (
         <>
-            <div
-                id={elementId || null}
-                data-theme={colors}
-                className="relative w-full h-screen overflow-hidden bg-black"
-            >
+            <div id={elementId || null} data-theme={colors} className="relative w-full h-full overflow-hidden bg-black">
                 {/* Video Background */}
                 <div className="absolute inset-0">
                     <video
@@ -96,7 +92,8 @@ export default function ProjectChoiceSection(props) {
                                         <div
                                             className="w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 lg:w-64 lg:h-64 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-active:scale-105"
                                             style={{
-                                                clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                                                clipPath:
+                                                    'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
                                                 background:
                                                     'linear-gradient(135deg, rgba(0, 255, 0, 0.1) 0%, rgba(0, 255, 100, 0.1) 100%)',
                                                 border: '2px solid rgba(0, 255, 0, 0.5)',
@@ -105,8 +102,12 @@ export default function ProjectChoiceSection(props) {
                                         >
                                             <div className="text-center">
                                                 <div className="text-3xl sm:text-4xl md:text-5xl mb-2 md:mb-4"></div>
-                                                <div className="text-lg sm:text-xl md:text-2xl font-bold text-green-300">All</div>
-                                                <div className="text-sm sm:text-base md:text-lg text-green-400">PROJECTS</div>
+                                                <div className="text-lg sm:text-xl md:text-2xl font-bold text-green-300">
+                                                    All
+                                                </div>
+                                                <div className="text-sm sm:text-base md:text-lg text-green-400">
+                                                    PROJECTS
+                                                </div>
                                             </div>
                                         </div>
 
@@ -114,8 +115,10 @@ export default function ProjectChoiceSection(props) {
                                         <div
                                             className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                                             style={{
-                                                clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                                                background: 'radial-gradient(circle, rgba(0, 255, 0, 0.3) 0%, transparent 70%)',
+                                                clipPath:
+                                                    'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                                                background:
+                                                    'radial-gradient(circle, rgba(0, 255, 0, 0.3) 0%, transparent 70%)',
                                                 filter: 'blur(10px)'
                                             }}
                                         ></div>
@@ -142,7 +145,8 @@ export default function ProjectChoiceSection(props) {
                                             <div
                                                 className="w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 lg:w-64 lg:h-64 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-active:scale-105"
                                                 style={{
-                                                    clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                                                    clipPath:
+                                                        'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
                                                     background:
                                                         'linear-gradient(135deg, rgba(0, 255, 255, 0.1) 0%, rgba(0, 100, 255, 0.1) 100%)',
                                                     border: '2px solid rgba(0, 255, 255, 0.5)',
@@ -150,9 +154,15 @@ export default function ProjectChoiceSection(props) {
                                                 }}
                                             >
                                                 <div className="text-center">
-                                                    <div className="text-3xl sm:text-4xl md:text-5xl mb-2 md:mb-4">🎮</div>
-                                                    <div className="text-lg sm:text-xl md:text-2xl font-bold text-cyan-300">GAME</div>
-                                                    <div className="text-sm sm:text-base md:text-lg text-cyan-400">PROJECTS</div>
+                                                    <div className="text-3xl sm:text-4xl md:text-5xl mb-2 md:mb-4">
+                                                        🎮
+                                                    </div>
+                                                    <div className="text-lg sm:text-xl md:text-2xl font-bold text-cyan-300">
+                                                        GAME
+                                                    </div>
+                                                    <div className="text-sm sm:text-base md:text-lg text-cyan-400">
+                                                        PROJECTS
+                                                    </div>
                                                 </div>
                                             </div>
 
@@ -160,7 +170,8 @@ export default function ProjectChoiceSection(props) {
                                             <div
                                                 className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                                                 style={{
-                                                    clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                                                    clipPath:
+                                                        'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
                                                     background:
                                                         'radial-gradient(circle, rgba(0, 255, 255, 0.3) 0%, transparent 70%)',
                                                     filter: 'blur(10px)'
@@ -190,7 +201,8 @@ export default function ProjectChoiceSection(props) {
                                             <div
                                                 className="w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 lg:w-64 lg:h-64 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-active:scale-105"
                                                 style={{
-                                                    clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                                                    clipPath:
+                                                        'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
                                                     background:
                                                         'linear-gradient(135deg, rgba(255, 0, 255, 0.1) 0%, rgba(255, 0, 100, 0.1) 100%)',
                                                     border: '2px solid rgba(255, 0, 255, 0.5)',
@@ -198,9 +210,15 @@ export default function ProjectChoiceSection(props) {
                                                 }}
                                             >
                                                 <div className="text-center">
-                                                    <div className="text-3xl sm:text-4xl md:text-5xl mb-2 md:mb-4">💻</div>
-                                                    <div className="text-lg sm:text-xl md:text-2xl font-bold text-pink-300">SOFTWARE</div>
-                                                    <div className="text-sm sm:text-base md:text-lg text-pink-400">PROJECTS</div>
+                                                    <div className="text-3xl sm:text-4xl md:text-5xl mb-2 md:mb-4">
+                                                        💻
+                                                    </div>
+                                                    <div className="text-lg sm:text-xl md:text-2xl font-bold text-pink-300">
+                                                        SOFTWARE
+                                                    </div>
+                                                    <div className="text-sm sm:text-base md:text-lg text-pink-400">
+                                                        PROJECTS
+                                                    </div>
                                                 </div>
                                             </div>
 
@@ -208,7 +226,8 @@ export default function ProjectChoiceSection(props) {
                                             <div
                                                 className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                                                 style={{
-                                                    clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+                                                    clipPath:
+                                                        'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
                                                     background:
                                                         'radial-gradient(circle, rgba(255, 0, 255, 0.3) 0%, transparent 70%)',
                                                     filter: 'blur(10px)'
@@ -226,7 +245,9 @@ export default function ProjectChoiceSection(props) {
                         </div>
 
                         {/* Instruction text */}
-                        <p className="text-base sm:text-lg md:text-xl text-cyan-300 opacity-75">SELECT YOUR DESTINATION</p>
+                        <p className="text-base sm:text-lg md:text-xl text-cyan-300 opacity-75">
+                            SELECT YOUR DESTINATION
+                        </p>
                     </div>
                 </div>
 
