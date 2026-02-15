@@ -73,17 +73,6 @@
                 "altText": "Github link"
             }
         ],
-        "contacts": {
-            "type": "ContactBlock",
-            "title": "Contact details",
-            "phoneNumber": "+1-437-432-2484",
-            "phoneAltText": "Phone",
-            "email": "selvakumarabhishek521@gmail.com",
-            "emailAltText": "Email",
-            "address": "Toronto, Ontario, Canada",
-            "addressAltText": "Address",
-            "elementId": ""
-        },
         "copyrightText": "Powered by [Netlify](https://www.netlify.com/) and React",
         "styles": {
             "self": {

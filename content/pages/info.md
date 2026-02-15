@@ -224,8 +224,6 @@ sections:
         subtitle: 'Contact:'
         text: |-
           [selvakumarabhishek521@gmail.com](mailto:selvakumarabhishek521@gmail.com)
-          Primary Phone: [+1-437-432-2484](tel:+1-437-432-2484)
-          Secondary Phone: [+974-66015127](tel:+974-66015127)
         styles:
           self:
             textAlign: left
