@@ -146,7 +146,7 @@ function PillsRender({ pills }) {
             {/* Quote section */}
             <div className={`quote-section ${glitchText ? 'glitch' : ''}`}>
                 <p className="quote-text">
-                    `&quot;`This is your last chance. After this, there is no turning back.`&quot;`
+                    &quot;This is your last chance. After this, there is no turning back.&quot;
                 </p>
                 <p className="quote-author">— Morpheus</p>
             </div>
