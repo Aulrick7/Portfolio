@@ -5,6 +5,7 @@
  * - <Screen> puts real, clickable HTML on the CRT glass using drei's <Html transform>.
  *   It shows the same pill choice as the old home page (PillsRender from MatrixPillChoice).
  * - <CameraRig> flies the camera in from the dark, then follows the mouse slightly.
+ * - <MatrixRain3D> is the falling code in the 3D space around the computer.
  *
  * Handy knobs are grouped at the top of the file.
  */
@@ -16,12 +17,18 @@ import * as THREE from 'three';
 
 import { ComputerTerminal, SCREEN } from '@/components/three/ComputerTerminal';
 import MatrixCodeRain from '@/components/three/MatrixCodeRain';
+import MatrixRain3D from '@/components/three/MatrixRain3D';
 import { PillsRender } from '../MatrixPillChoice';
 
 /* ------------------------------------------------------------------ knobs */
 
 const BACKGROUND = '#020403';
 const MATRIX_GREEN = '#00ff41';
+
+/** Brightness of the 3D code rain around the computer (1 = subtle, 2 = very bright). */
+const RAIN_INTENSITY = 1.5;
+/** Also run code rain behind the text on the CRT screen. Off: the rain now lives in the 3D scene. */
+const SCREEN_RAIN = false;
 
 /** Camera field of view (degrees). */
 const FOV = 30;
@@ -158,7 +165,7 @@ function Screen({ pills, poweredOn }: { pills: any[]; poweredOn: boolean }) {
                 ].join(' ')}
                 style={{ width: SCREEN_PX.width, height: SCREEN_PX.height }}
             >
-                {poweredOn && <MatrixCodeRain className="crt-rain" />}
+                {SCREEN_RAIN && poweredOn && <MatrixCodeRain className="crt-rain" />}
                 <div className="crt-content">
                     <p className="crt-prompt">
                         root@zion:~$ ./wake_up --user=visitor<span className="crt-cursor">█</span>
@@ -279,6 +286,7 @@ export default function ComputerCanvas({ pills }: { pills: any[] }) {
                 <fog attach="fog" args={[BACKGROUND, 4, 14]} />
                 <Lights />
                 <Floor />
+                <MatrixRain3D intensity={RAIN_INTENSITY} paused={reducedMotion} />
                 <React.Suspense fallback={null}>
                     <ComputerTerminal>
                         <Screen pills={pills} poweredOn={poweredOn} />

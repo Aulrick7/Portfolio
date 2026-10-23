@@ -50,12 +50,13 @@ npx @gltf-transform/cli webp w.glb computer-terminal.glb --quality 92
 
 # Editing the 3D home page
 
-| What                                                         | Where                                                                                                 |
-| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
-| Use the old flat page instead                                | `content/pages/index.md`: change `type: ComputerScene` to `type: MatrixPillChoice`                    |
-| Camera fly-in, framing, mouse drift, lights, colours         | knobs at the top of `src/components/sections/ComputerScene/ComputerCanvas.tsx`                        |
-| What appears on the screen                                   | `Screen` in the same file, plus `PillsRender` in `src/components/sections/MatrixPillChoice/index.tsx` |
-| Screen styling (CRT scanlines, power-on, font sizes, mobile) | `src/css/main.css`, section "3D computer"                                                             |
-| Code rain on the screen                                      | `src/components/three/MatrixCodeRain.tsx`                                                             |
+| What                                                         | Where                                                                                                  |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
+| Use the old flat page instead                                | `content/pages/index.md`: change `type: ComputerScene` to `type: MatrixPillChoice`                     |
+| Camera fly-in, framing, mouse drift, lights, colours         | knobs at the top of `src/components/sections/ComputerScene/ComputerCanvas.tsx`                         |
+| What appears on the screen                                   | `Screen` in the same file, plus `PillsRender` in `src/components/sections/MatrixPillChoice/index.tsx`  |
+| Screen styling (CRT scanlines, power-on, font sizes, mobile) | `src/css/main.css`, section "3D computer"                                                              |
+| Code rain in the 3D scene (density, brightness, colours)     | `src/components/three/MatrixRain3D.tsx` (props + `DEFAULTS`), `RAIN_INTENSITY` in `ComputerCanvas.tsx` |
+| Code rain on the screen (off by default)                     | `src/components/three/MatrixCodeRain.tsx`, turn on with `SCREEN_RAIN` in `ComputerCanvas.tsx`          |
 
 If WebGL is unavailable or the model fails to load, the home page falls back to the flat `MatrixPillChoice` automatically.
