@@ -494,3 +494,300 @@ layer(base);
     font-size: 12px;
     opacity: 0.5;
 }
+
+/* ==========================================================================
+   3D computer (sections/ComputerScene) - Step 1 of the three.js plan
+   ========================================================================== */
+
+.computer-scene {
+    position: relative;
+    height: calc(100vh - var(--computer-scene-top, 0px));
+    height: calc(100svh - var(--computer-scene-top, 0px));
+    min-height: 480px;
+    background: #020403;
+    overflow: hidden;
+    /* keeps drei's large z-indexes inside this section (the Tron overlay must stay on top) */
+    isolation: isolate;
+}
+
+.computer-canvas {
+    position: absolute !important;
+    inset: 0;
+    z-index: 0; /* own stacking context, so the loader and credit sit on top */
+}
+
+/* Loading screen shown until the model has downloaded */
+.computer-loader {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #020403;
+    color: #00ff41;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 4px;
+    text-shadow: 0 0 10px rgba(0, 255, 65, 0.5);
+    transition:
+        opacity 0.8s ease 0.2s,
+        visibility 0s linear 1s;
+    pointer-events: none;
+}
+
+.computer-loader.is-done {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.computer-loader__label {
+    font-size: 14px;
+    animation: pulse 1s infinite;
+}
+
+.computer-loader__value {
+    font-size: 28px;
+}
+
+/* Attribution for the CC BY-SA model (required by the licence) */
+.computer-credit {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 12px;
+    line-height: 1.5;
+    z-index: 2;
+    margin: 0;
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: rgba(0, 255, 65, 0.55);
+    text-shadow:
+        0 0 3px #000,
+        0 0 6px #000;
+}
+
+.computer-credit a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.computer-credit a:hover {
+    color: #00ff41;
+}
+
+/* --- The CRT screen (HTML placed on the 3D glass by drei <Html transform>) --- */
+
+.crt-screen {
+    position: relative;
+    overflow: hidden;
+    border-radius: 18px / 22px;
+    background: #000;
+    color: #00ff41;
+    font-family: 'Courier New', monospace;
+    user-select: none;
+}
+
+.crt-screen--off {
+    background: radial-gradient(ellipse at 40% 35%, #1a211d 0%, #0b100d 55%, #050806 100%);
+}
+
+.crt-screen--off .crt-content {
+    opacity: 0;
+}
+
+.crt-screen--on .crt-content {
+    animation: crt-power-on 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes crt-power-on {
+    0% {
+        transform: scale(1, 0.004);
+        filter: brightness(6);
+        opacity: 1;
+    }
+    35% {
+        transform: scale(1, 0.004);
+        filter: brightness(4);
+    }
+    70% {
+        transform: scale(1, 1);
+        filter: brightness(1.6);
+    }
+    100% {
+        transform: scale(1, 1);
+        filter: brightness(1);
+    }
+}
+
+.crt-rain {
+    position: absolute;
+    inset: 0;
+    opacity: 0.28;
+    pointer-events: none;
+}
+
+.crt-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    padding: 20px 30px;
+    background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.15) 70%);
+}
+
+.crt-prompt {
+    position: absolute;
+    top: 18px;
+    left: 30px;
+    margin: 0;
+    font-size: 13px;
+    opacity: 0.7;
+}
+
+.crt-cursor {
+    margin-left: 4px;
+    animation: blink 1s steps(1) infinite;
+}
+
+/* Scanlines, glass vignette and a faint flicker on top of everything */
+.crt-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    border-radius: inherit;
+    background:
+        repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px),
+        radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.75) 100%);
+    box-shadow:
+        inset 0 0 40px rgba(0, 255, 65, 0.12),
+        inset 0 0 6px rgba(0, 0, 0, 0.9);
+    animation: crt-flicker 6s infinite;
+}
+
+@keyframes crt-flicker {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    48% {
+        opacity: 0.94;
+    }
+    50% {
+        opacity: 1;
+    }
+    52% {
+        opacity: 0.97;
+    }
+}
+
+/* The existing pill choice, resized to fit the 720x480 screen */
+.crt-screen .terminal-content {
+    padding: 0;
+}
+
+.crt-screen .quote-section {
+    margin-bottom: 20px;
+}
+
+.crt-screen .quote-text {
+    font-size: 26px;
+    line-height: 1.45;
+    margin-bottom: 8px;
+}
+
+.crt-screen .quote-author {
+    font-size: 15px;
+}
+
+.crt-screen .pills-container {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 0;
+}
+
+.crt-screen .pill-wrapper {
+    padding: 12px 10px;
+    border: 2px solid transparent;
+}
+
+.crt-screen .pill {
+    width: 96px;
+    height: 32px;
+    margin-bottom: 16px;
+}
+
+.crt-screen .pill-label {
+    gap: 6px;
+}
+
+.crt-screen .pill-color-text {
+    font-size: 20px;
+}
+
+.crt-screen .pill-description {
+    font-size: 17px;
+}
+
+.crt-screen .pill-destination {
+    font-size: 14px;
+}
+
+.crt-screen .pill-destination {
+    margin-top: 2px;
+}
+
+.crt-screen .loading-matrix {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 18px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+/* Phones: the screen is small, so use bigger type and drop the descriptions */
+.crt-screen--compact .crt-prompt,
+.crt-screen--compact .pill-description {
+    display: none;
+}
+
+.crt-screen--compact .crt-content {
+    padding: 26px 30px;
+}
+
+.crt-screen--compact .quote-text {
+    font-size: 32px;
+    line-height: 1.3;
+}
+
+.crt-screen--compact .quote-author {
+    font-size: 22px;
+}
+
+.crt-screen--compact .pill {
+    width: 120px;
+    height: 40px;
+}
+
+.crt-screen--compact .pill-color-text {
+    font-size: 26px;
+}
+
+.crt-screen--compact .pill-destination {
+    font-size: 22px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .crt-screen--on .crt-content,
+    .crt-overlay,
+    .crt-cursor {
+        animation: none;
+    }
+}

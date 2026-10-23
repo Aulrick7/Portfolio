@@ -7,13 +7,12 @@
  * - Better UX with state management
  */
 
-import { useRouter } from 'next/router';
+import Router from 'next/router';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import TronTransition from '../TronTransition';
 
 export default function MatrixPillChoice(props) {
-    const router = useRouter();
     const [showChoice, setShowChoice] = useState(false);
     const { elementId, pills = [] } = props;
 
@@ -60,8 +59,11 @@ export default function MatrixPillChoice(props) {
     );
 }
 
-function PillsRender({ pills }) {
-    const router = useRouter();
+// Exported so the 3D computer (sections/ComputerScene) can show the same pills on its screen.
+// Uses the `Router` singleton rather than useRouter(): drei's <Html> mounts the screen in a
+// separate React root, which has no access to Next's router context.
+export function PillsRender({ pills }) {
+    const router = Router;
     const [glitchText, setGlitchText] = useState(false);
     const [selectedPill, setSelectedPill] = useState<'red' | 'blue' | null>(null);
     const [showTronTransition, setShowTronTransition] = useState(false);

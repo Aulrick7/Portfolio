@@ -38,7 +38,8 @@ export type SectionModels =
     | RecentProjectsSection
     | TestimonialsSection
     | TextSection
-    | MatrixPillChoice;
+    | MatrixPillChoice
+    | ComputerScene;
 
 export type ContentObject =
     | BackgroundImage
@@ -87,7 +88,8 @@ export type ContentObject =
     | ThemeStyle
     | VideoBlock
     | PillLayout
-    | MatrixPillChoice;
+    | MatrixPillChoice
+    | ComputerScene;
 
 export type ContentObjectType =
     | 'BackgroundImage'
@@ -136,6 +138,7 @@ export type ContentObjectType =
     | 'TextSection'
     | 'ThemeStyle'
     | 'MatrixPillChoice'
+    | 'ComputerScene'
     | 'VideoBlock';
 
 export type BackgroundImage = BaseContentObject & {
@@ -767,6 +770,13 @@ export type MatrixPillChoice = BaseContentObject & {
     elementId?: string;
     colors?: 'colors-a' | 'colors-b' | 'colors-c' | 'colors-d' | 'colors-e' | 'colors-f';
     styles?: any;
+    pills?: PillLayout[];
+};
+
+/** Home page 3D computer: same fields as MatrixPillChoice, shown on a three.js CRT screen. */
+export type ComputerScene = BaseContentObject & {
+    type: 'ComputerScene';
+    elementId?: string;
     pills?: PillLayout[];
 };
 export type PillLayout = BaseContentObject & {

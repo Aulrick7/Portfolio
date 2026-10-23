@@ -24,6 +24,7 @@ function isRefField(modelName: string, fieldName: string) {
     return !!allReferenceFields[modelName + ':' + fieldName];
 }
 allReferenceFields['MatrixPillChoice:pills'] = true;
+allReferenceFields['ComputerScene:pills'] = true;
 const supportedFileTypes = ['md', 'json'];
 function contentFilesInPath(dir: string) {
     const globPattern = `${dir}/**/*.{${supportedFileTypes.join(',')}}`;
