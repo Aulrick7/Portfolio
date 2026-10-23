@@ -44,7 +44,13 @@ export const DIVE = {
     /** Number of angular "shards" the streaks are split into. */
     shards: 240,
     /** Brightness of the light streaks racing outward in the tunnel at the end. */
-    warp: 1.2,
+    warp: 1.5,
+    /**
+     * Look of the tunnel at the end:
+     * - 'pixels': chunky pixel blocks streaming outward (the one Abhishek picked)
+     * - 'lines': thin smooth light streaks
+     */
+    tunnel: 'pixels' as 'pixels' | 'lines',
     /** Colour each pill shifts the picture towards (the reference goes warm to cyan). */
     tint: { blue: '#33c8ff', red: '#ff3b3b' },
     /** With prefers-reduced-motion: a plain fade to black of this length instead. */
@@ -149,6 +155,7 @@ const fragmentShader = /* glsl */ `
     uniform float uDarken;
     uniform float uWarp;
     uniform float uTime;
+    uniform float uPixelTunnel; // 1 = chunky pixel streaks, 0 = thin smooth lines
     varying vec2 vUv;
 
     float hash(float n) { return fract(sin(n) * 43758.5453123); }
@@ -194,17 +201,28 @@ const fragmentShader = /* glsl */ `
         // Tunnel: the picture sinks into the dark, edges first...
         color *= mix(1.0, 0.35 * smoothstep(1.1, 0.0, r), uDarken);
 
-        // ...while thin light streaks race outward from the centre (speed lines, not pixelated).
-        vec2 sd = (vUv - uCenter) * aspect;
-        float sr = length(sd);
-        float sAngle = atan(sd.y, sd.x) / 6.2831853 + 0.5;
-        float line = floor(sAngle * 700.0);
-        float pick = hash(line * 3.17);
-        float speed = 0.45 + 1.1 * hash(line * 9.13);
-        float phase = fract(log(sr + 0.03) * 2.2 - uTime * speed * 2.5 + pick * 7.0);
-        float dash = smoothstep(0.0, 0.05, phase) * (1.0 - smoothstep(0.2, 0.45, phase));
-        float edge = 1.0 - abs(fract(sAngle * 700.0) - 0.5) * 2.0; // soft line profile across its width
-        color += uTint * step(0.85, pick) * dash * smoothstep(0.2, 0.9, edge) * smoothstep(0.02, 0.3, sr) * uWarp;
+        // ...while light streaks race outward from the centre.
+        if (uPixelTunnel > 0.5) {
+            // Chunky: worked out on the pixel-block grid, so the streaks break into bright square pixels.
+            float line = floor(angle * 520.0);
+            float pick = hash(line * 3.17);
+            float speed = 0.5 + 1.2 * hash(line * 9.13);
+            float phase = fract(log(r + 0.03) * 0.8 - uTime * speed + pick * 7.0);
+            float dash = smoothstep(0.0, 0.06, phase) * (1.0 - smoothstep(0.18, 0.5, phase));
+            color += uTint * step(0.8, pick) * dash * smoothstep(0.02, 0.3, r) * uWarp;
+        } else {
+            // Smooth: thin lines worked out per screen pixel.
+            vec2 sd = (vUv - uCenter) * aspect;
+            float sr = length(sd);
+            float sAngle = atan(sd.y, sd.x) / 6.2831853 + 0.5;
+            float line = floor(sAngle * 700.0);
+            float pick = hash(line * 3.17);
+            float speed = 0.45 + 1.1 * hash(line * 9.13);
+            float phase = fract(log(sr + 0.03) * 2.2 - uTime * speed * 2.5 + pick * 7.0);
+            float dash = smoothstep(0.0, 0.05, phase) * (1.0 - smoothstep(0.2, 0.45, phase));
+            float edge = 1.0 - abs(fract(sAngle * 700.0) - 0.5) * 2.0; // soft profile across the line
+            color += uTint * step(0.85, pick) * dash * smoothstep(0.2, 0.9, edge) * smoothstep(0.02, 0.3, sr) * uWarp * 0.8;
+        }
 
         // ...and finally everything fades to black.
         color *= 1.0 - smoothstep(0.65, 1.0, uDarken);
@@ -261,7 +279,8 @@ export function DivePass({ color, focus = SCREEN.center, reducedMotion, onDone }
                     uFlash: { value: 0 },
                     uDarken: { value: 0 },
                     uWarp: { value: 0 },
-                    uTime: { value: 0 }
+                    uTime: { value: 0 },
+                    uPixelTunnel: { value: DIVE.tunnel === 'pixels' ? 1 : 0 }
                 },
                 depthTest: false,
                 depthWrite: false
@@ -342,7 +361,9 @@ export function DivePass({ color, focus = SCREEN.center, reducedMotion, onDone }
             // Picture: stretch, pixel blocks, flash, colour shift, tunnel and black.
             u.uStretch.value =
                 DIVE.maxStretch * smoothstep(p, 0.12, 0.6) + (1 - DIVE.maxStretch) * smoothstep(p, 0.6, 1);
-            u.uBlock.value = 1 + (DIVE.maxBlock - 1) * smoothstep(p, 0.22, 0.55) * (1 - 0.7 * smoothstep(p, 0.7, 0.9));
+            // Pixel blocks grow and stay big through a pixel tunnel; for the smooth tunnel they shrink back.
+            const shrink = DIVE.tunnel === 'pixels' ? 0 : 0.7 * smoothstep(p, 0.7, 0.9);
+            u.uBlock.value = 1 + (DIVE.maxBlock - 1) * smoothstep(p, 0.22, 0.7) * (1 - shrink);
             u.uFlash.value = 1.4 * Math.exp(-Math.pow((p - 0.47) / 0.12, 2));
             u.uTintMix.value = 0.85 * smoothstep(p, 0.36, 0.72);
             u.uDarken.value = smoothstep(p, 0.56, 1);
