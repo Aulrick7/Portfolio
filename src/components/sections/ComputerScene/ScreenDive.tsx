@@ -51,6 +51,13 @@ export const DIVE = {
      * - 'lines': thin smooth light streaks
      */
     tunnel: 'pixels' as 'pixels' | 'lines',
+    /**
+     * The ending: instead of fading, the streaks and what is left of the picture are pulled outward and off
+     * the edges, emptying the frame from the centre. pullStart is when that begins (0 to 1 of the dive),
+     * pullTravel how much faster the streaks fly out (higher = they leave quicker).
+     */
+    pullStart: 0.72,
+    pullTravel: 8,
     /** Colour each pill shifts the picture towards (the reference goes warm to cyan). */
     tint: { blue: '#33c8ff', red: '#ff3b3b' },
     /** With prefers-reduced-motion: a plain fade to black of this length instead. */
@@ -156,9 +163,30 @@ const fragmentShader = /* glsl */ `
     uniform float uWarp;
     uniform float uTime;
     uniform float uPixelTunnel; // 1 = chunky pixel streaks, 0 = thin smooth lines
+    uniform float uPull;        // 0..1, the ending: everything is pulled outward off screen
+    uniform float uVoid;        // radius the picture has drained away from during the pull
+    uniform float uCutTime;     // uTime at which the centre stops emitting new streaks
+    uniform float uFade;        // fade to black (reduced motion, and a safety net in the last frames)
     varying vec2 vUv;
 
     float hash(float n) { return fract(sin(n) * 43758.5453123); }
+
+    // Dashes racing outward along rays, evenly spaced in log(radius) so they speed up as they go out,
+    // like passing through a tunnel. Once the pull starts the centre stops emitting new dashes; the ones
+    // already out keep flying (faster and longer) until they leave the screen.
+    float streaks(float r, float angle, float lineCount, float density, float spacing, float speedScale) {
+        float line = floor(angle * lineCount);
+        float pick = hash(line * 3.17);
+        float speed = (0.5 + 1.2 * hash(line * 9.13)) * speedScale;
+        float offset = pick * 7.0;
+        float x = log(r + 0.03) * spacing - uTime * speed + offset;
+        float phase = fract(x);
+        float dash = smoothstep(0.0, 0.06, phase) * (1.0 - smoothstep(0.18 + 0.45 * uPull, 0.5 + 0.45 * uPull, phase));
+        // Dash number floor(x) shrinks for every new dash the centre emits: keep only those emitted before the cut.
+        float lastEmitted = floor(log(0.03) * spacing - uCutTime * speed + offset);
+        float alive = uPull > 0.0 ? step(lastEmitted, floor(x)) : 1.0;
+        return step(density, pick) * dash * alive;
+    }
 
     void main() {
         vec2 aspect = vec2(uResolution.x / uResolution.y, 1.0);
@@ -170,6 +198,8 @@ const fragmentShader = /* glsl */ `
         vec2 dir = uv - uCenter;
         vec2 d = dir * aspect;
         float r = length(d);
+        // During the pull the picture is sampled from nearer the centre, so it slides outward off screen.
+        vec2 pulledDir = dir * (1.0 - 0.85 * uPull);
 
         // Split the frame into angular shards; each shard streaks by its own amount (blocky extrusions).
         float angle = atan(d.y, d.x) / 6.2831853 + 0.5;
@@ -182,7 +212,7 @@ const fragmentShader = /* glsl */ `
         float weights = 0.0;
         for (int i = 0; i < 24; i++) {
             float f = float(i) / 23.0;
-            vec3 c = texture2D(tScene, uCenter + dir * (1.0 - streak * f)).rgb;
+            vec3 c = texture2D(tScene, uCenter + pulledDir * (1.0 - streak * f)).rgb;
             float w = 1.0 - 0.75 * f;
             sum += c * w;
             weights += w;
@@ -201,31 +231,23 @@ const fragmentShader = /* glsl */ `
         // Tunnel: the picture sinks into the dark, edges first...
         color *= mix(1.0, 0.35 * smoothstep(1.1, 0.0, r), uDarken);
 
-        // ...while light streaks race outward from the centre.
+        // During the pull the dim picture behind drains away outward, softly, from the centre.
+        if (uPull > 0.0) color *= smoothstep(uVoid * 0.4, uVoid * 1.3 + 0.05, r) * (1.0 - 0.6 * uPull);
+
+        // Light streaks race outward from the centre, and at the end are pulled off the screen.
         if (uPixelTunnel > 0.5) {
             // Chunky: worked out on the pixel-block grid, so the streaks break into bright square pixels.
-            float line = floor(angle * 520.0);
-            float pick = hash(line * 3.17);
-            float speed = 0.5 + 1.2 * hash(line * 9.13);
-            float phase = fract(log(r + 0.03) * 0.8 - uTime * speed + pick * 7.0);
-            float dash = smoothstep(0.0, 0.06, phase) * (1.0 - smoothstep(0.18, 0.5, phase));
-            color += uTint * step(0.8, pick) * dash * smoothstep(0.02, 0.3, r) * uWarp;
+            color += uTint * streaks(r, angle, 520.0, 0.8, 0.8, 1.0) * smoothstep(0.02, 0.3, r) * uWarp;
         } else {
             // Smooth: thin lines worked out per screen pixel.
             vec2 sd = (vUv - uCenter) * aspect;
             float sr = length(sd);
             float sAngle = atan(sd.y, sd.x) / 6.2831853 + 0.5;
-            float line = floor(sAngle * 700.0);
-            float pick = hash(line * 3.17);
-            float speed = 0.45 + 1.1 * hash(line * 9.13);
-            float phase = fract(log(sr + 0.03) * 2.2 - uTime * speed * 2.5 + pick * 7.0);
-            float dash = smoothstep(0.0, 0.05, phase) * (1.0 - smoothstep(0.2, 0.45, phase));
             float edge = 1.0 - abs(fract(sAngle * 700.0) - 0.5) * 2.0; // soft profile across the line
-            color += uTint * step(0.85, pick) * dash * smoothstep(0.2, 0.9, edge) * smoothstep(0.02, 0.3, sr) * uWarp * 0.8;
+            color += uTint * streaks(sr, sAngle, 700.0, 0.85, 2.2, 2.5) * smoothstep(0.2, 0.9, edge) * smoothstep(0.02, 0.3, sr) * uWarp * 0.8;
         }
 
-        // ...and finally everything fades to black.
-        color *= 1.0 - smoothstep(0.65, 1.0, uDarken);
+        color *= 1.0 - uFade;
 
         gl_FragColor = vec4(color, 1.0);
         #include <colorspace_fragment>
@@ -280,7 +302,11 @@ export function DivePass({ color, focus = SCREEN.center, reducedMotion, onDone }
                     uDarken: { value: 0 },
                     uWarp: { value: 0 },
                     uTime: { value: 0 },
-                    uPixelTunnel: { value: DIVE.tunnel === 'pixels' ? 1 : 0 }
+                    uPixelTunnel: { value: DIVE.tunnel === 'pixels' ? 1 : 0 },
+                    uPull: { value: 0 },
+                    uVoid: { value: 0 },
+                    uCutTime: { value: DIVE.pullStart * DIVE.seconds },
+                    uFade: { value: 0 }
                 },
                 depthTest: false,
                 depthWrite: false
@@ -348,7 +374,7 @@ export function DivePass({ color, focus = SCREEN.center, reducedMotion, onDone }
         const u = material.uniforms;
 
         if (reducedMotion) {
-            u.uDarken.value = p;
+            u.uFade.value = p;
         } else {
             // Camera: line up with the screen quickly, then accelerate into the glass.
             const cp = Math.min(1, p / DIVE.cameraShare);
@@ -367,8 +393,12 @@ export function DivePass({ color, focus = SCREEN.center, reducedMotion, onDone }
             u.uFlash.value = 1.4 * Math.exp(-Math.pow((p - 0.47) / 0.12, 2));
             u.uTintMix.value = 0.85 * smoothstep(p, 0.36, 0.72);
             u.uDarken.value = smoothstep(p, 0.56, 1);
-            u.uWarp.value = DIVE.warp * smoothstep(p, 0.45, 0.7) * (1 - smoothstep(p, 0.9, 1));
-            u.uTime.value = p * DIVE.seconds;
+            u.uWarp.value = DIVE.warp * smoothstep(p, 0.45, 0.7);
+            // Ease-in only, so the streaks keep accelerating right to the end.
+            const pull = Math.pow(THREE.MathUtils.clamp((p - DIVE.pullStart) / (1 - DIVE.pullStart), 0, 1), 2);
+            u.uFade.value = smoothstep(p, 0.985, 1); // safety net: any straggler is gone in the last frames
+            u.uPull.value = pull;
+            u.uTime.value = p * DIVE.seconds + pull * DIVE.pullTravel;
         }
         perspective.updateProjectionMatrix();
         perspective.updateMatrixWorld();
@@ -379,6 +409,19 @@ export function DivePass({ color, focus = SCREEN.center, reducedMotion, onDone }
             THREE.MathUtils.clamp(tmp.center.x * 0.5 + 0.5, 0, 1),
             THREE.MathUtils.clamp(tmp.center.y * 0.5 + 0.5, 0, 1)
         );
+
+        // The empty centre grows until it has swallowed the farthest corner exactly at the end.
+        const res = u.uResolution.value;
+        const cx = u.uCenter.value.x * (res.x / res.y);
+        const cy = u.uCenter.value.y;
+        const w = res.x / res.y;
+        const farthest = Math.max(
+            Math.hypot(cx, cy),
+            Math.hypot(w - cx, cy),
+            Math.hypot(cx, 1 - cy),
+            Math.hypot(w - cx, 1 - cy)
+        );
+        u.uVoid.value = Math.pow(u.uPull.value, 0.7) * (farthest + 0.3);
 
         state.gl.setRenderTarget(target);
         state.gl.render(scene, perspective);
