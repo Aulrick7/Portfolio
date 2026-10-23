@@ -46,6 +46,7 @@ export const DynamicComponent: React.FC<DynamicComponentProps> = (props) => {
 
 const components = {
     CheckboxFormControl: dynamic(() => import('./molecules/FormBlock/CheckboxFormControl')),
+    ComputerScene: dynamic(() => import('./sections/ComputerScene')),
     ContactSection: dynamic(() => import('./sections/ContactSection')),
     CtaSection: dynamic(() => import('./sections/CtaSection')),
     DividerSection: dynamic(() => import('./sections/DividerSection')),
