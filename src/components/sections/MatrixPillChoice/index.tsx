@@ -59,10 +59,23 @@ export default function MatrixPillChoice(props) {
     );
 }
 
+export type PillChoice = { index: number; color: 'red' | 'blue'; url: string };
+
+type PillsRenderProps = {
+    pills: any[];
+    /**
+     * Optional: called when a pill is clicked, instead of the built-in timing.
+     * Call `proceed()` when your own animation is done; it then runs the usual
+     * navigation (blue: go to the page, red: Tron disk transition, then go to the page).
+     * Used by the 3D computer to dive into the screen first.
+     */
+    onSelect?: (choice: PillChoice, proceed: () => void) => void;
+};
+
 // Exported so the 3D computer (sections/ComputerScene) can show the same pills on its screen.
 // Uses the `Router` singleton rather than useRouter(): drei's <Html> mounts the screen in a
 // separate React root, which has no access to Next's router context.
-export function PillsRender({ pills }) {
+export function PillsRender({ pills, onSelect }: PillsRenderProps) {
     const router = Router;
     const [glitchText, setGlitchText] = useState(false);
     const [selectedPill, setSelectedPill] = useState<'red' | 'blue' | null>(null);
@@ -110,6 +123,18 @@ export function PillsRender({ pills }) {
             // Work Experience pill
             setTronDirection('down');
             setTronColour('red');
+        }
+
+        if (onSelect) {
+            onSelect({ index: pillIndex, color: pillColor, url }, () => {
+                if (pillIndex === 1) {
+                    setShowTronTransition(true);
+                    setTimeout(() => router.push(url), 2000);
+                } else {
+                    router.push(url);
+                }
+            });
+            return;
         }
 
         // Start Tron transition after a brief delay

@@ -45,18 +45,29 @@ npx @gltf-transform/cli webp w.glb computer-terminal.glb --quality 92
 - [@react-three/fiber](https://github.com/pmndrs/react-three-fiber) (MIT)
 - [@react-three/drei](https://github.com/pmndrs/drei) (MIT). `<Html transform occlude="blending">` puts the
   pill choice on the 3D screen.
+- [html-to-image](https://github.com/bubkoo/html-to-image) (MIT). Captures the screen's HTML as a texture when a pill
+  is clicked, so the dive effect can process it.
+
+## References (inspiration only, no footage or assets used)
+
+- The dive into the screen after a pill is clicked is modelled on _Tron: Legacy_ (2010), the "Sam enters the Grid"
+  scene (https://www.youtube.com/watch?v=sfrZ7_nNhsA, 0:44 to 0:47): the light swells, the frame breaks into blocky
+  streaks stretching out from the centre, the colour shifts to cyan, a dark streaked tunnel, then black.
+- The code rain follows the look of _The Matrix_ (1999) titles: mirrored half-width katakana and digits.
 
 ---
 
 # Editing the 3D home page
 
-| What                                                         | Where                                                                                                  |
-| ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
-| Use the old flat page instead                                | `content/pages/index.md`: change `type: ComputerScene` to `type: MatrixPillChoice`                     |
-| Camera fly-in, framing, mouse drift, lights, colours         | knobs at the top of `src/components/sections/ComputerScene/ComputerCanvas.tsx`                         |
-| What appears on the screen                                   | `Screen` in the same file, plus `PillsRender` in `src/components/sections/MatrixPillChoice/index.tsx`  |
-| Screen styling (CRT scanlines, power-on, font sizes, mobile) | `src/css/main.css`, section "3D computer"                                                              |
-| Code rain in the 3D scene (density, brightness, colours)     | `src/components/three/MatrixRain3D.tsx` (props + `DEFAULTS`), `RAIN_INTENSITY` in `ComputerCanvas.tsx` |
-| Code rain on the screen (off by default)                     | `src/components/three/MatrixCodeRain.tsx`, turn on with `SCREEN_RAIN` in `ComputerCanvas.tsx`          |
+| What                                                            | Where                                                                                                  |
+| --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Use the old flat page instead                                   | `content/pages/index.md`: change `type: ComputerScene` to `type: MatrixPillChoice`                     |
+| Camera fly-in, framing, mouse drift, lights, colours            | knobs at the top of `src/components/sections/ComputerScene/ComputerCanvas.tsx`                         |
+| What appears on the screen                                      | `Screen` in the same file, plus `PillsRender` in `src/components/sections/MatrixPillChoice/index.tsx`  |
+| Screen styling (CRT scanlines, power-on, font sizes, mobile)    | `src/css/main.css`, section "3D computer"                                                              |
+| Code rain in the 3D scene (density, brightness, colours)        | `src/components/three/MatrixRain3D.tsx` (props + `DEFAULTS`), `RAIN_INTENSITY` in `ComputerCanvas.tsx` |
+| Code rain on the screen (off by default)                        | `src/components/three/MatrixCodeRain.tsx`, turn on with `SCREEN_RAIN` in `ComputerCanvas.tsx`          |
+| Dive into the screen after a pill click (timing, look, colours) | `DIVE` at the top of `src/components/sections/ComputerScene/ScreenDive.tsx`                            |
+| Scrub the dive while tuning (development only)                  | browser console: `window.__diveProgress = 0.5` before clicking a pill, then change the number          |
 
 If WebGL is unavailable or the model fails to load, the home page falls back to the flat `MatrixPillChoice` automatically.

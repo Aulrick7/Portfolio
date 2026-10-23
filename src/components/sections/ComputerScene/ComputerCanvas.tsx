@@ -6,6 +6,10 @@
  *   It shows the same pill choice as the old home page (PillsRender from MatrixPillChoice).
  * - <CameraRig> flies the camera in from the dark, then follows the mouse slightly.
  * - <MatrixRain3D> is the falling code in the 3D space around the computer.
+ * - Clicking a pill runs the dive into the screen (./ScreenDive.tsx), then the usual navigation.
+ *
+ * The renderer uses no tone mapping (`flat`), so the dive's full-screen effect starts from exactly the
+ * same picture as the normal render.
  *
  * Handy knobs are grouped at the top of the file.
  */
@@ -18,7 +22,8 @@ import * as THREE from 'three';
 import { ComputerTerminal, SCREEN } from '@/components/three/ComputerTerminal';
 import MatrixCodeRain from '@/components/three/MatrixCodeRain';
 import MatrixRain3D from '@/components/three/MatrixRain3D';
-import { PillsRender } from '../MatrixPillChoice';
+import { PillChoice, PillsRender } from '../MatrixPillChoice';
+import { DivePass, pointOnScreen, ScreenSnapshot, snapshotScreen } from './ScreenDive';
 
 /* ------------------------------------------------------------------ knobs */
 
@@ -62,6 +67,11 @@ const SCREEN_PX = { width: 720, height: 480 };
 const SCREEN_COVER = 0.965;
 /** drei <Html transform>: 1 CSS px = distanceFactor / 400 world units. */
 const SCREEN_DISTANCE_FACTOR = (SCREEN.width * SCREEN_COVER * 400) / SCREEN_PX.width;
+/** Size of the HTML screen on the glass, in world units. */
+const SCREEN_PLANE = {
+    width: SCREEN.width * SCREEN_COVER,
+    height: (SCREEN.width * SCREEN_COVER * SCREEN_PX.height) / SCREEN_PX.width
+};
 
 /* ------------------------------------------------------------------ helpers */
 
@@ -107,7 +117,14 @@ function usePrefersReducedMotion() {
 
 /* ------------------------------------------------------------------ scene parts */
 
-function CameraRig({ reducedMotion, onArrive }: { reducedMotion: boolean; onArrive: () => void }) {
+type CameraRigProps = {
+    reducedMotion: boolean;
+    /** Stop moving the camera (the dive into the screen has taken over). */
+    frozen: boolean;
+    onArrive: () => void;
+};
+
+function CameraRig({ reducedMotion, frozen, onArrive }: CameraRigProps) {
     const startedAt = React.useRef<number | null>(null);
     const arrived = React.useRef(false);
     const rest = React.useMemo(() => new THREE.Vector3(), []);
@@ -116,6 +133,7 @@ function CameraRig({ reducedMotion, onArrive }: { reducedMotion: boolean; onArri
     const lookAtRest = React.useMemo(() => new THREE.Vector3(), []);
 
     useFrame((state, delta) => {
+        if (frozen) return;
         const { camera, clock, pointer, size } = state;
         if (startedAt.current === null) startedAt.current = clock.elapsedTime;
 
@@ -146,7 +164,14 @@ function CameraRig({ reducedMotion, onArrive }: { reducedMotion: boolean; onArri
     return null;
 }
 
-function Screen({ pills, poweredOn }: { pills: any[]; poweredOn: boolean }) {
+type ScreenProps = {
+    pills: any[];
+    poweredOn: boolean;
+    screenRef: React.Ref<HTMLDivElement>;
+    onSelect: (choice: PillChoice, proceed: () => void) => void;
+};
+
+function Screen({ pills, poweredOn, screenRef, onSelect }: ScreenProps) {
     const compact = useThree((state) => state.size.width < 640);
 
     return (
@@ -158,6 +183,7 @@ function Screen({ pills, poweredOn }: { pills: any[]; poweredOn: boolean }) {
             zIndexRange={[50, 0]}
         >
             <div
+                ref={screenRef}
                 className={[
                     'crt-screen',
                     poweredOn ? 'crt-screen--on' : 'crt-screen--off',
@@ -170,7 +196,7 @@ function Screen({ pills, poweredOn }: { pills: any[]; poweredOn: boolean }) {
                     <p className="crt-prompt">
                         root@zion:~$ ./wake_up --user=visitor<span className="crt-cursor">█</span>
                     </p>
-                    {poweredOn && <PillsRender pills={pills} />}
+                    {poweredOn && <PillsRender pills={pills} onSelect={onSelect} />}
                 </div>
                 <div className="crt-overlay" aria-hidden="true" />
             </div>
@@ -190,9 +216,9 @@ function Floor() {
 function Lights() {
     return (
         <>
-            <ambientLight intensity={0.22} />
+            <ambientLight intensity={0.17} />
             {/* key light, front right */}
-            <spotLight position={[2.4, 3.6, 3.2]} angle={0.5} penumbra={0.85} intensity={26} color="#fff4e2" />
+            <spotLight position={[2.4, 3.6, 3.2]} angle={0.5} penumbra={0.85} intensity={21} color="#fff4e2" />
             {/* green rim from behind */}
             <directionalLight position={[-3, 2.5, -2.5]} intensity={0.7} color="#2bff88" />
             {/* light spilling from the screen onto the keyboard and floor */}
@@ -274,6 +300,32 @@ export default function ComputerCanvas({ pills }: { pills: any[] }) {
     const handleReady = React.useCallback(() => setLoaded(true), []);
     const handleArrive = React.useCallback(() => setPoweredOn(true), []);
 
+    // Pill clicked: capture the screen, then dive into it. proceed() runs the usual navigation.
+    const screenRef = React.useRef<HTMLDivElement>(null);
+    const diveStarted = React.useRef(false);
+    const [dive, setDive] = React.useState<{
+        choice: PillChoice;
+        proceed: () => void;
+        texture: THREE.Texture;
+        focus: THREE.Vector3;
+    } | null>(null);
+    const handleSelect = React.useCallback((choice: PillChoice, proceed: () => void) => {
+        if (diveStarted.current) return;
+        diveStarted.current = true;
+        const screen = screenRef.current;
+        const pill = screen
+            ?.querySelectorAll<HTMLElement>('.pill-wrapper')
+            [choice.index]?.querySelector<HTMLElement>('.pill');
+        const focus = pointOnScreen(screen, pill ?? null, SCREEN_PLANE, SCREEN_PX);
+        // Wait two frames so the "selected" state is painted before the capture.
+        requestAnimationFrame(() =>
+            requestAnimationFrame(async () => {
+                const texture = await snapshotScreen(screen, SCREEN_PX.width, SCREEN_PX.height);
+                setDive({ choice, proceed, texture, focus });
+            })
+        );
+    }, []);
+
     return (
         <>
             <Canvas
@@ -281,6 +333,7 @@ export default function ComputerCanvas({ pills }: { pills: any[] }) {
                 dpr={[1, 2]}
                 camera={{ fov: FOV, near: 0.05, far: 60, position: INTRO_FROM.toArray() }}
                 gl={{ antialias: true }}
+                flat
             >
                 <color attach="background" args={[BACKGROUND]} />
                 <fog attach="fog" args={[BACKGROUND, 4, 14]} />
@@ -289,11 +342,26 @@ export default function ComputerCanvas({ pills }: { pills: any[] }) {
                 <MatrixRain3D intensity={RAIN_INTENSITY} paused={reducedMotion} />
                 <React.Suspense fallback={null}>
                     <ComputerTerminal>
-                        <Screen pills={pills} poweredOn={poweredOn} />
+                        <Screen pills={pills} poweredOn={poweredOn} screenRef={screenRef} onSelect={handleSelect} />
                     </ComputerTerminal>
-                    <CameraRig reducedMotion={reducedMotion} onArrive={handleArrive} />
+                    <CameraRig reducedMotion={reducedMotion} frozen={!!dive} onArrive={handleArrive} />
                     <Ready onReady={handleReady} />
                 </React.Suspense>
+                {dive && (
+                    <>
+                        <ScreenSnapshot
+                            texture={dive.texture}
+                            width={SCREEN_PLANE.width}
+                            height={SCREEN_PLANE.height}
+                        />
+                        <DivePass
+                            color={dive.choice.color}
+                            focus={dive.focus}
+                            reducedMotion={reducedMotion}
+                            onDone={dive.proceed}
+                        />
+                    </>
+                )}
             </Canvas>
             <LoadingOverlay done={loaded} />
             <Credit />
