@@ -40,7 +40,12 @@ export const DIVE = {
     /** Strongest radial stretch (0 to 1). */
     maxStretch: 0.92,
     /** Largest pixel block, in screen pixels. */
-    maxBlock: 11,
+    maxBlock: 6,
+    /**
+     * Shade the tunnel's pixel streaks: each streak is a little comet (bright tip, tail fading back towards
+     * the centre) and every pixel gets its own shade, from deep blue to near white. false = flat squares.
+     */
+    pixelShading: true,
     /** Number of angular "shards" the streaks are split into. */
     shards: 240,
     /** Brightness of the light streaks racing outward in the tunnel at the end. */
@@ -167,6 +172,7 @@ const fragmentShader = /* glsl */ `
     uniform float uVoid;        // radius the picture has drained away from during the pull
     uniform float uCutTime;     // uTime at which the centre stops emitting new streaks
     uniform float uFade;        // fade to black (reduced motion, and a safety net in the last frames)
+    uniform float uShade;       // 1 = shaded comet streaks, 0 = flat pixel dashes
     varying vec2 vUv;
 
     float hash(float n) { return fract(sin(n) * 43758.5453123); }
@@ -174,14 +180,23 @@ const fragmentShader = /* glsl */ `
     // Dashes racing outward along rays, evenly spaced in log(radius) so they speed up as they go out,
     // like passing through a tunnel. Once the pull starts the centre stops emitting new dashes; the ones
     // already out keep flying (faster and longer) until they leave the screen.
-    float streaks(float r, float angle, float lineCount, float density, float spacing, float speedScale) {
+    // phaseOut: where this pixel sits along its dash (0 = inner end, larger = further out).
+    float streaks(float r, float angle, float lineCount, float density, float spacing, float speedScale, out float phaseOut) {
         float line = floor(angle * lineCount);
         float pick = hash(line * 3.17);
         float speed = (0.5 + 1.2 * hash(line * 9.13)) * speedScale;
         float offset = pick * 7.0;
         float x = log(r + 0.03) * spacing - uTime * speed + offset;
         float phase = fract(x);
-        float dash = smoothstep(0.0, 0.06, phase) * (1.0 - smoothstep(0.18 + 0.45 * uPull, 0.5 + 0.45 * uPull, phase));
+        phaseOut = phase;
+        float dash;
+        if (uShade > 0.5) {
+            // Comet: tail fades in from the inner end, bright tip at the outer (leading) end.
+            float len = 0.32 + 0.4 * uPull;
+            dash = smoothstep(0.0, len, phase) * (1.0 - smoothstep(len, len + 0.04, phase));
+        } else {
+            dash = smoothstep(0.0, 0.06, phase) * (1.0 - smoothstep(0.18 + 0.45 * uPull, 0.5 + 0.45 * uPull, phase));
+        }
         // Dash number floor(x) shrinks for every new dash the centre emits: keep only those emitted before the cut.
         float lastEmitted = floor(log(0.03) * spacing - uCutTime * speed + offset);
         float alive = uPull > 0.0 ? step(lastEmitted, floor(x)) : 1.0;
@@ -237,14 +252,27 @@ const fragmentShader = /* glsl */ `
         // Light streaks race outward from the centre, and at the end are pulled off the screen.
         if (uPixelTunnel > 0.5) {
             // Chunky: worked out on the pixel-block grid, so the streaks break into bright square pixels.
-            color += uTint * streaks(r, angle, 520.0, 0.8, 0.8, 1.0) * smoothstep(0.02, 0.3, r) * uWarp;
+            float phase;
+            float streak = streaks(r, angle, 520.0, 0.8, 0.8, 1.0, phase) * smoothstep(0.02, 0.3, r) * uWarp;
+            if (uShade > 0.5) {
+                // Each pixel block gets its own shade; brighter pixels also lean towards white.
+                vec2 block = floor(vUv * uResolution / max(uBlock, 1.0));
+                float grain = 0.35 + 0.65 * hash(block.x * 12.9898 + block.y * 78.233);
+                float shade = grain * streak;
+                vec3 deep = uTint * 0.5;
+                vec3 hot = mix(uTint, vec3(1.0), 0.5);
+                color += mix(deep, hot, clamp(shade, 0.0, 1.0)) * shade * 1.35;
+            } else {
+                color += uTint * streak;
+            }
         } else {
             // Smooth: thin lines worked out per screen pixel.
             vec2 sd = (vUv - uCenter) * aspect;
             float sr = length(sd);
             float sAngle = atan(sd.y, sd.x) / 6.2831853 + 0.5;
             float edge = 1.0 - abs(fract(sAngle * 700.0) - 0.5) * 2.0; // soft profile across the line
-            color += uTint * streaks(sr, sAngle, 700.0, 0.85, 2.2, 2.5) * smoothstep(0.2, 0.9, edge) * smoothstep(0.02, 0.3, sr) * uWarp * 0.8;
+            float sPhase;
+            color += uTint * streaks(sr, sAngle, 700.0, 0.85, 2.2, 2.5, sPhase) * smoothstep(0.2, 0.9, edge) * smoothstep(0.02, 0.3, sr) * uWarp * 0.8;
         }
 
         color *= 1.0 - uFade;
@@ -303,6 +331,7 @@ export function DivePass({ color, focus = SCREEN.center, reducedMotion, onDone }
                     uWarp: { value: 0 },
                     uTime: { value: 0 },
                     uPixelTunnel: { value: DIVE.tunnel === 'pixels' ? 1 : 0 },
+                    uShade: { value: DIVE.pixelShading ? 1 : 0 },
                     uPull: { value: 0 },
                     uVoid: { value: 0 },
                     uCutTime: { value: DIVE.pullStart * DIVE.seconds },
