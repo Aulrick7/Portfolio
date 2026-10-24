@@ -45,24 +45,24 @@ export const DIVE = {
      * Shade the tunnel's pixel streaks: each streak is a little comet (bright tip, tail fading back towards
      * the centre) and every pixel gets its own shade, from deep blue to near white. false = flat squares.
      */
-    pixelShading: true,
+    pixelShading: false,
     /** Number of angular "shards" the streaks are split into. */
     shards: 240,
     /** Brightness of the light streaks racing outward in the tunnel at the end. */
     warp: 1.5,
     /**
      * Look of the tunnel at the end:
-     * - 'pixels': chunky pixel blocks streaming outward (the one Abhishek picked)
-     * - 'lines': thin smooth light streaks
+     * - 'lines': thin smooth light streaks flowing outward (current choice)
+     * - 'pixels': pixel blocks streaming outward (tried, looked odd; see also pixelShading)
      */
-    tunnel: 'pixels' as 'pixels' | 'lines',
+    tunnel: 'lines' as 'pixels' | 'lines',
     /**
      * The ending: instead of fading, the streaks and what is left of the picture are pulled outward and off
      * the edges, emptying the frame from the centre. pullStart is when that begins (0 to 1 of the dive),
-     * pullTravel how much faster the streaks fly out (higher = they leave quicker).
+     * pullTravel how far the streaks are flung during it (higher = they leave quicker).
      */
     pullStart: 0.72,
-    pullTravel: 8,
+    pullTravel: 4.5,
     /** Colour each pill shifts the picture towards (the reference goes warm to cyan). */
     tint: { blue: '#33c8ff', red: '#ff3b3b' },
     /** With prefers-reduced-motion: a plain fade to black of this length instead. */
@@ -171,6 +171,7 @@ const fragmentShader = /* glsl */ `
     uniform float uPull;        // 0..1, the ending: everything is pulled outward off screen
     uniform float uVoid;        // radius the picture has drained away from during the pull
     uniform float uCutTime;     // uTime at which the centre stops emitting new streaks
+    uniform float uPullTime;    // extra outward travel during the pull (log-radius units)
     uniform float uFade;        // fade to black (reduced motion, and a safety net in the last frames)
     uniform float uShade;       // 1 = shaded comet streaks, 0 = flat pixel dashes
     varying vec2 vUv;
@@ -186,7 +187,10 @@ const fragmentShader = /* glsl */ `
         float pick = hash(line * 3.17);
         float speed = (0.5 + 1.2 * hash(line * 9.13)) * speedScale;
         float offset = pick * 7.0;
-        float x = log(r + 0.03) * spacing - uTime * speed + offset;
+        // The pull adds travel in radius terms (the same for both tunnel styles), with a little variety per line,
+        // so the lines leave the screen without moving so far per frame that they flicker.
+        float pullJitter = 0.8 + 0.4 * hash(line * 5.71);
+        float x = log(r + 0.03) * spacing - uTime * speed - uPullTime * spacing * pullJitter + offset;
         float phase = fract(x);
         phaseOut = phase;
         float dash;
@@ -335,6 +339,7 @@ export function DivePass({ color, focus = SCREEN.center, reducedMotion, onDone }
                     uPull: { value: 0 },
                     uVoid: { value: 0 },
                     uCutTime: { value: DIVE.pullStart * DIVE.seconds },
+                    uPullTime: { value: 0 },
                     uFade: { value: 0 }
                 },
                 depthTest: false,
@@ -427,7 +432,8 @@ export function DivePass({ color, focus = SCREEN.center, reducedMotion, onDone }
             const pull = Math.pow(THREE.MathUtils.clamp((p - DIVE.pullStart) / (1 - DIVE.pullStart), 0, 1), 2);
             u.uFade.value = smoothstep(p, 0.985, 1); // safety net: any straggler is gone in the last frames
             u.uPull.value = pull;
-            u.uTime.value = p * DIVE.seconds + pull * DIVE.pullTravel;
+            u.uTime.value = p * DIVE.seconds;
+            u.uPullTime.value = pull * DIVE.pullTravel;
         }
         perspective.updateProjectionMatrix();
         perspective.updateMatrixWorld();
