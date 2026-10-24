@@ -791,3 +791,247 @@ layer(base);
         animation: none;
     }
 }
+
+/* ==========================================================================
+   Projects grid in 3D (sections/MatrixProjects) - Step 2 of the three.js plan
+   ========================================================================== */
+
+@font-face {
+    font-family: 'Orbitron';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('/fonts/orbitron-latin-500-normal.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Orbitron';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('/fonts/orbitron-latin-700-normal.woff2') format('woff2');
+}
+
+@font-face {
+    font-family: 'Share Tech Mono';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/fonts/share-tech-mono-latin-400-normal.woff2') format('woff2');
+}
+
+.grid-world-section {
+    position: relative;
+    height: calc(100vh - var(--grid-world-top, 0px));
+    height: calc(100svh - var(--grid-world-top, 0px));
+    min-height: 480px;
+    background: #010407;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.grid-world {
+    position: absolute;
+    inset: 0;
+    touch-action: pan-y;
+}
+
+.grid-world__canvas {
+    position: absolute !important;
+    inset: 0;
+    z-index: 0;
+}
+
+.grid-world__blackout {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    background: #000;
+    pointer-events: none;
+    transition: opacity 0.9s ease;
+}
+
+.grid-world__blackout.is-gone {
+    opacity: 0;
+}
+
+.grid-hud {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
+    color: #bfe9f1;
+}
+
+.grid-hud__where {
+    position: absolute;
+    top: 18px;
+    left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-shadow: 0 0 8px rgba(0, 0, 0, 0.9);
+}
+
+.grid-hud__kicker {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.35em;
+    color: #3ae6ff;
+}
+
+.grid-hud__place {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 500;
+    font-size: 15px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #e8fcff;
+}
+
+.grid-hud__project {
+    font-size: 13px;
+    opacity: 0.75;
+}
+
+.grid-hud__controls {
+    position: absolute;
+    left: 50%;
+    bottom: 46px;
+    transform: translateX(-50%) translateY(12px);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    width: max-content;
+    max-width: calc(100% - 32px);
+    opacity: 0;
+    transition:
+        opacity 0.5s ease,
+        transform 0.5s ease;
+}
+
+.grid-hud.is-ready .grid-hud__controls {
+    opacity: 1;
+    transform: translateX(-50%);
+    pointer-events: auto;
+}
+
+.grid-hud__button {
+    min-height: 44px;
+    padding: 0 18px;
+    border: 1px solid rgba(140, 246, 255, 0.55);
+    background: rgba(1, 10, 14, 0.72);
+    color: #e8fcff;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    cursor: pointer;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 0 14px rgba(58, 230, 255, 0.18);
+    transition:
+        background 0.2s ease,
+        box-shadow 0.2s ease,
+        opacity 0.2s ease;
+}
+
+.grid-hud__button:hover:not(:disabled),
+.grid-hud__button:focus-visible {
+    background: rgba(58, 230, 255, 0.16);
+    box-shadow: 0 0 22px rgba(58, 230, 255, 0.45);
+    outline: none;
+}
+
+.grid-hud__button:disabled {
+    opacity: 0.35;
+    cursor: default;
+}
+
+.grid-hud__button.is-game {
+    border-color: #22d3ee;
+    color: #22d3ee;
+}
+
+.grid-hud__button.is-software {
+    border-color: #ec4899;
+    color: #ec4899;
+    box-shadow: 0 0 14px rgba(236, 72, 153, 0.2);
+}
+
+.grid-hud__button.is-quiet {
+    border-color: rgba(191, 233, 241, 0.25);
+    color: rgba(191, 233, 241, 0.75);
+}
+
+.grid-hud__hint {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 22px;
+    margin: 0;
+    text-align: center;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    opacity: 0;
+    transition: opacity 0.5s ease 0.2s;
+}
+
+.grid-hud.is-ready .grid-hud__hint {
+    opacity: 0.55;
+}
+
+.grid-hud__credit {
+    position: absolute;
+    right: 14px;
+    bottom: 6px;
+    margin: 0;
+    max-width: calc(100% - 28px);
+    font-size: 10px;
+    text-align: right;
+    color: rgba(58, 230, 255, 0.5);
+    pointer-events: auto;
+    text-shadow:
+        0 0 3px #000,
+        0 0 6px #000;
+}
+
+.grid-hud__credit a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+    .grid-hud__where {
+        top: 12px;
+        left: 14px;
+    }
+
+    .grid-hud__place {
+        font-size: 13px;
+    }
+
+    .grid-hud__controls {
+        bottom: 54px;
+        gap: 8px;
+    }
+
+    .grid-hud__button {
+        padding: 0 12px;
+        font-size: 11px;
+        letter-spacing: 0.1em;
+    }
+
+    .grid-hud__hint {
+        display: none;
+    }
+
+    .grid-hud__credit {
+        left: 14px;
+        text-align: left;
+    }
+}

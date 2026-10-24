@@ -47,6 +47,16 @@ export type MatrixRain3DProps = {
     paused?: boolean;
     /** Seed for the layout, so the rain looks the same on every visit. */
     seed?: number;
+    /**
+     * Grow glyphs with distance from this ground point [x, z] instead of with depth along -z.
+     * Use it when the camera can look in any direction (the projects grid).
+     */
+    sizeOrigin?: [number, number];
+    /**
+     * Ground point [x, z] for the dissolve ring: set the material uniform `uDissolveRadius` (via ref) and
+     * every column inside that radius vanishes, with a white flash where the ring passes.
+     */
+    dissolveCenter?: [number, number];
 };
 
 const DEFAULTS = {
@@ -144,6 +154,10 @@ const vertexShader = /* glsl */ `
     uniform float uTime;
     uniform float uGlyphCount;
     uniform vec2 uFade;
+    uniform vec2 uDissolveCenter;
+    uniform float uDissolveRadius; // < 0: off
+    uniform float uDissolveEdge;
+    varying float vFlash;
 
     varying vec2 vUv;
     varying float vGlyph;
@@ -180,6 +194,14 @@ const vertexShader = /* glsl */ `
         vFade = 1.0 - smoothstep(uFade.x, uFade.y, dist);
         // fade the very top of each column in, so columns don't start with a hard edge
         vFade *= smoothstep(0.0, 4.0, slot);
+
+        // Dissolve ring: columns inside the radius are gone, the ones on the ring flash white.
+        vFlash = 0.0;
+        if (uDissolveRadius >= 0.0) {
+            float columnDistance = distance(aColumn.xz, uDissolveCenter);
+            vFade *= smoothstep(uDissolveRadius - uDissolveEdge, uDissolveRadius, columnDistance);
+            vFlash = exp(-pow((columnDistance - uDissolveRadius) / (uDissolveEdge * 0.6), 2.0));
+        }
         vUv = uv;
     }
 `;
@@ -196,6 +218,7 @@ const fragmentShader = /* glsl */ `
     varying float vTrail;
     varying float vHead;
     varying float vFade;
+    varying float vFlash;
 
     void main() {
         if (vTrail <= 0.0 || vFade <= 0.0) discard;
@@ -205,11 +228,12 @@ const fragmentShader = /* glsl */ `
 
         float trail = pow(vTrail, 1.5);
         vec3 color = mix(uColor * trail, uHeadColor * 1.6, vHead);
+        color = mix(color, vec3(1.6) * max(trail, 0.4), vFlash);
         gl_FragColor = vec4(color * glyph * uIntensity * vFade, 1.0);
     }
 `;
 
-export default function MatrixRain3D(props: MatrixRain3DProps) {
+const MatrixRain3D = React.forwardRef<THREE.Mesh, MatrixRain3DProps>(function MatrixRain3D(props, ref) {
     const {
         columns = DEFAULTS.columns,
         area = DEFAULTS.area,
@@ -224,7 +248,9 @@ export default function MatrixRain3D(props: MatrixRain3DProps) {
         intensity = DEFAULTS.intensity,
         fade = DEFAULTS.fade,
         paused = false,
-        seed = DEFAULTS.seed
+        seed = DEFAULTS.seed,
+        sizeOrigin,
+        dissolveCenter
     } = props;
 
     const atlas = React.useMemo(() => createGlyphAtlas(), []);
@@ -246,7 +272,16 @@ export default function MatrixRain3D(props: MatrixRain3DProps) {
                 if (!blocked) break;
             }
             // Far columns get bigger glyphs so they still read as characters.
-            const depth = Math.max(0, -z) / Math.max(1, -area.minZ);
+            const reach = Math.max(
+                Math.abs(area.minX),
+                Math.abs(area.maxX),
+                Math.abs(area.minZ),
+                Math.abs(area.maxZ),
+                1
+            );
+            const depth = sizeOrigin
+                ? Math.min(1, Math.hypot(x - sizeOrigin[0], z - sizeOrigin[1]) / reach)
+                : Math.max(0, -z) / Math.max(1, -area.minZ);
             const size = between(glyphSize) * (1 + depth * 0.9);
             const slots = Math.min(64, Math.ceil(between(height) / size));
             const top = floorY + slots * size;
@@ -272,7 +307,8 @@ export default function MatrixRain3D(props: MatrixRain3DProps) {
         instanced.setAttribute('aSlot', new THREE.InstancedBufferAttribute(new Float32Array(slotData), 2));
         instanced.instanceCount = slotData.length / 2;
         return instanced;
-    }, [columns, area, keepClear, floorY, height, glyphSize, speed, trail, seed]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [columns, area, keepClear, floorY, height, glyphSize, speed, trail, seed, sizeOrigin?.[0], sizeOrigin?.[1]]);
 
     const material = React.useMemo(
         () =>
@@ -287,7 +323,10 @@ export default function MatrixRain3D(props: MatrixRain3DProps) {
                     uColor: { value: new THREE.Color() },
                     uHeadColor: { value: new THREE.Color() },
                     uIntensity: { value: 1 },
-                    uFade: { value: new THREE.Vector2() }
+                    uFade: { value: new THREE.Vector2() },
+                    uDissolveCenter: { value: new THREE.Vector2() },
+                    uDissolveRadius: { value: -1 },
+                    uDissolveEdge: { value: 2.5 }
                 },
                 transparent: true,
                 depthWrite: false,
@@ -302,6 +341,7 @@ export default function MatrixRain3D(props: MatrixRain3DProps) {
     material.uniforms.uHeadColor.value.set(headColor);
     material.uniforms.uIntensity.value = intensity;
     material.uniforms.uFade.value.set(fade[0], fade[1]);
+    if (dissolveCenter) material.uniforms.uDissolveCenter.value.set(dissolveCenter[0], dissolveCenter[1]);
 
     React.useEffect(() => () => geometry.dispose(), [geometry]);
     React.useEffect(
@@ -316,5 +356,7 @@ export default function MatrixRain3D(props: MatrixRain3DProps) {
         if (!paused) material.uniforms.uTime.value += Math.min(delta, 0.1);
     });
 
-    return <mesh geometry={geometry} material={material} frustumCulled={false} renderOrder={1} />;
-}
+    return <mesh ref={ref} geometry={geometry} material={material} frustumCulled={false} renderOrder={1} />;
+});
+
+export default MatrixRain3D;

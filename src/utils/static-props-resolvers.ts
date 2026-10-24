@@ -97,6 +97,26 @@ const PropsResolvers: Partial<Record<ContentObjectType, ResolverFunction>> = {
             items: allWorkXP
         };
     },
+    // The 3D projects world (sections/MatrixProjects) gets every project, flattened to what the panels show.
+    MatrixProjects: (props, allData) => {
+        const items = getAllProjectsSorted(allData).map((project) => {
+            const anyProject = project as any;
+            const skills = (anyProject.bottomSections ?? [])
+                .filter((section) => section?.type === 'LabelsSection')
+                .flatMap((section) => (section.items ?? []).map((item) => item?.label).filter(Boolean));
+            return {
+                id: project.__metadata?.id ?? project.title,
+                title: project.title ?? '',
+                filter: anyProject.filter ?? null,
+                description: anyProject.description ?? '',
+                startdate: anyProject.startdate ?? null,
+                enddate: anyProject.enddate ?? null,
+                url: project.__metadata?.urlPath ?? null,
+                skills
+            };
+        });
+        return { ...props, items } as ContentObject;
+    },
     RecentProjectsSection: (props, allData) => {
         const recentProjects = getAllProjectsSorted(allData).slice(
             0,

@@ -39,12 +39,34 @@ npx @gltf-transform/cli webp w.glb computer-terminal.glb --quality 92
 - draws the baked floor shadow in black instead of blue;
 - exports `SCREEN`, the position and size of the CRT glass, so HTML can be placed on it.
 
+## 3D model: "TRON: Uprising - ArgonCity Light Cycle"
+
+- **Author:** TheTinDog (https://sketchfab.com/simysimes)
+- **Source:** https://sketchfab.com/3d-models/tron-uprising-argoncity-light-cycle-a4c0e652c9a443868c3551e12f4bffee
+- **License:** CC BY 4.0 (http://creativecommons.org/licenses/by/4.0/). The author must be credited. Original license
+  file: `public/models/light-cycle/LICENSE.txt`.
+- **Credit on the site:** bottom-right corner of the projects grid (`Hud.tsx` in `src/components/sections/MatrixProjects/`).
+- **Changes:** re-packed as `public/models/light-cycle/light-cycle.glb` (WebP texture, quantised geometry: 1.9 MB down to
+  0.87 MB). The glow is recoloured from red-orange to cyan when it loads (`BIKE.color` in `layout.ts`).
+
+This work is based on "TRON: Uprising - ArgonCity Light Cycle"
+(https://sketchfab.com/3d-models/tron-uprising-argoncity-light-cycle-a4c0e652c9a443868c3551e12f4bffee) by TheTinDog
+(https://sketchfab.com/simysimes) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/).
+
+## Fonts (SIL Open Font License 1.1)
+
+- **Orbitron** by The League of Moveable Type / Matt McInerney (titles on the grid). License: `public/fonts/Orbitron-OFL.txt`.
+- **Share Tech Mono** by Carrois Type Design (text on the grid). License: `public/fonts/ShareTechMono-OFL.txt`.
+- Files taken from the Fontsource packages (`@fontsource/orbitron`, `@fontsource/share-tech-mono`), Latin subset.
+
 ## Libraries
 
 - [three.js](https://threejs.org/) (MIT)
 - [@react-three/fiber](https://github.com/pmndrs/react-three-fiber) (MIT)
 - [@react-three/drei](https://github.com/pmndrs/drei) (MIT). `<Html transform occlude="blending">` puts the
   pill choice on the 3D screen.
+- [troika-three-text](https://github.com/protectwise/troika) (MIT), through drei's `<Text>`: the text on the grid panels.
+- [zustand](https://github.com/pmndrs/zustand) (MIT): shared state between the grid scene and its on-screen controls.
 - [html-to-image](https://github.com/bubkoo/html-to-image) (MIT). Captures the screen's HTML as a texture when a pill
   is clicked, so the dive effect can process it.
 
@@ -54,6 +76,7 @@ npx @gltf-transform/cli webp w.glb computer-terminal.glb --quality 92
   scene (https://www.youtube.com/watch?v=sfrZ7_nNhsA, 0:44 to 0:47): the light swells, the frame breaks into blocky
   streaks stretching out from the centre, the colour shifts to cyan, a dark streaked tunnel, then black.
 - The code rain follows the look of _The Matrix_ (1999) titles: mirrored half-width katakana and digits.
+- The projects grid, light cycle, light trail and lane lights follow _Tron_ (1982) / _Tron: Legacy_ (2010).
 
 ---
 
@@ -71,3 +94,21 @@ npx @gltf-transform/cli webp w.glb computer-terminal.glb --quality 92
 | Scrub the dive while tuning (development only)                  | browser console: `window.__diveProgress = 0.5` before clicking a pill, then change the number          |
 
 If WebGL is unavailable or the model fails to load, the home page falls back to the flat `MatrixPillChoice` automatically.
+
+# Editing the projects grid (/projectChoice)
+
+| What                                                            | Where                                                                                                                   |
+| --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Which projects appear, and in which lane                        | `content/pages/projects/*.md`: `filter: game` goes left, anything else goes right                                       |
+| Order of the panels                                             | newest `startdate` first (`getAllProjectsSorted` in `src/utils/static-props-resolvers.ts`)                              |
+| Use the old flat "Choose your path" page instead                | `content/pages/projectChoice.md`: change `type: MatrixProjects` to `type: ProjectChoiceSection`                         |
+| Positions, spacing, lane colours, panel sizes, camera framings  | `WORLD`, `LANES` in `src/components/sections/MatrixProjects/layout.ts`                                                  |
+| Light cycle speed, colour, chase camera                         | `BIKE` in the same file                                                                                                 |
+| Intro timing (rain turning into the grid)                       | `INTRO` in `timeline.ts`                                                                                                |
+| Panel look and text                                             | `Panels.tsx`                                                                                                            |
+| Buttons and labels on top of the scene                          | `Hud.tsx`, styles in `src/css/main.css` (section "Projects grid in 3D")                                                 |
+| Look at the scene from anywhere while tuning (development only) | browser console: `window.__gridCamera = { position: [x, y, z], look: [x, y, z] }`, `delete window.__gridCamera` to stop |
+
+Controls: arrow keys, mouse wheel, swipes, clicking panels and signs, Enter to open, Esc to go back. The address bar
+follows the bike (`?lane=game&project=3-Gambit`), so a link opens straight at that project. Without WebGL the old flat
+page is shown, and a plain list of the projects is always in the page for screen readers.

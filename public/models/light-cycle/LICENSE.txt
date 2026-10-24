@@ -1,0 +1,11 @@
+Model Information:
+* title:	TRON: Uprising - ArgonCity Light Cycle
+* source:	https://sketchfab.com/3d-models/tron-uprising-argoncity-light-cycle-a4c0e652c9a443868c3551e12f4bffee
+* author:	TheTinDog (https://sketchfab.com/simysimes)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "TRON: Uprising - ArgonCity Light Cycle" (https://sketchfab.com/3d-models/tron-uprising-argoncity-light-cycle-a4c0e652c9a443868c3551e12f4bffee) by TheTinDog (https://sketchfab.com/simysimes) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
