@@ -40,7 +40,7 @@ export type SectionModels =
     | TextSection
     | MatrixPillChoice
     | ComputerScene
-    | MatrixProjects;
+    | MatrixGrid;
 
 export type ContentObject =
     | BackgroundImage
@@ -91,7 +91,7 @@ export type ContentObject =
     | PillLayout
     | MatrixPillChoice
     | ComputerScene
-    | MatrixProjects;
+    | MatrixGrid;
 
 export type ContentObjectType =
     | 'BackgroundImage'
@@ -141,7 +141,7 @@ export type ContentObjectType =
     | 'ThemeStyle'
     | 'MatrixPillChoice'
     | 'ComputerScene'
-    | 'MatrixProjects'
+    | 'MatrixGrid'
     | 'VideoBlock';
 
 export type BackgroundImage = BaseContentObject & {
@@ -782,11 +782,11 @@ export type ComputerScene = BaseContentObject & {
     elementId?: string;
     pills?: PillLayout[];
 };
-/** One project as shown in the 3D projects world (filled in by the static props resolver). */
+/** One project, job or education entry as shown on the 3D grid (filled in by the static props resolver). */
 export type MatrixProject = {
     id: string;
     title: string;
-    filter: 'game' | 'software' | null;
+    filter: string | null;
     description: string;
     startdate: string | null;
     enddate: string | null;
@@ -794,11 +794,13 @@ export type MatrixProject = {
     skills: string[];
 };
 
-/** Projects page in 3D: the Matrix rain turns into a neon grid with a Game / Software fork. */
-export type MatrixProjects = BaseContentObject & {
-    type: 'MatrixProjects';
+/** The 3D grid pages: the Matrix rain turns into a neon grid with a fork (see sections/MatrixGrid). */
+export type MatrixGrid = BaseContentObject & {
+    type: 'MatrixGrid';
     elementId?: string;
-    /** Filled in by the static props resolver: every project, newest first. */
+    /** projects: game / software / all projects. experience: work / education. */
+    world?: 'projects' | 'experience';
+    /** Filled in by the static props resolver: every project (or work / education entry), newest first. */
     items?: MatrixProject[];
 };
 export type PillLayout = BaseContentObject & {

@@ -6,7 +6,6 @@
 import Router from 'next/router';
 import * as React from 'react';
 
-import { LANES } from './layout';
 import { useGridStore } from './store';
 
 export function Hud() {
@@ -14,46 +13,63 @@ export function Hud() {
     const target = useGridStore((s) => s.target);
     const moving = useGridStore((s) => s.moving);
     const lanes = useGridStore((s) => s.lanes);
+    const world = useGridStore((s) => s.world);
     const store = useGridStore.getState;
 
     const station = target.kind === 'station' ? target : null;
-    const lane = station ? LANES[station.lane] : null;
+    const lane = station ? world.lanes[station.lane] : null;
     const project = station ? lanes[station.lane][station.index] : null;
     const count = station ? lanes[station.lane].length : 0;
     const disabled = phase !== 'ready' || moving;
 
     let where = 'Entering the Grid';
     if (phase === 'ready' && target.kind === 'fork') where = 'Choose your path';
-    if (station && lane) where = `${lane.label} projects · ${station.index + 1} / ${count}`;
+    if (station && lane) where = `${lane.name} · ${station.index + 1} / ${count}`;
+    if (target.kind === 'exit' && world.straight) where = `Riding to ${world.straight.name.toLowerCase()}`;
+    const placeColor = lane?.color ?? (target.kind === 'exit' ? world.straight?.color : undefined);
+    const { left, right } = world.lanes;
 
     return (
         <div className={`grid-hud ${phase === 'ready' ? 'is-ready' : ''}`}>
             <div className="grid-hud__where" aria-live="polite">
                 <span className="grid-hud__kicker">THE GRID</span>
-                <span className="grid-hud__place" style={lane ? { color: lane.color } : undefined}>
+                <span className="grid-hud__place" style={placeColor ? { color: placeColor } : undefined}>
                     {where}
                 </span>
                 {project && !moving && <span className="grid-hud__project">{project.title}</span>}
             </div>
 
-            <nav className="grid-hud__controls" aria-label="Move around the projects">
+            <nav className="grid-hud__controls" aria-label="Move around the grid">
                 {target.kind === 'fork' && (
                     <>
                         <button
                             type="button"
-                            className="grid-hud__button is-game"
+                            className="grid-hud__button"
                             disabled={disabled}
-                            onClick={() => store().chooseLane('game')}
+                            onClick={() => store().chooseLane('left')}
+                            style={{ borderColor: left.color, color: left.color }}
                         >
-                            ‹ Game projects
+                            ‹ {left.name}
                         </button>
+                        {world.straight && (
+                            <button
+                                type="button"
+                                className="grid-hud__button"
+                                disabled={disabled}
+                                onClick={() => store().goStraight()}
+                                style={{ borderColor: world.straight.color, color: world.straight.color }}
+                            >
+                                ↑ {world.straight.name}
+                            </button>
+                        )}
                         <button
                             type="button"
-                            className="grid-hud__button is-software"
+                            className="grid-hud__button"
                             disabled={disabled}
-                            onClick={() => store().chooseLane('software')}
+                            onClick={() => store().chooseLane('right')}
+                            style={{ borderColor: right.color, color: right.color }}
                         >
-                            Software projects ›
+                            {right.name} ›
                         </button>
                     </>
                 )}
@@ -121,7 +137,9 @@ export function Hud() {
 
             <p className="grid-hud__hint" aria-hidden="true">
                 {target.kind === 'fork'
-                    ? '← → or click a sign'
+                    ? world.straight
+                        ? '← ↑ → or click a sign'
+                        : '← → or click a sign'
                     : station?.open
                       ? 'Esc to close'
                       : 'Scroll, swipe or ← → · Enter to open · Esc for the fork'}

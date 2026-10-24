@@ -65,9 +65,8 @@ type PillsRenderProps = {
     pills: any[];
     /**
      * Optional: called when a pill is clicked, instead of the built-in timing.
-     * Call `proceed()` when your own animation is done; it then runs the usual
-     * navigation (blue: go to the page, red: Tron disk transition, then go to the page).
-     * Used by the 3D computer to dive into the screen first.
+     * Call `proceed()` when your own animation is done; it then goes to the pill's page.
+     * Used by the 3D computer to dive into the screen first (the flat page keeps the Tron disk transition).
      */
     onSelect?: (choice: PillChoice, proceed: () => void) => void;
 };
@@ -126,14 +125,8 @@ export function PillsRender({ pills, onSelect }: PillsRenderProps) {
         }
 
         if (onSelect) {
-            onSelect({ index: pillIndex, color: pillColor, url }, () => {
-                if (pillIndex === 1) {
-                    setShowTronTransition(true);
-                    setTimeout(() => router.push(url), 2000);
-                } else {
-                    router.push(url);
-                }
-            });
+            // The 3D computer dives into its grid page straight after its own transition.
+            onSelect({ index: pillIndex, color: pillColor, url }, () => router.push(url));
             return;
         }
 

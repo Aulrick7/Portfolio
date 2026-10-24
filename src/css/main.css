@@ -793,7 +793,7 @@ layer(base);
 }
 
 /* ==========================================================================
-   Projects grid in 3D (sections/MatrixProjects) - Step 2 of the three.js plan
+   The grid in 3D (sections/MatrixGrid): projects and work / education - Step 2 of the three.js plan
    ========================================================================== */
 
 @font-face {
@@ -853,6 +853,12 @@ layer(base);
 
 .grid-world__blackout.is-gone {
     opacity: 0;
+}
+
+/* riding off through the straight lane's portal */
+.grid-world__blackout.is-gone.is-exiting {
+    opacity: 1;
+    transition: opacity 0.7s ease-in;
 }
 
 .grid-hud {
@@ -951,17 +957,6 @@ layer(base);
     cursor: default;
 }
 
-.grid-hud__button.is-game {
-    border-color: #22d3ee;
-    color: #22d3ee;
-}
-
-.grid-hud__button.is-software {
-    border-color: #ec4899;
-    color: #ec4899;
-    box-shadow: 0 0 14px rgba(236, 72, 153, 0.2);
-}
-
 .grid-hud__button.is-quiet {
     border-color: rgba(191, 233, 241, 0.25);
     color: rgba(191, 233, 241, 0.75);
@@ -1034,4 +1029,43 @@ layer(base);
         left: 14px;
         text-align: left;
     }
+}
+
+/* Flat Work / Education choice (no WebGL) */
+.grid-flat-choice {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    padding: 48px 16px;
+    background: #010407;
+    font-family: 'Orbitron', sans-serif;
+}
+
+.grid-flat-choice__title {
+    margin: 0;
+    color: #dff7ff;
+    font-size: clamp(28px, 6vw, 56px);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.grid-flat-choice__options {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.grid-flat-choice__option {
+    min-width: 220px;
+    padding: 22px 28px;
+    border: 2px solid;
+    text-align: center;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.03);
 }

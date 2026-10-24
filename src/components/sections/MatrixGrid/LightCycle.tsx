@@ -5,7 +5,8 @@ License: CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
 
 Changes for this portfolio (also in CREDITS.md): re-packed as public/models/light-cycle/light-cycle.glb
 (WebP texture, quantised geometry: 1.9 MB -> 0.87 MB); the red-orange glow is recoloured to the cyan of a
-Tron "user" cycle at runtime (BIKE.color in layout.ts).
+lane colour at runtime: it glows white on the trunk and takes the colour of each lane it rides into
+(colours in worlds.ts).
 
 The bike is driven from outside: the parent moves and turns the group passed as `bikeRef`. This component
 handles how it looks: the glow colour, rezzing in from the floor up, the spinning rear engine (the model's
@@ -18,7 +19,6 @@ import * as React from 'react';
 import * as THREE from 'three';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
 
-import { BIKE } from './layout';
 import { dampFactor, useTimeline } from './timeline';
 
 export const LIGHT_CYCLE_URL = '/models/light-cycle/light-cycle.glb';
@@ -29,23 +29,24 @@ const WHEEL_RADIUS = 0.38;
 
 export function LightCycle({
     bikeRef,
-    lean
+    lean,
+    color
 }: {
     bikeRef: React.RefObject<THREE.Group>;
     lean: React.MutableRefObject<number>;
+    /** Current glow colour (the rider changes it as the bike enters a lane). */
+    color: React.MutableRefObject<THREE.Color>;
 }) {
     const timeline = useTimeline();
     const { scene, animations } = useGLTF(LIGHT_CYCLE_URL);
-    const model = React.useMemo(() => cloneSkinned(scene) as THREE.Group, [scene]);
-    const leanGroup = React.useRef<THREE.Group>(null);
-    const { actions } = useAnimations(animations, model);
-
-    // One clipping plane shared by every material: the bike is drawn up to this height (rez-in effect).
-    const clip = React.useMemo(() => new THREE.Plane(new THREE.Vector3(0, -1, 0), 0), []);
-
-    const parts = React.useMemo(() => {
+    // Everything the bike needs is built together from a fresh copy of the model, so it is safe for React to
+    // run this more than once (it does in development): each run gets its own copy, materials and clip plane.
+    const { model, parts, clip } = React.useMemo(() => {
+        const model = cloneSkinned(scene) as THREE.Group;
+        // One clipping plane shared by every material: the bike is drawn up to this height (rez-in effect).
+        const clip = new THREE.Plane(new THREE.Vector3(0, -1, 0), 0);
         const wheels: THREE.Bone[] = [];
-        const glowColor = new THREE.Color(BIKE.color);
+        const glows: THREE.MeshStandardMaterial[] = [];
         model.traverse((object) => {
             const mesh = object as THREE.Mesh;
             if ((object as THREE.Bone).isBone && /Tire_0\d$/.test(object.name)) wheels.push(object as THREE.Bone);
@@ -55,17 +56,21 @@ export function LightCycle({
                 const material = (m as THREE.MeshStandardMaterial).clone();
                 material.clippingPlanes = [clip];
                 if (material.name === 'Glow') {
-                    material.emissive = glowColor.clone();
-                    material.emissiveIntensity = 2.6;
+                    material.emissive = new THREE.Color(1, 1, 1);
+                    material.emissiveIntensity = 1.15; // low enough that lane colours stay saturated
                     material.toneMapped = false;
+                    glows.push(material);
                 }
                 if (material.name === 'Headlights') material.toneMapped = false;
                 return material;
             });
             mesh.material = Array.isArray(mesh.material) ? materials : materials[0];
         });
-        return { wheels };
-    }, [model, clip]);
+        return { model, parts: { wheels, glows }, clip };
+    }, [scene]);
+    const leanGroup = React.useRef<THREE.Group>(null);
+    const light = React.useRef<THREE.PointLight>(null);
+    const { actions } = useAnimations(animations, model);
 
     React.useEffect(() => {
         const action = actions && Object.values(actions)[0];
@@ -98,14 +103,17 @@ export function LightCycle({
         if (leanGroup.current) {
             leanGroup.current.rotation.z += (lean.current - leanGroup.current.rotation.z) * dampFactor(0.12, delta);
         }
+
+        for (const glow of parts.glows) glow.emissive.copy(color.current);
+        light.current?.color.copy(color.current);
     });
 
     return (
         <group ref={bikeRef}>
             <group ref={leanGroup}>
                 <primitive object={model} rotation={MODEL_FIX.rotation} position={MODEL_FIX.position} />
-                {/* soft cyan pool of light under the bike */}
-                <pointLight color={BIKE.color} intensity={3} distance={4} decay={2} position={[0, 0.5, 0]} />
+                {/* soft pool of light under the bike, in its current colour */}
+                <pointLight ref={light} intensity={3} distance={4} decay={2} position={[0, 0.5, 0]} />
             </group>
         </group>
     );
@@ -149,10 +157,12 @@ const trailFragment = /* glsl */ `
  */
 export function LightTrail({
     bikeRef,
-    moving
+    moving,
+    color
 }: {
     bikeRef: React.RefObject<THREE.Group>;
     moving: React.MutableRefObject<boolean>;
+    color: React.MutableRefObject<THREE.Color>;
 }) {
     const { geometry, positions, ages } = React.useMemo(() => {
         const geometry = new THREE.BufferGeometry();
@@ -180,7 +190,7 @@ export function LightTrail({
             new THREE.ShaderMaterial({
                 vertexShader: trailVertex,
                 fragmentShader: trailFragment,
-                uniforms: { uColor: { value: new THREE.Color(BIKE.color) }, uOpacity: { value: 1 } },
+                uniforms: { uColor: { value: new THREE.Color() }, uOpacity: { value: 1 } },
                 transparent: true,
                 depthWrite: false,
                 side: THREE.DoubleSide,
@@ -204,6 +214,7 @@ export function LightTrail({
     useFrame((_, delta) => {
         const bike = bikeRef.current;
         if (!bike) return;
+        material.uniforms.uColor.value.copy(color.current);
         // The trail starts at the back wheel.
         forward.set(0, 0, 1).applyQuaternion(bike.quaternion);
         back.copy(bike.position).addScaledVector(forward, -1.05).setY(0);

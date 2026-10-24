@@ -6,6 +6,7 @@
  * - The camera chases the bike in third person while it rides, and swings round to frame the fork or the
  *   panel when it stops (or comes in close when a panel is opened). All camera moves are smoothed, so
  *   switching between these framings never jumps.
+ * - The bike glows white on the trunk and takes on each lane's colour as it rides into it (worlds.ts).
  */
 
 import { useFrame, useThree } from '@react-three/fiber';
@@ -17,6 +18,7 @@ import {
     BikeStop,
     bikeRide,
     chasePose,
+    exitStop,
     forkCameraPose,
     forkStop,
     PanelPlacement,
@@ -43,6 +45,7 @@ const easeInOutSine = (t: number) => -(Math.cos(Math.PI * t) - 1) / 2;
 
 function stopFor(target: Target, panels: PanelPlacement[]): BikeStop {
     if (target.kind === 'fork') return forkStop();
+    if (target.kind === 'exit') return exitStop();
     if (target.kind === 'station') {
         const panel = panels.find((p) => p.lane === target.lane && p.index === target.index);
         if (panel) return panelStop(panel);
@@ -56,6 +59,8 @@ export function Rider({ panels, reducedMotion }: { panels: PanelPlacement[]; red
     const bikeRef = React.useRef<THREE.Group>(null);
     const lean = React.useRef(0);
     const moving = React.useRef(false);
+    const color = React.useRef(new THREE.Color(useGridStore.getState().world.neutral));
+    const laneColor = React.useMemo(() => new THREE.Color(), []);
 
     const state = React.useRef({
         stop: startStop(),
@@ -111,6 +116,9 @@ export function Rider({ panels, reducedMotion }: { panels: PanelPlacement[]; red
             if (ride.startedAt === null) ride.startedAt = now;
             const t = Math.min(1, (now - ride.startedAt) / ride.duration);
             const u = easeInOutSine(t);
+            if (ride.to.lane === 'straight' && t > 0.6 && !useGridStore.getState().exiting) {
+                useGridStore.getState().setExiting(true);
+            }
             ride.curve.getPointAt(u, tmp.pos);
             ride.curve.getTangentAt(Math.min(u, 0.999), tmp.tangent).setY(0).normalize();
             bike.position.copy(tmp.pos).setY(0);
@@ -127,6 +135,16 @@ export function Rider({ panels, reducedMotion }: { panels: PanelPlacement[]; red
             // At the fork the bike turns to face the junction.
             if (st.stop.lane === null) st.heading.lerp(tmp.forkHeading, dampFactor(0.25, delta)).normalize();
         }
+        // Glow colour: white on the trunk, the lane's colour once inside a lane.
+        const world = useGridStore.getState().world;
+        const p = bike.position;
+        let region: string | null = null;
+        if (p.z > WORLD.cornerRadius * 0.6) region = world.neutral;
+        else if (p.x < -0.6) region = world.lanes.left.color;
+        else if (p.x > 0.6) region = world.lanes.right.color;
+        else if (p.z < -0.6 && world.straight) region = world.straight.color;
+        if (region) color.current.lerp(laneColor.set(region), reducedMotion ? 1 : dampFactor(BIKE.colorChange, delta));
+
         st.yaw = Math.atan2(st.heading.x, st.heading.z);
         bike.rotation.y = st.yaw;
         // Lean into turns (proportional to how fast we are turning).
@@ -192,8 +210,8 @@ export function Rider({ panels, reducedMotion }: { panels: PanelPlacement[]; red
 
     return (
         <>
-            <LightCycle bikeRef={bikeRef} lean={lean} />
-            <LightTrail bikeRef={bikeRef} moving={moving} />
+            <LightCycle bikeRef={bikeRef} lean={lean} color={color} />
+            <LightTrail bikeRef={bikeRef} moving={moving} color={color} />
         </>
     );
 }

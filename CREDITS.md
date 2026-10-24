@@ -45,9 +45,10 @@ npx @gltf-transform/cli webp w.glb computer-terminal.glb --quality 92
 - **Source:** https://sketchfab.com/3d-models/tron-uprising-argoncity-light-cycle-a4c0e652c9a443868c3551e12f4bffee
 - **License:** CC BY 4.0 (http://creativecommons.org/licenses/by/4.0/). The author must be credited. Original license
   file: `public/models/light-cycle/LICENSE.txt`.
-- **Credit on the site:** bottom-right corner of the projects grid (`Hud.tsx` in `src/components/sections/MatrixProjects/`).
+- **Credit on the site:** bottom-right corner of both grids (`Hud.tsx` in `src/components/sections/MatrixGrid/`).
 - **Changes:** re-packed as `public/models/light-cycle/light-cycle.glb` (WebP texture, quantised geometry: 1.9 MB down to
-  0.87 MB). The glow is recoloured from red-orange to cyan when it loads (`BIKE.color` in `layout.ts`).
+  0.87 MB). The red-orange glow is recoloured at runtime: white on the trunk, then the colour of each lane the cycle
+  rides into (`COLORS` in `src/components/sections/MatrixGrid/worlds.ts`).
 
 This work is based on "TRON: Uprising - ArgonCity Light Cycle"
 (https://sketchfab.com/3d-models/tron-uprising-argoncity-light-cycle-a4c0e652c9a443868c3551e12f4bffee) by TheTinDog
@@ -76,7 +77,7 @@ This work is based on "TRON: Uprising - ArgonCity Light Cycle"
   scene (https://www.youtube.com/watch?v=sfrZ7_nNhsA, 0:44 to 0:47): the light swells, the frame breaks into blocky
   streaks stretching out from the centre, the colour shifts to cyan, a dark streaked tunnel, then black.
 - The code rain follows the look of _The Matrix_ (1999) titles: mirrored half-width katakana and digits.
-- The projects grid, light cycle, light trail and lane lights follow _Tron_ (1982) / _Tron: Legacy_ (2010).
+- The grids, light cycle, light trail, lane lights and the exit portal follow _Tron_ (1982) / _Tron: Legacy_ (2010).
 
 ---
 
@@ -95,20 +96,36 @@ This work is based on "TRON: Uprising - ArgonCity Light Cycle"
 
 If WebGL is unavailable or the model fails to load, the home page falls back to the flat `MatrixPillChoice` automatically.
 
-# Editing the projects grid (/projectChoice)
+# Editing the grids (/projectChoice and /experienceChoice)
+
+The blue pill dives into the projects grid, the red pill into the experience grid. Both are the same component
+(`src/components/sections/MatrixGrid/`), set up by `world:` in the page's content file.
+
+| Grid                                               | Left lane (colour)    | Right lane (colour)       | Straight ahead (colour)                       |
+| -------------------------------------------------- | --------------------- | ------------------------- | --------------------------------------------- |
+| `projects` (`content/pages/projectChoice.md`)      | Game projects (blue)  | Software projects (green) | All projects, rides off to `/projects` (pink) |
+| `experience` (`content/pages/experienceChoice.md`) | Work experience (red) | Education (yellow)        | none                                          |
 
 | What                                                            | Where                                                                                                                   |
 | --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Lane names, sign text, colours, which items go in which lane    | `WORLDS` and `COLORS` in `src/components/sections/MatrixGrid/worlds.ts`                                                 |
+| Add, remove or retarget the straight lane                       | `straight` in a world in `worlds.ts` (`href` is the page it rides to; delete `straight` to remove the lane)             |
 | Which projects appear, and in which lane                        | `content/pages/projects/*.md`: `filter: game` goes left, anything else goes right                                       |
-| Order of the panels                                             | newest `startdate` first (`getAllProjectsSorted` in `src/utils/static-props-resolvers.ts`)                              |
-| Use the old flat "Choose your path" page instead                | `content/pages/projectChoice.md`: change `type: MatrixProjects` to `type: ProjectChoiceSection`                         |
-| Positions, spacing, lane colours, panel sizes, camera framings  | `WORLD`, `LANES` in `src/components/sections/MatrixProjects/layout.ts`                                                  |
-| Light cycle speed, colour, chase camera                         | `BIKE` in the same file                                                                                                 |
+| Which work / education entries appear, and in which lane        | `content/pages/workXP/*.md`: `filter: education` goes right (Education), anything else goes left (Work experience)      |
+| Add another school or course                                    | copy `content/pages/workXP/3-Dalhousie.md` and keep `filter: education`                                                 |
+| Order of the panels                                             | newest `startdate` first (`getAllProjectsSorted` / `getAllWorkXPSorted` in `src/utils/static-props-resolvers.ts`)       |
+| Use the old flat "Choose your path" page instead                | `content/pages/projectChoice.md`: change `type: MatrixGrid` to `type: ProjectChoiceSection`                             |
+| Where the red pill goes                                         | `url` in `content/pages/pillOptions/work-experience.md` (now `/experienceChoice`; the old Tron-disk page was `/workXP`) |
+| Positions, spacing, signs, exit portal, panel sizes, cameras    | `WORLD` in `src/components/sections/MatrixGrid/layout.ts`                                                               |
+| Light cycle speed, how fast its colour changes, chase camera    | `BIKE` in the same file (`colorChange` is the colour fade time in seconds)                                              |
 | Intro timing (rain turning into the grid)                       | `INTRO` in `timeline.ts`                                                                                                |
-| Panel look and text                                             | `Panels.tsx`                                                                                                            |
-| Buttons and labels on top of the scene                          | `Hud.tsx`, styles in `src/css/main.css` (section "Projects grid in 3D")                                                 |
+| Panel look and text, signs, exit portal                         | `Panels.tsx`                                                                                                            |
+| Lane lines on the floor                                         | `Environment.tsx`                                                                                                       |
+| Buttons and labels on top of the scene                          | `Hud.tsx`, styles in `src/css/main.css` (section "The grid in 3D")                                                      |
 | Look at the scene from anywhere while tuning (development only) | browser console: `window.__gridCamera = { position: [x, y, z], look: [x, y, z] }`, `delete window.__gridCamera` to stop |
 
-Controls: arrow keys, mouse wheel, swipes, clicking panels and signs, Enter to open, Esc to go back. The address bar
-follows the bike (`?lane=game&project=3-Gambit`), so a link opens straight at that project. Without WebGL the old flat
-page is shown, and a plain list of the projects is always in the page for screen readers.
+Controls: arrow keys (Up at the fork takes the straight lane), mouse wheel, swipes, clicking panels and signs, Enter to
+open, Esc to go back. The address bar follows the bike (`?lane=game&project=3-Gambit`, `?lane=education`), so a link
+opens straight at that item. Without WebGL the old flat pages are shown (for the experience grid: two buttons leading to
+`/workXP?filter=work` and `/workXP?filter=education`), and a plain list of the items is always in the page for screen
+readers.

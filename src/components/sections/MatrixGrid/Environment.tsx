@@ -8,7 +8,8 @@ import { useFrame } from '@react-three/fiber';
 import * as React from 'react';
 import * as THREE from 'three';
 
-import { Lane, LANES, routePoint, WORLD } from './layout';
+import { Lane, Route, routePoint, WORLD } from './layout';
+import { useGridStore } from './store';
 import { easeInOut, INTRO, useTimeline } from './timeline';
 
 /* ------------------------------------------------------------------ grid floor */
@@ -242,7 +243,7 @@ function LaneRibbon({
     return <mesh geometry={geometry} material={material} renderOrder={1} />;
 }
 
-function sample(lane: Lane, s0: number, s1: number, step = 0.25) {
+function sample(lane: Route, s0: number, s1: number, step = 0.25) {
     const points: THREE.Vector3[] = [];
     const n = Math.max(2, Math.ceil(Math.abs(s1 - s0) / step));
     for (let k = 0; k <= n; k++) points.push(routePoint(lane, s0 + ((s1 - s0) * k) / n));
@@ -252,9 +253,14 @@ function sample(lane: Lane, s0: number, s1: number, step = 0.25) {
 export function LaneLights({ connectors }: { connectors: { from: THREE.Vector3; to: THREE.Vector3; lane: Lane }[] }) {
     const trunkLength = WORLD.trunkStart - WORLD.cornerRadius;
     const routeEnd = trunkLength + Math.PI * WORLD.cornerRadius * 0.5 + WORLD.laneLength + 2;
-    const trunk = React.useMemo(() => sample('game', 0, trunkLength), [trunkLength]);
-    const game = React.useMemo(() => sample('game', trunkLength, routeEnd), [trunkLength, routeEnd]);
-    const software = React.useMemo(() => sample('software', trunkLength, routeEnd), [trunkLength, routeEnd]);
+    const world = useGridStore((s) => s.world);
+    const trunk = React.useMemo(() => sample('left', 0, trunkLength), [trunkLength]);
+    const left = React.useMemo(() => sample('left', trunkLength, routeEnd), [trunkLength, routeEnd]);
+    const right = React.useMemo(() => sample('right', trunkLength, routeEnd), [trunkLength, routeEnd]);
+    const straight = React.useMemo(
+        () => sample('straight', trunkLength, WORLD.trunkStart - WORLD.exitZ + 3),
+        [trunkLength]
+    );
     const links = React.useMemo(
         () =>
             connectors.map((c) => ({
@@ -266,10 +272,17 @@ export function LaneLights({ connectors }: { connectors: { from: THREE.Vector3; 
     return (
         <group>
             <LaneRibbon points={trunk} color={WORLD.colors.trunk} />
-            <LaneRibbon points={game} color={LANES.game.color} delay={0.35} fadeEnd={8} />
-            <LaneRibbon points={software} color={LANES.software.color} delay={0.35} fadeEnd={8} />
+            <LaneRibbon points={left} color={world.lanes.left.color} delay={0.35} fadeEnd={8} />
+            <LaneRibbon points={right} color={world.lanes.right.color} delay={0.35} fadeEnd={8} />
+            {world.straight && <LaneRibbon points={straight} color={world.straight.color} delay={0.35} fadeEnd={3} />}
             {links.map((link, i) => (
-                <LaneRibbon key={i} points={link.points} color={LANES[link.lane].color} width={0.32} delay={0.6} />
+                <LaneRibbon
+                    key={i}
+                    points={link.points}
+                    color={world.lanes[link.lane].color}
+                    width={0.32}
+                    delay={0.6}
+                />
             ))}
         </group>
     );

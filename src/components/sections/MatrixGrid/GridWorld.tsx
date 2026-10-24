@@ -23,11 +23,12 @@ import MatrixRain3D from '@/components/three/MatrixRain3D';
 import type { MatrixProject } from '@/types';
 import { GridFloor, LaneLights, Sky } from './Environment';
 import { Hud } from './Hud';
-import { BIKE, Lane, LANES, placePanels, routePoint, WORLD } from './layout';
-import { ForkSign, ProjectPanel } from './Panels';
+import { Lane, placePanels, routePoint, WORLD } from './layout';
+import { ExitPortal, ForkSign, ProjectPanel } from './Panels';
 import { Rider } from './Rider';
 import { projectSlug, Target, useGridStore } from './store';
 import { advanceTimeline, createTimeline, INTRO, TimelineContext, useTimeline } from './timeline';
+import { sideForKey, WorldConfig } from './worlds';
 
 function usePrefersReducedMotion() {
     const [reduced, setReduced] = React.useState(false);
@@ -121,17 +122,19 @@ function Rain({ reducedMotion }: { reducedMotion: boolean }) {
 /* ------------------------------------------------------------------ scene */
 
 function Scene({
+    world,
     lanes,
     reducedMotion,
     initialTarget
 }: {
+    world: WorldConfig;
     lanes: Record<Lane, MatrixProject[]>;
     reducedMotion: boolean;
     initialTarget: Target;
 }) {
     const timeline = React.useMemo(() => createTimeline(), []);
     const panels = React.useMemo(
-        () => [...placePanels('game', lanes.game), ...placePanels('software', lanes.software)],
+        () => [...placePanels('left', lanes.left), ...placePanels('right', lanes.right)],
         [lanes]
     );
     const connectors = React.useMemo(
@@ -150,7 +153,7 @@ function Scene({
                 <Lightformer
                     form="rect"
                     intensity={2}
-                    color={BIKE.color}
+                    color={world.lanes.left.color}
                     position={[0, 5, 6]}
                     scale={[10, 0.4, 1]}
                     onUpdate={(self) => self.lookAt(0, 0, 0)}
@@ -158,7 +161,7 @@ function Scene({
                 <Lightformer
                     form="rect"
                     intensity={1.2}
-                    color={LANES.software.color}
+                    color={world.lanes.right.color}
                     position={[-6, 2, -4]}
                     scale={[0.4, 6, 1]}
                     onUpdate={(self) => self.lookAt(0, 0, 0)}
@@ -177,13 +180,15 @@ function Scene({
             <Rain reducedMotion={reducedMotion} />
             <React.Suspense fallback={null}>
                 <LaneLights connectors={connectors} />
-                <ForkSign lane="game" />
-                <ForkSign lane="software" />
+                <ForkSign route="left" />
+                <ForkSign route="right" />
+                {world.straight && <ForkSign route="straight" />}
+                {world.straight && <ExitPortal />}
                 {panels.map((panel) => (
                     <ProjectPanel
                         key={`${panel.lane}-${panel.index}`}
                         panel={panel}
-                        stagger={0.08 * (panel.index + (panel.lane === 'software' ? 0.5 : 0))}
+                        stagger={0.08 * (panel.index + (panel.lane === 'right' ? 0.5 : 0))}
                     />
                 ))}
                 <Rider panels={panels} reducedMotion={reducedMotion} />
@@ -212,15 +217,16 @@ function useControls(enabled: boolean, container: React.RefObject<HTMLElement>) 
             let handled = true;
             switch (e.key) {
                 case 'ArrowLeft':
-                    if (atFork) s.chooseLane('game');
+                    if (atFork) s.chooseLane('left');
                     else if (!open) s.prev();
                     break;
                 case 'ArrowRight':
-                    if (atFork) s.chooseLane('software');
+                    if (atFork) s.chooseLane('right');
                     else if (!open) s.next();
                     break;
                 case 'ArrowUp':
-                    if (!atFork && !open) s.next();
+                    if (atFork) s.goStraight();
+                    else if (!open) s.next();
                     break;
                 case 'ArrowDown':
                     if (!atFork && !open) s.prev();
@@ -292,9 +298,10 @@ function useUrlSync() {
                 if (s.moving || (s.target === prev.target && s.moving === prev.moving)) return;
                 if (s.phase !== 'ready') return;
                 const query: Record<string, string> = {};
+                if (s.target.kind === 'exit') return;
                 if (s.target.kind === 'station') {
                     const project = s.lanes[s.target.lane][s.target.index];
-                    query.lane = s.target.lane;
+                    query.lane = s.world.lanes[s.target.lane].key;
                     if (project) query.project = projectSlug(project);
                 }
                 const path = window.location.pathname;
@@ -310,24 +317,37 @@ function useUrlSync() {
 
 /* ------------------------------------------------------------------ main */
 
-export default function GridWorld({ projects }: { projects: MatrixProject[] }) {
+/** When the bike has ridden through the straight lane's portal, go to that page. */
+function useExit() {
+    React.useEffect(
+        () =>
+            useGridStore.subscribe((s) => {
+                if (s.target.kind === 'exit' && !s.moving && s.exiting && s.world.straight) {
+                    Router.push(s.world.straight.href);
+                }
+            }),
+        []
+    );
+}
+
+export default function GridWorld({ world, items }: { world: WorldConfig; items: MatrixProject[] }) {
     const reducedMotion = usePrefersReducedMotion();
     const container = React.useRef<HTMLDivElement>(null);
     const lanes = React.useMemo(
         () => ({
-            game: projects.filter((p) => p.filter === 'game'),
-            software: projects.filter((p) => p.filter !== 'game')
+            left: items.filter((item) => world.lanes.left.match(item)),
+            right: items.filter((item) => !world.lanes.left.match(item) && world.lanes.right.match(item))
         }),
-        [projects]
+        [items, world]
     );
 
     // Where to go once the intro is over: the fork, or a project named in the URL.
     const initialTarget = React.useMemo<Target>(() => {
         if (typeof window === 'undefined') return { kind: 'fork' };
         const params = new URLSearchParams(window.location.search);
-        const lane = params.get('lane') as Lane | null;
+        const lane = sideForKey(world, params.get('lane'));
         const slug = params.get('project');
-        if (lane && (lane === 'game' || lane === 'software')) {
+        if (lane) {
             const index = Math.max(
                 0,
                 lanes[lane].findIndex((p) => projectSlug(p) === slug)
@@ -335,16 +355,20 @@ export default function GridWorld({ projects }: { projects: MatrixProject[] }) {
             if (lanes[lane].length) return { kind: 'station', lane, index, open: false };
         }
         return { kind: 'fork' };
-    }, [lanes]);
+    }, [lanes, world]);
 
+    // Set up the shared state before anything in the scene renders (so it never shows the wrong grid).
+    React.useState(() => useGridStore.getState().reset(world, lanes));
     React.useLayoutEffect(() => {
-        useGridStore.getState().reset(lanes);
-    }, [lanes]);
+        useGridStore.getState().reset(world, lanes);
+    }, [world, lanes]);
 
     const [loaded, setLoaded] = React.useState(false);
     const phase = useGridStore((s) => s.phase);
+    const exiting = useGridStore((s) => s.exiting);
     useControls(phase === 'ready', container);
     useUrlSync();
+    useExit();
 
     return (
         <div ref={container} className="grid-world">
@@ -358,9 +382,12 @@ export default function GridWorld({ projects }: { projects: MatrixProject[] }) {
                     setLoaded(true);
                 }}
             >
-                <Scene lanes={lanes} reducedMotion={reducedMotion} initialTarget={initialTarget} />
+                <Scene world={world} lanes={lanes} reducedMotion={reducedMotion} initialTarget={initialTarget} />
             </Canvas>
-            <div className={`grid-world__blackout ${loaded ? 'is-gone' : ''}`} aria-hidden="true" />
+            <div
+                className={`grid-world__blackout ${loaded ? 'is-gone' : ''} ${exiting ? 'is-exiting' : ''}`}
+                aria-hidden="true"
+            />
             <Hud />
         </div>
     );

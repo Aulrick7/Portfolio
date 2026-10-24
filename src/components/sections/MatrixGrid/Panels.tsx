@@ -11,7 +11,7 @@ import { ThreeEvent, useFrame, useThree } from '@react-three/fiber';
 import * as React from 'react';
 import * as THREE from 'three';
 
-import { Lane, LANES, openPanelHeight, openPanelWidth, PanelPlacement, WORLD } from './layout';
+import { Lane, openPanelHeight, openPanelWidth, PanelPlacement, Route, SIDES, WORLD } from './layout';
 import { useGridStore } from './store';
 import { dampFactor, easeOut, useTimeline } from './timeline';
 
@@ -118,7 +118,8 @@ function fadeTexts(group: THREE.Group | null, opacity: number) {
 export function ProjectPanel({ panel, stagger }: { panel: PanelPlacement; stagger: number }) {
     const timeline = useTimeline();
     const { project, lane, index } = panel;
-    const color = LANES[lane].color;
+    const laneConfig = useGridStore((s) => s.world.lanes[lane]);
+    const color = laneConfig.color;
     const id = `${lane}-${index}`;
 
     const isCurrent = useGridStore(
@@ -201,8 +202,10 @@ export function ProjectPanel({ panel, stagger }: { panel: PanelPlacement; stagge
     const bottomReserve = (open ? 0.24 : 0.4) + skillLines * 0.085 * 1.3 + 0.16;
     const descLines = Math.max(2, Math.floor((descY - (-height / 2 + bottomReserve)) / (BODY_SIZE * 1.45)));
     const description = open ? project.description : truncate(project.description, textWidth, descLines);
-    const dates = [formatDate(project.startdate), formatDate(project.enddate)].filter(Boolean).join(' — ');
-    const label = `${LANES[lane].label} PROJECT · ${String(index + 1).padStart(2, '0')}`;
+    const dates = project.startdate
+        ? `${formatDate(project.startdate)} — ${project.enddate ? formatDate(project.enddate) : 'NOW'}`
+        : formatDate(project.enddate);
+    const label = `${laneConfig.itemLabel} · ${String(index + 1).padStart(2, '0')}`;
 
     const common = {
         anchorX: 'left' as const,
@@ -312,23 +315,28 @@ export function ProjectPanel({ panel, stagger }: { panel: PanelPlacement; stagge
 
 /* ------------------------------------------------------------------ fork signs */
 
-export function ForkSign({ lane }: { lane: Lane }) {
+/** A sign at the fork for one route: the side lanes (left / right) or the straight lane. */
+export function ForkSign({ route }: { route: Route }) {
     const timeline = useTimeline();
-    const { color, label, dir } = LANES[lane];
-    const id = `sign-${lane}`;
+    const world = useGridStore((s) => s.world);
+    const config = route === 'straight' ? world.straight : world.lanes[route];
+    const dir = route === 'straight' ? 0 : SIDES[route].dir;
+    const color = config?.color ?? '#ffffff';
+    const label = config?.label ?? '';
+    const id = `sign-${route}`;
     const frame = useFrameMaterial(color, 0.7);
     const group = React.useRef<THREE.Group>(null);
     const texts = React.useRef<THREE.Group>(null);
     const hovered = useGridStore((s) => s.hovered === id);
     const atFork = useGridStore((s) => s.target.kind === 'fork' && !s.moving && s.phase === 'ready');
     // Wide enough for the label plus its arrow.
-    const [w, h] = [Math.max(2.5, label.length * 0.33 + 1.0), 1.05];
+    const [w, h] = [Math.max(2.5, label.length * 0.33 + 1.0), route === 'straight' ? 1.3 : 1.05];
+    const baseY = route === 'straight' ? WORLD.straightSign.y : WORLD.gate.y;
 
     useFrame((state, delta) => {
         const rise = easeOut(THREE.MathUtils.clamp((timeline.panels - 0.15) / 0.6, 0, 1));
         if (group.current) {
-            group.current.position.y =
-                WORLD.gate.y - (1 - rise) * 3 + Math.sin(state.clock.elapsedTime * 1.4 + dir) * 0.04;
+            group.current.position.y = baseY - (1 - rise) * 3 + Math.sin(state.clock.elapsedTime * 1.4 + dir) * 0.04;
         }
         frame.uniforms.uSize.value.set(w, h);
         frame.uniforms.uOpacity.value = rise;
@@ -337,14 +345,28 @@ export function ForkSign({ lane }: { lane: Lane }) {
         fadeTexts(texts.current, rise);
     });
 
+    if (!config) return null;
+
     const choose = (e: ThreeEvent<MouseEvent>) => {
         e.stopPropagation();
         const store = useGridStore.getState();
-        if (store.phase === 'ready' && !store.moving) store.chooseLane(lane);
+        if (store.phase !== 'ready' || store.moving) return;
+        if (route === 'straight') store.goStraight();
+        else store.chooseLane(route);
+    };
+
+    const position: [number, number, number] =
+        route === 'straight' ? [0, baseY, WORLD.straightSign.z] : [dir * WORLD.gate.x, baseY, WORLD.gate.z];
+    const textProps = {
+        anchorX: 'center' as const,
+        anchorY: 'middle' as const,
+        'material-toneMapped': false,
+        'material-depthWrite': false,
+        renderOrder: 3
     };
 
     return (
-        <group ref={group} position={[dir * WORLD.gate.x, WORLD.gate.y, WORLD.gate.z]} rotation-y={-dir * 0.28}>
+        <group ref={group} position={position} rotation-y={-dir * 0.28}>
             <mesh
                 material={frame}
                 renderOrder={2}
@@ -364,48 +386,113 @@ export function ForkSign({ lane }: { lane: Lane }) {
             </mesh>
             <group ref={texts} position-z={0.01}>
                 <Text
+                    {...textProps}
                     font={FONTS.title}
                     fontSize={0.36}
                     letterSpacing={0.08}
                     color="#ffffff"
-                    anchorX="center"
-                    anchorY="middle"
-                    position={[0.12 * -dir, 0.12, 0]}
-                    material-toneMapped={false}
-                    material-depthWrite={false}
-                    renderOrder={3}
+                    position={[0.12 * -dir, route === 'straight' ? 0.02 : 0.12, 0]}
                 >
                     {label}
                 </Text>
-                {/* Orbitron has no arrow characters, so the arrow uses the monospace font */}
+                {/* Orbitron has no arrow characters, so the arrows use the monospace font */}
+                {route === 'straight' ? (
+                    <Text
+                        {...textProps}
+                        font={FONTS.body}
+                        fontSize={0.42}
+                        color={color}
+                        position={[0, 0.42, 0]}
+                        rotation-z={Math.PI / 2}
+                    >
+                        »
+                    </Text>
+                ) : (
+                    <Text
+                        {...textProps}
+                        font={FONTS.body}
+                        fontSize={0.42}
+                        color={color}
+                        position={[dir * (w / 2 - 0.22), 0.12, 0]}
+                    >
+                        {dir < 0 ? '‹' : '›'}
+                    </Text>
+                )}
                 <Text
-                    font={FONTS.body}
-                    fontSize={0.42}
-                    color={color}
-                    anchorX="center"
-                    anchorY="middle"
-                    position={[dir * (w / 2 - 0.22), 0.12, 0]}
-                    material-toneMapped={false}
-                    material-depthWrite={false}
-                    renderOrder={3}
-                >
-                    {dir < 0 ? '‹' : '›'}
-                </Text>
-                <Text
+                    {...textProps}
                     font={FONTS.body}
                     fontSize={0.11}
                     letterSpacing={0.4}
                     color={color}
-                    anchorX="center"
-                    anchorY="middle"
-                    position={[0, -0.26, 0]}
-                    material-toneMapped={false}
-                    material-depthWrite={false}
-                    renderOrder={3}
+                    position={[0, route === 'straight' ? -0.36 : -0.26, 0]}
                 >
-                    PROJECTS
+                    {config.sublabel}
                 </Text>
             </group>
+        </group>
+    );
+}
+
+/* ------------------------------------------------------------------ exit portal */
+
+const portalFragment = /* glsl */ `
+    uniform vec3 uColor;
+    uniform float uTime;
+    uniform float uOpacity;
+    varying vec2 vUv;
+    void main() {
+        vec2 p = vUv - 0.5;
+        float r = length(p * vec2(1.0, 0.8));
+        float core = smoothstep(0.55, 0.0, r);
+        float rings = 0.5 + 0.5 * sin(r * 40.0 - uTime * 6.0);
+        vec3 color = uColor * (core * (0.6 + 0.4 * rings)) + vec3(1.0) * pow(core, 4.0) * 0.8;
+        gl_FragColor = vec4(color * uOpacity, 1.0);
+    }
+`;
+
+/** The doorway at the end of the straight lane: riding through it leads to another page. */
+export function ExitPortal() {
+    const timeline = useTimeline();
+    const world = useGridStore((s) => s.world);
+    const color = world.straight?.color ?? '#ffffff';
+    const frame = useFrameMaterial(color, 0);
+    const [w, h] = [3.4, 2.7];
+    const inner = React.useMemo(
+        () =>
+            new THREE.ShaderMaterial({
+                vertexShader: frameVertex,
+                fragmentShader: portalFragment,
+                uniforms: { uColor: { value: new THREE.Color(color) }, uTime: { value: 0 }, uOpacity: { value: 0 } },
+                transparent: true,
+                depthWrite: false,
+                blending: THREE.AdditiveBlending,
+                side: THREE.DoubleSide,
+                toneMapped: false
+            }),
+        [color]
+    );
+    React.useEffect(() => () => inner.dispose(), [inner]);
+    const group = React.useRef<THREE.Group>(null);
+
+    useFrame((state) => {
+        const rise = easeOut(THREE.MathUtils.clamp((timeline.panels - 0.25) / 0.6, 0, 1));
+        if (group.current) group.current.position.y = WORLD.panelLift + h / 2 - (1 - rise) * 4;
+        frame.uniforms.uSize.value.set(w, h);
+        frame.uniforms.uOpacity.value = rise;
+        frame.uniforms.uGlow.value = 0.6 + 0.3 * Math.sin(state.clock.elapsedTime * 2.2);
+        inner.uniforms.uTime.value = state.clock.elapsedTime;
+        inner.uniforms.uOpacity.value = rise * 0.85;
+    });
+
+    if (!world.straight) return null;
+    return (
+        <group ref={group} position={[0, 0, WORLD.portalZ]}>
+            <mesh material={frame} renderOrder={2} scale={[w + 0.7, h + 0.7, 1]}>
+                <planeGeometry args={[1, 1]} />
+            </mesh>
+            <mesh material={inner} renderOrder={1} scale={[w, h, 1]}>
+                <planeGeometry args={[1, 1]} />
+            </mesh>
         </group>
     );
 }
