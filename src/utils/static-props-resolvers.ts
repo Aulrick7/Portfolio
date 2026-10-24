@@ -97,6 +97,29 @@ const PropsResolvers: Partial<Record<ContentObjectType, ResolverFunction>> = {
             items: allWorkXP
         };
     },
+    // The 3D grid pages (sections/MatrixGrid) get every project, or every work / education entry,
+    // flattened to what the panels show.
+    MatrixGrid: (props, allData) => {
+        const source =
+            (props as any).world === 'experience' ? getAllWorkXPSorted(allData) : getAllProjectsSorted(allData);
+        const items = source.map((project) => {
+            const anyProject = project as any;
+            const skills = (anyProject.bottomSections ?? [])
+                .filter((section) => section?.type === 'LabelsSection')
+                .flatMap((section) => (section.items ?? []).map((item) => item?.label).filter(Boolean));
+            return {
+                id: project.__metadata?.id ?? project.title,
+                title: project.title ?? '',
+                filter: anyProject.filter ?? null,
+                description: anyProject.description ?? '',
+                startdate: anyProject.startdate ?? null,
+                enddate: anyProject.enddate ?? null,
+                url: project.__metadata?.urlPath ?? null,
+                skills
+            };
+        });
+        return { ...props, items } as ContentObject;
+    },
     RecentProjectsSection: (props, allData) => {
         const recentProjects = getAllProjectsSorted(allData).slice(
             0,

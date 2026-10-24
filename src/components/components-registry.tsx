@@ -60,6 +60,7 @@ const components = {
     ImageBlock: dynamic(() => import('./molecules/ImageBlock')),
     MediaGallerySection: dynamic(() => import('./sections/MediaGallerySection')),
     MatrixPillChoice: dynamic(() => import('./sections/MatrixPillChoice')),
+    MatrixGrid: dynamic(() => import('./sections/MatrixGrid')),
     ProjectChoiceSection: dynamic(() => import('./sections/ProjectChoiceSection')),
     TronTransition: dynamic(() => import('./sections/TronTransition')),
     PostFeedSection: dynamic(() => import('./sections/PostFeedSection')),

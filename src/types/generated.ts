@@ -39,7 +39,8 @@ export type SectionModels =
     | TestimonialsSection
     | TextSection
     | MatrixPillChoice
-    | ComputerScene;
+    | ComputerScene
+    | MatrixGrid;
 
 export type ContentObject =
     | BackgroundImage
@@ -89,7 +90,8 @@ export type ContentObject =
     | VideoBlock
     | PillLayout
     | MatrixPillChoice
-    | ComputerScene;
+    | ComputerScene
+    | MatrixGrid;
 
 export type ContentObjectType =
     | 'BackgroundImage'
@@ -139,6 +141,7 @@ export type ContentObjectType =
     | 'ThemeStyle'
     | 'MatrixPillChoice'
     | 'ComputerScene'
+    | 'MatrixGrid'
     | 'VideoBlock';
 
 export type BackgroundImage = BaseContentObject & {
@@ -778,6 +781,27 @@ export type ComputerScene = BaseContentObject & {
     type: 'ComputerScene';
     elementId?: string;
     pills?: PillLayout[];
+};
+/** One project, job or education entry as shown on the 3D grid (filled in by the static props resolver). */
+export type MatrixProject = {
+    id: string;
+    title: string;
+    filter: string | null;
+    description: string;
+    startdate: string | null;
+    enddate: string | null;
+    url: string | null;
+    skills: string[];
+};
+
+/** The 3D grid pages: the Matrix rain turns into a neon grid with a fork (see sections/MatrixGrid). */
+export type MatrixGrid = BaseContentObject & {
+    type: 'MatrixGrid';
+    elementId?: string;
+    /** projects: game / software / all projects. experience: work / education. */
+    world?: 'projects' | 'experience';
+    /** Filled in by the static props resolver: every project (or work / education entry), newest first. */
+    items?: MatrixProject[];
 };
 export type PillLayout = BaseContentObject & {
     type: 'PillLayout';
