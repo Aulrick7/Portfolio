@@ -98,13 +98,14 @@ If WebGL is unavailable or the model fails to load, the home page falls back to 
 
 # Editing the grids (/projectChoice and /experienceChoice)
 
-The blue pill dives into the projects grid, the red pill into the experience grid. Both are the same component
+The blue pill dives into the projects grid, the red pill (and the "Experience" link in the header) into the
+experience grid. The white straight lanes ride from one grid into the other. Both are the same component
 (`src/components/sections/MatrixGrid/`), set up by `world:` in the page's content file.
 
-| Grid                                               | Left lane (colour)    | Right lane (colour)       | Straight ahead (colour)                    |
-| -------------------------------------------------- | --------------------- | ------------------------- | ------------------------------------------ |
-| `projects` (`content/pages/projectChoice.md`)      | Game projects (blue)  | Software projects (green) | Experience, rides off to `/workXP` (white) |
-| `experience` (`content/pages/experienceChoice.md`) | Work experience (red) | Education (yellow)        | Projects, rides off to `/projects` (white) |
+| Grid                                               | Left lane (colour)    | Right lane (colour)       | Straight ahead (colour)                            |
+| -------------------------------------------------- | --------------------- | ------------------------- | -------------------------------------------------- |
+| `projects` (`content/pages/projectChoice.md`)      | Game projects (blue)  | Software projects (green) | Experience, rides into the experience grid (white) |
+| `experience` (`content/pages/experienceChoice.md`) | Work experience (red) | Education (yellow)        | Projects, rides into the projects grid (white)     |
 
 | What                                                            | Where                                                                                                                   |
 | --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
@@ -115,6 +116,7 @@ The blue pill dives into the projects grid, the red pill into the experience gri
 | Add another school or course                                    | copy `content/pages/workXP/3-Dalhousie.md` and keep `filter: education`                                                 |
 | Order of the panels                                             | newest `startdate` first (`getAllProjectsSorted` / `getAllWorkXPSorted` in `src/utils/static-props-resolvers.ts`)       |
 | Use the old flat "Choose your path" page instead                | `content/pages/projectChoice.md`: change `type: MatrixGrid` to `type: ProjectChoiceSection`                             |
+| Header links (Info, Projects, Experience)                       | `primaryLinks` in `content/data/config.json`                                                                            |
 | Where the red pill goes                                         | `url` in `content/pages/pillOptions/work-experience.md` (now `/experienceChoice`; the old Tron-disk page was `/workXP`) |
 | Positions, spacing, signs, exit portal, panel sizes, cameras    | `WORLD` in `src/components/sections/MatrixGrid/layout.ts`                                                               |
 | Light cycle speed, how fast its colour changes, chase camera    | `BIKE` in the same file (`colorChange` is the colour fade time in seconds)                                              |
@@ -127,5 +129,5 @@ The blue pill dives into the projects grid, the red pill into the experience gri
 Controls: arrow keys (Up at the fork takes the straight lane), mouse wheel, swipes, clicking panels and signs, Enter to
 open, Esc to go back. The address bar follows the bike (`?lane=game&project=3-Gambit`, `?lane=education`), so a link
 opens straight at that item. Without WebGL the old flat pages are shown (for the experience grid: buttons leading to
-`/workXP?filter=work`, `/workXP?filter=education` and `/projects`), and a plain list of the items is always in the
+`/workXP?filter=work`, `/workXP?filter=education` and `/projectChoice`), and a plain list of the items is always in the
 page for screen readers.

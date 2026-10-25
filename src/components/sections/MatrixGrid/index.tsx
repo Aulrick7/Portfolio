@@ -5,9 +5,11 @@
  * between panels. One component, two grids (see worlds.ts):
  *
  *   world: projects    content/pages/projectChoice.md (blue pill)
- *                      Game projects left, Software projects right, Experience straight ahead.
+ *                      Game projects left, Software projects right, Experience straight ahead
+ *                      (rides into the experience grid).
  *   world: experience  content/pages/experienceChoice.md (red pill)
- *                      Work experience left, Education right, Projects straight ahead.
+ *                      Work experience left, Education right, Projects straight ahead
+ *                      (rides into the projects grid).
  *
  * Content:
  *   - type: MatrixGrid
@@ -126,6 +128,11 @@ export default function MatrixGrid(props) {
 
     React.useEffect(() => setWebgl(hasWebGL()), []);
 
+    // Going from one grid page to the other reuses this section. Both grids share one store, which a new grid
+    // resets as it starts, so the old grid is taken down first and the new one is built right after.
+    const [shown, setShown] = React.useState(world.id);
+    React.useLayoutEffect(() => setShown(world.id), [world.id]);
+
     // Fill the rest of the first screen under the site header.
     React.useLayoutEffect(() => {
         const section = sectionRef.current;
@@ -150,8 +157,9 @@ export default function MatrixGrid(props) {
     return (
         <section ref={sectionRef} id={elementId || undefined} className="grid-world-section">
             <ItemList world={world} items={items} />
-            <WorldErrorBoundary fallback={flat}>
-                {webgl && <GridWorld world={world} items={items} />}
+            <WorldErrorBoundary key={world.id} fallback={flat}>
+                {/* keyed by grid, so riding from one grid into the other starts the new one fresh */}
+                {webgl && shown === world.id && <GridWorld key={world.id} world={world} items={items} />}
             </WorldErrorBoundary>
         </section>
     );

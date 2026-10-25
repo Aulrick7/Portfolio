@@ -20,9 +20,9 @@
             },
             {
                 "type": "Link",
-                "label": "Work Experience",
+                "label": "Experience",
                 "altText": "",
-                "url": "/workXP",
+                "url": "/experienceChoice",
                 "showIcon": false,
                 "icon": "arrowRight",
                 "iconPosition": "right",

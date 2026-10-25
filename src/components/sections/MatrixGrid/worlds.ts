@@ -2,9 +2,9 @@
  * The two grids and what their lanes hold. Change labels, colours or which items go where here.
  *
  * - projects   (/projectChoice, blue pill): Game projects left, Software projects right,
- *              and a straight lane that rides off to the Experience page.
+ *              and a straight lane that rides off into the experience grid.
  * - experience (/experienceChoice, red pill): Work experience left, Education right,
- *              and a straight lane that rides off to the Projects page.
+ *              and a straight lane that rides off into the projects grid.
  *
  * Lane colours are also the light cycle's colour while it rides that lane. On the trunk (before choosing)
  * the cycle glows `neutral`.
@@ -34,7 +34,7 @@ export type WorldConfig = {
     id: WorldId;
     neutral: string;
     lanes: Record<Lane, LaneConfig>;
-    /** Optional lane straight ahead that leads to another page. */
+    /** Optional lane straight ahead that leads to another page (here: the other grid). */
     straight?: { key: string; label: string; sublabel: string; name: string; color: string; href: string };
 };
 
@@ -77,7 +77,7 @@ export const WORLDS: Record<WorldId, WorldConfig> = {
             sublabel: 'STRAIGHT AHEAD',
             name: 'Experience',
             color: COLORS.crossover,
-            href: '/workXP'
+            href: '/experienceChoice'
         }
     },
     experience: {
@@ -109,7 +109,7 @@ export const WORLDS: Record<WorldId, WorldConfig> = {
             sublabel: 'STRAIGHT AHEAD',
             name: 'Projects',
             color: COLORS.crossover,
-            href: '/projects'
+            href: '/projectChoice'
         }
     }
 };
