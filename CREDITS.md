@@ -115,9 +115,8 @@ experience grid. The white straight lanes ride from one grid into the other. Bot
 | Which work / education entries appear, and in which lane        | `content/pages/workXP/*.md`: `filter: education` goes right (Education), anything else goes left (Work experience)      |
 | Add another school or course                                    | copy `content/pages/workXP/3-Dalhousie.md` and keep `filter: education`                                                 |
 | Order of the panels                                             | newest `startdate` first (`getAllProjectsSorted` / `getAllWorkXPSorted` in `src/utils/static-props-resolvers.ts`)       |
-| Use the old flat "Choose your path" page instead                | `content/pages/projectChoice.md`: change `type: MatrixGrid` to `type: ProjectChoiceSection`                             |
 | Header links (Info, Projects, Experience)                       | `primaryLinks` in `content/data/config.json`                                                                            |
-| Where the red pill goes                                         | `url` in `content/pages/pillOptions/work-experience.md` (now `/experienceChoice`; the old Tron-disk page was `/workXP`) |
+| Where the red pill goes                                         | `url` in `content/pages/pillOptions/work-experience.md` (now `/experienceChoice`)                                       |
 | Positions, spacing, signs, exit portal, panel sizes, cameras    | `WORLD` in `src/components/sections/MatrixGrid/layout.ts`                                                               |
 | Light cycle speed, how fast its colour changes, chase camera    | `BIKE` in the same file (`colorChange` is the colour fade time in seconds)                                              |
 | Intro timing (rain turning into the grid)                       | `INTRO` in `timeline.ts`                                                                                                |
@@ -128,6 +127,10 @@ experience grid. The white straight lanes ride from one grid into the other. Bot
 
 Controls: arrow keys (Up at the fork takes the straight lane), mouse wheel, swipes, clicking panels and signs, Enter to
 open, Esc to go back. The address bar follows the bike (`?lane=game&project=3-Gambit`, `?lane=education`), so a link
-opens straight at that item. Without WebGL the old flat pages are shown (for the experience grid: buttons leading to
-`/workXP?filter=work`, `/workXP?filter=education` and `/projectChoice`), and a plain list of the items is always in the
-page for screen readers.
+opens straight at that item. Without WebGL (or if the 3D scene fails) the same items are shown as a flat list with the
+lanes side by side (`ItemList` in `MatrixGrid/index.tsx`, styles under "Flat version of a grid" in `main.css`); that
+list is also always in the page, hidden, for screen readers.
+
+The old list pages `/projects` and `/workXP` were removed (the grids replace them). Old links to them redirect to the
+grids (`redirects` in `next.config.js`). Each project and work / education entry still has its own full page
+(`/projects/<name>`, `/workXP/<name>`), opened from its panel on the grid.

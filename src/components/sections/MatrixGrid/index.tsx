@@ -18,8 +18,8 @@
  * The items come from content/pages/projects (projects) or content/pages/workXP (experience); their
  * `filter` field picks the lane (game / software, work / education).
  *
- * Without WebGL, or if the 3D world fails to load, a flat page is shown instead. A plain list of the items
- * is always in the page for screen readers.
+ * Without WebGL, or if the 3D world fails to load, the same items are shown as a flat list instead (lanes side by
+ * side, each entry linking to its full page). The list is always in the page, hidden, for screen readers.
  */
 
 import dynamic from 'next/dynamic';
@@ -27,7 +27,6 @@ import Link from 'next/link';
 import * as React from 'react';
 
 import type { MatrixProject } from '@/types';
-import ProjectChoiceSection from '../ProjectChoiceSection';
 import { WorldConfig, WorldId, WORLDS } from './worlds';
 
 const GridWorld = dynamic(() => import('./GridWorld'), { ssr: false });
@@ -63,55 +62,97 @@ function splitLanes(world: WorldConfig, items: MatrixProject[]) {
     return { left, right };
 }
 
-function ItemList({ world, items }: { world: WorldConfig; items: MatrixProject[] }) {
-    const lanes = splitLanes(world, items);
-    return (
-        <div className="sr-only">
-            <h1>{world.id === 'projects' ? 'Projects' : 'Work experience and education'}</h1>
-            {(['left', 'right'] as const).map((side) => (
-                <section key={side}>
-                    <h2>{world.lanes[side].name}</h2>
-                    <ul>
-                        {lanes[side].map((item) => (
-                            <li key={item.id}>
-                                {item.url ? <a href={item.url}>{item.title}</a> : item.title}
-                                {item.description ? ` — ${item.description}` : ''}
-                            </li>
-                        ))}
-                    </ul>
-                </section>
-            ))}
-            {world.straight && <a href={world.straight.href}>{world.straight.name}</a>}
-        </div>
-    );
+const formatDate = (date?: string | null) => (date ? date.replace('-', '.') : '');
+
+function dates(item: MatrixProject) {
+    if (!item.startdate) return '';
+    return `${formatDate(item.startdate)} — ${item.enddate ? formatDate(item.enddate) : 'now'}`;
 }
 
-/** Flat version of the Work / Education choice, for browsers without WebGL. */
-function FlatExperienceChoice({ world, elementId }: { world: WorldConfig; elementId?: string }) {
-    return (
-        <section id={elementId || undefined} className="grid-flat-choice">
-            <h1 className="grid-flat-choice__title">Choose your path</h1>
-            <div className="grid-flat-choice__options">
+/**
+ * Every item of a grid as a list: the flat page when there is no 3D (`flat`), otherwise hidden for screen readers.
+ */
+function ItemList({
+    world,
+    items,
+    flat = false,
+    elementId
+}: {
+    world: WorldConfig;
+    items: MatrixProject[];
+    flat?: boolean;
+    elementId?: string;
+}) {
+    const lanes = splitLanes(world, items);
+    const title = world.id === 'projects' ? 'Projects' : 'Experience';
+    if (!flat) {
+        return (
+            <div className="sr-only">
+                <h1>{title}</h1>
                 {(['left', 'right'] as const).map((side) => (
-                    <Link
-                        key={side}
-                        href={`/workXP?filter=${world.lanes[side].key}`}
-                        className="grid-flat-choice__option"
-                        style={{ borderColor: world.lanes[side].color, color: world.lanes[side].color }}
-                    >
-                        {world.lanes[side].name}
-                    </Link>
+                    <section key={side}>
+                        <h2>{world.lanes[side].name}</h2>
+                        <ul>
+                            {lanes[side].map((item) => (
+                                <li key={item.id}>
+                                    {item.url ? <a href={item.url}>{item.title}</a> : item.title}
+                                    {item.description ? ` — ${item.description}` : ''}
+                                </li>
+                            ))}
+                        </ul>
+                    </section>
                 ))}
-                {world.straight && (
-                    <Link
-                        href={world.straight.href}
-                        className="grid-flat-choice__option"
-                        style={{ borderColor: world.straight.color, color: world.straight.color }}
-                    >
-                        {world.straight.name}
-                    </Link>
-                )}
+                {world.straight && <a href={world.straight.href}>{world.straight.name}</a>}
             </div>
+        );
+    }
+    return (
+        <section id={elementId || undefined} className="grid-flat">
+            <h1 className="grid-flat__title">{title}</h1>
+            <div className="grid-flat__lanes">
+                {(['left', 'right'] as const).map((side) => (
+                    <section
+                        key={side}
+                        className="grid-flat__lane"
+                        style={{ '--lane': world.lanes[side].color } as React.CSSProperties}
+                    >
+                        <h2 className="grid-flat__lane-title">{world.lanes[side].name}</h2>
+                        <ul className="grid-flat__items">
+                            {lanes[side].map((item) => {
+                                const body = (
+                                    <>
+                                        <span className="grid-flat__item-title">{item.title}</span>
+                                        {dates(item) && <span className="grid-flat__item-dates">{dates(item)}</span>}
+                                        {item.description && (
+                                            <span className="grid-flat__item-text">{item.description}</span>
+                                        )}
+                                    </>
+                                );
+                                return (
+                                    <li key={item.id}>
+                                        {item.url ? (
+                                            <Link href={item.url} className="grid-flat__item">
+                                                {body}
+                                            </Link>
+                                        ) : (
+                                            <div className="grid-flat__item">{body}</div>
+                                        )}
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    </section>
+                ))}
+            </div>
+            {world.straight && (
+                <Link
+                    href={world.straight.href}
+                    className="grid-flat__straight"
+                    style={{ '--lane': world.straight.color } as React.CSSProperties}
+                >
+                    {world.straight.name} ›
+                </Link>
+            )}
         </section>
     );
 }
@@ -146,12 +187,7 @@ export default function MatrixGrid(props) {
         return () => window.removeEventListener('resize', update);
     }, [webgl]);
 
-    const flat =
-        world.id === 'projects' ? (
-            <ProjectChoiceSection elementId={elementId} colors="colors-f" />
-        ) : (
-            <FlatExperienceChoice world={world} elementId={elementId} />
-        );
+    const flat = <ItemList world={world} items={items} flat elementId={elementId} />;
     if (webgl === false) return flat;
 
     return (

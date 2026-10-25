@@ -1,6 +1,5 @@
 import { ContentObject, PageModelType } from '@/types';
 import NextLink, { LinkProps as NextLinkProps } from 'next/link';
-import { useRouter } from 'next/router';
 import * as React from 'react';
 
 import { Annotated } from '@/components/Annotated';
@@ -11,7 +10,6 @@ type LinkProps = RegularLinkProps | (Omit<RegularLinkProps, 'href'> & { href: Pa
 
 const Link: React.FC<LinkProps> = (props) => {
     const { children, href: hrefArgument, onClick, ...other } = props;
-    const router = useRouter();
     let hrefString: string = null;
     let hrefContent: ContentObject = null;
 
@@ -22,26 +20,14 @@ const Link: React.FC<LinkProps> = (props) => {
         hrefString = hrefArgument.__metadata.urlPath;
     }
 
-    // Check if this is a link to the projects page
-    const isProjectsLink = hrefString === '/projects';
-
-    const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-        if (isProjectsLink) {
-            e.preventDefault();
-            // Navigate to projectChoice page with Tron transition
-            router.push('/projectChoice');
-        }
-        onClick?.(e);
-    };
-
     // Pass Any internal link to Next.js Link, for anything else, use <a> tag
     const internal = /^\/(?!\/)/.test(hrefString);
     const linkTag = internal ? (
-        <NextLink href={hrefString} onClick={handleClick} {...other}>
+        <NextLink href={hrefString} onClick={onClick} {...other}>
             {children}
         </NextLink>
     ) : (
-        <a href={hrefString} onClick={handleClick} {...other}>
+        <a href={hrefString} onClick={onClick} {...other}>
             {children}
         </a>
     );

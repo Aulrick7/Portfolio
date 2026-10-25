@@ -1,4 +1,3 @@
-import router from 'next/router';
 import React, { useEffect, useState } from 'react';
 
 interface TronTransitionProps {
@@ -93,17 +92,8 @@ export default function TronTransition({ isActive, onComplete, direction, colour
                 });
             }, 1000 / progressSteps);
         }
-        const handleTransitionComplete = () => {
-            if (direction === 'left') {
-                router.push('/projects?filter=game');
-            } else if (direction === 'right') {
-                router.push('/projects?filter=software');
-            } else if (direction === 'down') {
-                router.push('/workXP');
-            } else {
-                router.push('/projects');
-            }
-        };
+        // The page that shows the disk decides where to go next (the old list pages it used to open are gone).
+        const handleTransitionComplete = () => onComplete?.();
         return () => {
             clearTimeout(diskTimer);
             clearInterval(rotationInterval);
