@@ -5,9 +5,9 @@
  * between panels. One component, two grids (see worlds.ts):
  *
  *   world: projects    content/pages/projectChoice.md (blue pill)
- *                      Game projects left, Software projects right, All projects straight ahead.
+ *                      Game projects left, Software projects right, Experience straight ahead.
  *   world: experience  content/pages/experienceChoice.md (red pill)
- *                      Work experience left, Education right.
+ *                      Work experience left, Education right, Projects straight ahead.
  *
  * Content:
  *   - type: MatrixGrid
@@ -100,6 +100,15 @@ function FlatExperienceChoice({ world, elementId }: { world: WorldConfig; elemen
                         {world.lanes[side].name}
                     </Link>
                 ))}
+                {world.straight && (
+                    <Link
+                        href={world.straight.href}
+                        className="grid-flat-choice__option"
+                        style={{ borderColor: world.straight.color, color: world.straight.color }}
+                    >
+                        {world.straight.name}
+                    </Link>
+                )}
             </div>
         </section>
     );

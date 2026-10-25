@@ -2,8 +2,9 @@
  * The two grids and what their lanes hold. Change labels, colours or which items go where here.
  *
  * - projects   (/projectChoice, blue pill): Game projects left, Software projects right,
- *              and a straight lane that rides off to the full Projects page.
- * - experience (/experienceChoice, red pill): Work experience left, Education right.
+ *              and a straight lane that rides off to the Experience page.
+ * - experience (/experienceChoice, red pill): Work experience left, Education right,
+ *              and a straight lane that rides off to the Projects page.
  *
  * Lane colours are also the light cycle's colour while it rides that lane. On the trunk (before choosing)
  * the cycle glows `neutral`.
@@ -41,7 +42,7 @@ export const COLORS = {
     neutral: '#dff7ff',
     game: '#3b9eff', // blue
     software: '#39ff7a', // green
-    projects: '#ff3fb4', // pink
+    crossover: '#ffffff', // white: the straight lanes that lead to the other side of the site
     work: '#ff3b3b', // red
     education: '#ffd23f' // yellow
 };
@@ -71,12 +72,12 @@ export const WORLDS: Record<WorldId, WorldConfig> = {
             }
         },
         straight: {
-            key: 'all',
-            label: 'ALL PROJECTS',
+            key: 'experience',
+            label: 'EXPERIENCE',
             sublabel: 'STRAIGHT AHEAD',
-            name: 'All projects',
-            color: COLORS.projects,
-            href: '/projects'
+            name: 'Experience',
+            color: COLORS.crossover,
+            href: '/workXP'
         }
     },
     experience: {
@@ -101,6 +102,14 @@ export const WORLDS: Record<WorldId, WorldConfig> = {
                 color: COLORS.education,
                 match: (item) => item.filter === 'education'
             }
+        },
+        straight: {
+            key: 'projects',
+            label: 'PROJECTS',
+            sublabel: 'STRAIGHT AHEAD',
+            name: 'Projects',
+            color: COLORS.crossover,
+            href: '/projects'
         }
     }
 };

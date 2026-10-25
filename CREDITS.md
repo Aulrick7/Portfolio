@@ -101,10 +101,10 @@ If WebGL is unavailable or the model fails to load, the home page falls back to 
 The blue pill dives into the projects grid, the red pill into the experience grid. Both are the same component
 (`src/components/sections/MatrixGrid/`), set up by `world:` in the page's content file.
 
-| Grid                                               | Left lane (colour)    | Right lane (colour)       | Straight ahead (colour)                       |
-| -------------------------------------------------- | --------------------- | ------------------------- | --------------------------------------------- |
-| `projects` (`content/pages/projectChoice.md`)      | Game projects (blue)  | Software projects (green) | All projects, rides off to `/projects` (pink) |
-| `experience` (`content/pages/experienceChoice.md`) | Work experience (red) | Education (yellow)        | none                                          |
+| Grid                                               | Left lane (colour)    | Right lane (colour)       | Straight ahead (colour)                    |
+| -------------------------------------------------- | --------------------- | ------------------------- | ------------------------------------------ |
+| `projects` (`content/pages/projectChoice.md`)      | Game projects (blue)  | Software projects (green) | Experience, rides off to `/workXP` (white) |
+| `experience` (`content/pages/experienceChoice.md`) | Work experience (red) | Education (yellow)        | Projects, rides off to `/projects` (white) |
 
 | What                                                            | Where                                                                                                                   |
 | --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
@@ -126,6 +126,6 @@ The blue pill dives into the projects grid, the red pill into the experience gri
 
 Controls: arrow keys (Up at the fork takes the straight lane), mouse wheel, swipes, clicking panels and signs, Enter to
 open, Esc to go back. The address bar follows the bike (`?lane=game&project=3-Gambit`, `?lane=education`), so a link
-opens straight at that item. Without WebGL the old flat pages are shown (for the experience grid: two buttons leading to
-`/workXP?filter=work` and `/workXP?filter=education`), and a plain list of the items is always in the page for screen
-readers.
+opens straight at that item. Without WebGL the old flat pages are shown (for the experience grid: buttons leading to
+`/workXP?filter=work`, `/workXP?filter=education` and `/projects`), and a plain list of the items is always in the
+page for screen readers.
