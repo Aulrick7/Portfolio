@@ -1,72 +1,98 @@
 /**
  * Bridge: the raised road the light cycle takes back to the fork from a lane (its path is layout.bridgePoints:
- * a loop past the lane's last panel, a straight run right above the lane, then down behind the start point).
+ * a ramp past the lane's last panel that curves round to run back beside the lane, then down behind the start point).
  *
- * It rises out of the grid when the bike heads for it (store.bridge) and sinks back once the bike has landed.
- * The deck has glowing edges in the lane's colour and banks into its turns; gantries straddle the lane under it.
- * Look and timing knobs are the constants below; its size and shape are BRIDGE in layout.ts.
+ * Its look follows the light cycle arena in TRON: Legacy, whose levels and ramps are floating sheets of dark,
+ * see-through glass carrying the same glowing grid as the floor: a glass deck with grid lines and lit edges in the
+ * lane's colour, a thin glowing slab edge, no supports, banking into its turns. It is part of the world: it builds up
+ * out of the grid with the panels while the grid forms, and stays. Look knobs are the constants below; its size and
+ * shape are BRIDGE in layout.ts.
  */
 
 import { useFrame } from '@react-three/fiber';
 import * as React from 'react';
 import * as THREE from 'three';
-import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
-import { BRIDGE, Lane } from './layout';
-import { useGridStore } from './store';
+import { BRIDGE, WORLD } from './layout';
+import { useTimeline } from './timeline';
 
-/** Seconds to rise out of the grid, to wait after the bike has landed, and to sink back. */
-const RISE_TIME = 0.5;
-const SINK_DELAY = 0.6;
-const SINK_TIME = 1.1;
 /** How far the deck tilts into its turns (radians, at most). */
 const MAX_BANK = 0.42;
-/** A gantry every this many units, wherever the deck is higher than GANTRY_MIN_HEIGHT. */
-const GANTRY_SPACING = 4.5;
-const GANTRY_MIN_HEIGHT = 1.4;
-/** Gantry legs stand this far out from the deck's centre line (clear of the lane under it). */
-const GANTRY_HALF_SPAN = BRIDGE.width / 2 + 0.45;
+/** Thickness of the glowing slab edge under each side of the deck. */
+const EDGE_DEPTH = 0.14;
+/** Grid cells across the deck (the cells are square, so this also sets their length). */
+const CELLS_ACROSS = 3;
+/** How see-through the glass is (0 clear, 1 solid) when looked at straight on. */
+const GLASS_OPACITY = 0.3;
 
-const riseVertex = /* glsl */ `
+const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+
+const deckVertex = /* glsl */ `
     uniform float uRise;
     attribute float aAlong;
+    attribute float aEdge;
     varying vec2 vUv;
     varying float vAlong;
+    varying float vEdge;
+    varying vec3 vWorld;
+    varying vec3 vNormal;
     void main() {
         vUv = uv;
         vAlong = aAlong;
+        vEdge = aEdge;
         vec3 p = position;
-        p.y *= uRise; // rising out of the grid
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+        p.y *= uRise; // building up out of the grid during the intro
+        vec4 world = modelMatrix * vec4(p, 1.0);
+        vWorld = world.xyz;
+        vNormal = normalize(mat3(modelMatrix) * normal);
+        gl_Position = projectionMatrix * viewMatrix * world;
     }
 `;
 
 const deckFragment = /* glsl */ `
     uniform vec3 uColor;
     uniform float uOpacity;
+    uniform float uWidth;
+    uniform float uGlass;
+    uniform vec3 uFogColor;
+    uniform float uFogDensity;
     varying vec2 vUv;
     varying float vAlong;
+    varying float vEdge;
+    varying vec3 vWorld;
+    varying vec3 vNormal;
+
+    float gridLine(float q, float width) {
+        float g = abs(fract(q - 0.5) - 0.5) / fwidth(q);
+        return 1.0 - min(g / width, 1.0);
+    }
+
     void main() {
-        float across = abs(vUv.x - 0.5) * 2.0; // 0 on the centre line, 1 at the edges
-        float edge = smoothstep(0.8, 0.97, across);
-        float tick = step(0.93, fract(vAlong / 2.0)) * (1.0 - edge);
-        float centre = (1.0 - smoothstep(0.0, 0.04, across)) * 0.35;
-        vec3 base = vec3(0.008, 0.035, 0.05);
-        vec3 color = base * (1.0 - edge) + uColor * (edge * 1.7 + tick * 0.35 + centre);
-        gl_FragColor = vec4(color, mix(0.86, 1.0, edge) * uOpacity);
+        vec3 color;
+        float alpha;
+        if (vEdge > 0.5) {
+            // the slab's lit edge
+            color = uColor * 1.6;
+            alpha = 1.0;
+        } else {
+            float cell = uWidth / ${CELLS_ACROSS.toFixed(1)};
+            float across = vUv.x * uWidth;
+            float lines = max(gridLine(across / cell, 1.0), gridLine(vAlong / cell, 1.0));
+            float major = gridLine(vAlong / (cell * 5.0), 1.8);
+            float edge = 1.0 - smoothstep(0.0, 0.05, min(vUv.x, 1.0 - vUv.x));
+            vec3 view = normalize(cameraPosition - vWorld);
+            float fresnel = pow(1.0 - abs(dot(normalize(vNormal), view)), 3.0);
+            color = vec3(0.006, 0.025, 0.035) + uColor * (0.04 + lines * 0.55 + major * 0.45 + edge * 1.8 + fresnel * 0.3);
+            alpha = clamp(uGlass + fresnel * 0.45 + lines * 0.5 + major * 0.3 + edge, 0.0, 1.0);
+        }
+        float dist = distance(vWorld, cameraPosition);
+        float fog = 1.0 - exp(-pow(dist * uFogDensity, 2.0));
+        gl_FragColor = vec4(mix(color, uFogColor, fog), alpha * uOpacity);
     }
 `;
 
-const gantryFragment = /* glsl */ `
-    uniform vec3 uColor;
-    uniform float uOpacity;
-    void main() {
-        gl_FragColor = vec4(uColor * 1.25, 0.8 * uOpacity);
-    }
-`;
-
-/** Deck (with a short glowing skirt under each edge) and gantries, built from the bridge's path. */
-function buildBridge(points: THREE.Vector3[]) {
+/** The deck (glass top and a glowing edge under each side), built from the bridge's path. */
+function buildDeck(points: THREE.Vector3[]) {
     const curve = new THREE.CatmullRomCurve3(points, false, 'centripetal');
     const length = curve.getLength();
     const n = Math.max(2, Math.ceil(length / 0.25));
@@ -74,12 +100,12 @@ function buildBridge(points: THREE.Vector3[]) {
     const ds = length / n;
 
     // Horizontal direction and how sharply it turns (signed: positive = turning left) at each sample.
-    const dirs = samples.map((p, i) => {
+    const dirs = samples.map((_, i) => {
         const a = samples[Math.max(0, i - 1)];
         const b = samples[Math.min(n, i + 1)];
         return b.clone().sub(a).setY(0).normalize();
     });
-    const turn = dirs.map((d, i) => {
+    const turn = dirs.map((_, i) => {
         const a = dirs[Math.max(0, i - 2)];
         const b = dirs[Math.min(n, i + 2)];
         return (a.z * b.x - a.x * b.z) / (4 * ds);
@@ -97,10 +123,10 @@ function buildBridge(points: THREE.Vector3[]) {
     });
 
     const half = BRIDGE.width / 2;
-    const skirt = 0.2;
     const positions: number[] = [];
     const uvs: number[] = [];
     const along: number[] = [];
+    const edges: number[] = [];
     const index: number[] = [];
     const up = new THREE.Vector3(0, 1, 0);
     samples.forEach((p, i) => {
@@ -108,135 +134,77 @@ function buildBridge(points: THREE.Vector3[]) {
         const side = right.clone().multiplyScalar(Math.cos(bank[i])).addScaledVector(up, Math.sin(bank[i]));
         const l = p.clone().addScaledVector(side, -half);
         const r = p.clone().addScaledVector(side, half);
-        // four vertices per sample: left skirt, left edge, right edge, right skirt
-        positions.push(
-            l.x,
-            Math.max(0, l.y - skirt),
-            l.z,
-            l.x,
-            l.y,
-            l.z,
-            r.x,
-            r.y,
-            r.z,
-            r.x,
-            Math.max(0, r.y - skirt),
-            r.z
-        );
-        uvs.push(0, 0, 0, 1, 1, 1, 1, 0);
+        const below = (v: THREE.Vector3) => [v.x, Math.max(0, v.y - EDGE_DEPTH), v.z];
+        // six vertices per sample: left edge (bottom, top), deck (left, right), right edge (top, bottom)
+        positions.push(...below(l), l.x, l.y, l.z, l.x, l.y, l.z, r.x, r.y, r.z, r.x, r.y, r.z, ...below(r));
+        uvs.push(0, 0, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0);
         const d = i * ds;
-        along.push(d, d, d, d);
+        along.push(d, d, d, d, d, d);
+        edges.push(1, 1, 0, 0, 1, 1);
         if (i > 0) {
-            const k = (i - 1) * 4;
-            for (const [a, b] of [
-                [0, 1],
-                [1, 2],
-                [2, 3]
-            ]) {
-                index.push(k + a, k + b, k + 4 + a, k + b, k + 4 + b, k + 4 + a);
-            }
+            const k = (i - 1) * 6;
+            for (const a of [0, 2, 4]) index.push(k + a, k + a + 1, k + 6 + a, k + a + 1, k + 7 + a, k + 6 + a);
         }
     });
     const deck = new THREE.BufferGeometry();
     deck.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
     deck.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
     deck.setAttribute('aAlong', new THREE.Float32BufferAttribute(along, 1));
+    deck.setAttribute('aEdge', new THREE.Float32BufferAttribute(edges, 1));
     deck.setIndex(index);
-
-    // Gantries: two legs and a crossbar under the deck.
-    const parts: THREE.BufferGeometry[] = [];
-    const thickness = 0.08;
-    let next = GANTRY_SPACING / 2;
-    samples.forEach((p, i) => {
-        if (i * ds < next) return;
-        next += GANTRY_SPACING;
-        if (p.y < GANTRY_MIN_HEIGHT) return;
-        const yaw = Math.atan2(dirs[i].x, dirs[i].z);
-        const right = new THREE.Vector3(-dirs[i].z, 0, dirs[i].x);
-        const top = p.y - 0.12;
-        for (const s of [-1, 1]) {
-            const leg = new THREE.BoxGeometry(thickness, top, thickness);
-            leg.rotateY(yaw);
-            const foot = p.clone().addScaledVector(right, s * GANTRY_HALF_SPAN);
-            leg.translate(foot.x, top / 2, foot.z);
-            parts.push(leg);
-        }
-        const bar = new THREE.BoxGeometry(GANTRY_HALF_SPAN * 2, thickness, thickness);
-        bar.rotateY(yaw + Math.PI / 2);
-        bar.translate(p.x, top - thickness, p.z);
-        parts.push(bar);
-    });
-    const gantries = parts.length ? mergeGeometries(parts.map((g) => g.toNonIndexed())) : new THREE.BufferGeometry();
-    parts.forEach((g) => g.dispose());
-    // the rise shader reads aAlong on every geometry
-    const count = gantries.getAttribute('position')?.count ?? 0;
-    gantries.setAttribute('aAlong', new THREE.Float32BufferAttribute(new Float32Array(count), 1));
-    return { deck, gantries };
+    deck.computeVertexNormals();
+    return deck;
 }
 
-export function Bridge({ lane, points, color }: { lane: Lane; points: THREE.Vector3[]; color: string }) {
-    const { deck, gantries } = React.useMemo(() => buildBridge(points), [points]);
-    const materials = React.useMemo(() => {
-        const uniforms = () => ({
-            uColor: { value: new THREE.Color(color) },
-            uOpacity: { value: 0 },
-            uRise: { value: 0 }
-        });
-        return {
-            deck: new THREE.ShaderMaterial({
-                vertexShader: riseVertex,
+export function Bridge({ points, color }: { points: THREE.Vector3[]; color: string }) {
+    const timeline = useTimeline();
+    const deck = React.useMemo(() => buildDeck(points), [points]);
+    const material = React.useMemo(
+        () =>
+            new THREE.ShaderMaterial({
+                vertexShader: deckVertex,
                 fragmentShader: deckFragment,
-                uniforms: uniforms(),
+                uniforms: {
+                    uColor: { value: new THREE.Color(color) },
+                    uOpacity: { value: 0 },
+                    uRise: { value: 0 },
+                    uWidth: { value: BRIDGE.width },
+                    uGlass: { value: GLASS_OPACITY },
+                    uFogColor: { value: new THREE.Color(WORLD.colors.background) },
+                    uFogDensity: { value: 0.022 }
+                },
                 transparent: true,
+                depthWrite: false,
                 side: THREE.DoubleSide,
                 toneMapped: false
             }),
-            gantries: new THREE.ShaderMaterial({
-                vertexShader: riseVertex,
-                fragmentShader: gantryFragment,
-                uniforms: uniforms(),
-                transparent: true,
-                depthWrite: false,
-                blending: THREE.AdditiveBlending,
-                toneMapped: false
-            })
-        };
-    }, [color]);
+        [color]
+    );
     React.useEffect(
         () => () => {
             deck.dispose();
-            gantries.dispose();
-            materials.deck.dispose();
-            materials.gantries.dispose();
+            material.dispose();
         },
-        [deck, gantries, materials]
+        [deck, material]
     );
 
-    const group = React.useRef<THREE.Group>(null);
-    const rise = React.useRef(0);
-    const lastActive = React.useRef(-Infinity);
-
-    useFrame((state, delta) => {
-        const now = state.clock.elapsedTime;
-        const active = useGridStore.getState().bridge === lane;
-        if (active) {
-            lastActive.current = now;
-            rise.current = Math.min(1, rise.current + delta / RISE_TIME);
-        } else if (now - lastActive.current > SINK_DELAY) {
-            rise.current = Math.max(0, rise.current - delta / SINK_TIME);
-        }
-        const r = THREE.MathUtils.smootherstep(rise.current, 0, 1);
-        for (const material of [materials.deck, materials.gantries]) {
-            material.uniforms.uRise.value = r;
-            material.uniforms.uOpacity.value = THREE.MathUtils.smoothstep(r, 0, 0.35);
-        }
-        if (group.current) group.current.visible = r > 0.001;
+    const mesh = React.useRef<THREE.Mesh>(null);
+    useFrame(() => {
+        // Builds up out of the grid with the panels during the intro.
+        const r = easeOut(THREE.MathUtils.clamp((timeline.panels - 0.1) / 0.8, 0, 1));
+        material.uniforms.uRise.value = r;
+        material.uniforms.uOpacity.value = THREE.MathUtils.smoothstep(r, 0, 0.35);
+        if (mesh.current) mesh.current.visible = r > 0.001;
     });
 
     return (
-        <group ref={group} visible={false}>
-            <mesh geometry={deck} material={materials.deck} frustumCulled={false} raycast={() => null} />
-            <mesh geometry={gantries} material={materials.gantries} frustumCulled={false} raycast={() => null} />
-        </group>
+        <mesh
+            ref={mesh}
+            geometry={deck}
+            material={material}
+            visible={false}
+            frustumCulled={false}
+            raycast={() => null}
+        />
     );
 }

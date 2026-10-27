@@ -26,8 +26,6 @@ type GridState = {
     moving: boolean;
     /** True once the bike is about to ride off through the straight lane's portal (the page fades out). */
     exiting: boolean;
-    /** The lane whose bridge is raised (while the bike rides back to the fork over it). */
-    bridge: Lane | null;
     /** Id of the panel or sign under the pointer. */
     hovered: string | null;
 
@@ -35,7 +33,6 @@ type GridState = {
     setPhase: (phase: GridState['phase']) => void;
     setMoving: (moving: boolean) => void;
     setExiting: (exiting: boolean) => void;
-    setBridge: (bridge: Lane | null) => void;
     setHovered: (id: string | null) => void;
     goTo: (target: Target) => void;
     goFork: () => void;
@@ -57,7 +54,6 @@ export const useGridStore = create<GridState>((set, get) => ({
     target: { kind: 'start' },
     moving: false,
     exiting: false,
-    bridge: null,
     hovered: null,
 
     reset: (world, lanes) =>
@@ -68,13 +64,11 @@ export const useGridStore = create<GridState>((set, get) => ({
             target: { kind: 'start' },
             moving: false,
             exiting: false,
-            bridge: null,
             hovered: null
         }),
     setPhase: (phase) => set({ phase }),
     setMoving: (moving) => set({ moving }),
     setExiting: (exiting) => set({ exiting }),
-    setBridge: (bridge) => set({ bridge }),
     setHovered: (hovered) => set({ hovered }),
     goTo: (target) => set({ target }),
     goFork: () => set({ target: { kind: 'fork' } }),

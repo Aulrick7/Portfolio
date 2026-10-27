@@ -207,12 +207,7 @@ function Scene({
                 {(['left', 'right'] as const).map(
                     (lane) =>
                         bridges[lane] && (
-                            <Bridge
-                                key={lane}
-                                lane={lane}
-                                points={bridges[lane]!.points}
-                                color={world.lanes[lane].color}
-                            />
+                            <Bridge key={lane} points={bridges[lane]!.points} color={world.lanes[lane].color} />
                         )
                 )}
                 <Rider panels={panels} bridges={bridges} reducedMotion={reducedMotion} />

@@ -140,9 +140,7 @@ export function Rider({
                 bridge: bridgeLane
             };
             moving.current = true;
-            const store = useGridStore.getState();
-            store.setMoving(true);
-            if (bridgeLane) store.setBridge(bridgeLane);
+            useGridStore.getState().setMoving(true);
         },
         [panels, bridges, reducedMotion]
     );
@@ -212,7 +210,6 @@ export function Rider({
                 moving.current = false;
                 const store = useGridStore.getState();
                 store.setMoving(false);
-                if (ride.bridge) store.setBridge(null);
                 if (st.pending) {
                     const next = st.pending;
                     st.pending = null;
