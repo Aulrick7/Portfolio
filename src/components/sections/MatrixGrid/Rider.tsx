@@ -84,6 +84,7 @@ export function Rider({
     const timeline = useTimeline();
     const camera = useThree((s) => s.camera) as THREE.PerspectiveCamera;
     const bikeRef = React.useRef<THREE.Group>(null);
+    const leanRef = React.useRef<THREE.Group>(null);
     const lean = React.useRef(0);
     const moving = React.useRef(false);
     const color = React.useRef(new THREE.Color(useGridStore.getState().world.neutral));
@@ -100,7 +101,8 @@ export function Rider({
         yawRate: 0,
         pitch: 0,
         lookAt: new THREE.Vector3(0, 1.2, 0),
-        cameraReady: false
+        cameraReady: false,
+        placed: false
     });
 
     const plan = React.useCallback(
@@ -218,7 +220,10 @@ export function Rider({
             }
         } else {
             stopPoint(st.stop, tmp.pos);
-            bike.position.lerp(tmp.pos, dampFactor(0.2, delta));
+            // The first frame puts the bike straight on its stop (rather than gliding there from the origin).
+            if (!st.placed) bike.position.copy(tmp.pos);
+            else bike.position.lerp(tmp.pos, dampFactor(0.2, delta));
+            st.placed = true;
             // At the fork the bike faces the junction.
             if (st.stop.lane === null) st.heading.lerp(tmp.forkHeading, dampFactor(0.25, delta)).normalize();
         }
@@ -303,12 +308,13 @@ export function Rider({
             camera.fov = fov;
             camera.updateProjectionMatrix();
         }
-    });
+        // Priority -1: the bike moves before the light cycle and its trail update, so the trail never lags a frame behind.
+    }, -1);
 
     return (
         <>
-            <LightCycle bikeRef={bikeRef} lean={lean} color={color} />
-            <LightTrail bikeRef={bikeRef} moving={moving} color={color} />
+            <LightCycle bikeRef={bikeRef} leanRef={leanRef} lean={lean} color={color} />
+            <LightTrail bikeRef={bikeRef} leanRef={leanRef} moving={moving} color={color} />
         </>
     );
 }

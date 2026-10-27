@@ -116,10 +116,12 @@ export function planSpeed(
 /**
  * The points of the light trail, newest first. Point 0 always sits at the back wheel; a new fixed point is added
  * whenever the wheel has moved `spacing` away from the last one (however small each frame's step is, so the trail
- * draws the same at any frame rate).
+ * draws the same at any frame rate). Each point also keeps which way was "up" for the bike there, so the wall leans
+ * with the bike.
  */
 export class TrailPoints {
     points: THREE.Vector3[] = [];
+    ups: THREE.Vector3[] = [];
     /** Length of the trail (world units). */
     length = 0;
     /** 1 while riding and lingering, fading to 0 after the bike has stopped for a while. */
@@ -140,22 +142,33 @@ export class TrailPoints {
         this.fade = options.fade;
     }
 
-    /** Call once per frame with the back wheel's position, whether the bike is riding, and the time in seconds. */
-    update(back: THREE.Vector3, moving: boolean, now: number) {
+    /**
+     * Call once per frame with the back wheel's position, the bike's up direction, whether the bike is riding, and the
+     * time in seconds.
+     */
+    update(back: THREE.Vector3, up: THREE.Vector3, moving: boolean, now: number) {
         const list = this.points;
+        const ups = this.ups;
         if (moving) {
             // Riding again while the old trail was fading: start a fresh one (a lingering one just carries on).
-            if (this.stoppedAt !== null && this.opacity < 1) list.length = 0;
+            if (this.stoppedAt !== null && this.opacity < 1) list.length = ups.length = 0;
             this.stoppedAt = null;
             this.opacity = 1;
-            if (!list.length) list.push(back.clone(), back.clone());
+            if (!list.length) {
+                list.push(back.clone(), back.clone());
+                ups.push(up.clone(), up.clone());
+            }
             list[0].copy(back);
-            if (list[0].distanceTo(list[1]) >= this.spacing) list.splice(1, 0, back.clone());
+            ups[0].copy(up);
+            if (list[0].distanceTo(list[1]) >= this.spacing) {
+                list.splice(1, 0, back.clone());
+                ups.splice(1, 0, up.clone());
+            }
         } else if (list.length) {
             if (this.stoppedAt === null) this.stoppedAt = now;
             const stopped = now - this.stoppedAt;
             this.opacity = stopped <= this.linger ? 1 : Math.max(0, 1 - (stopped - this.linger) / this.fade);
-            if (this.opacity <= 0) list.length = 0;
+            if (this.opacity <= 0) list.length = ups.length = 0;
         }
 
         // Keep at most maxLength of trail: the oldest point is pulled in so the tail shortens smoothly.
@@ -167,7 +180,7 @@ export class TrailPoints {
                     list[i].lerpVectors(list[i - 1], list[i], (this.maxLength - total) / d);
                     total = this.maxLength;
                 } else total += d;
-                list.length = i + 1;
+                list.length = ups.length = i + 1;
                 break;
             }
             total += d;

@@ -30,10 +30,13 @@ const WHEEL_RADIUS = 0.38;
 
 export function LightCycle({
     bikeRef,
+    leanRef,
     lean,
     color
 }: {
     bikeRef: React.RefObject<THREE.Group>;
+    /** The group inside the bike that leans (shared with the light trail, which leans with it). */
+    leanRef: React.RefObject<THREE.Group>;
     lean: React.MutableRefObject<number>;
     /** Current glow colour (the rider changes it as the bike enters a lane). */
     color: React.MutableRefObject<THREE.Color>;
@@ -69,7 +72,7 @@ export function LightCycle({
         });
         return { model, parts: { wheels, glows }, clip };
     }, [scene]);
-    const leanGroup = React.useRef<THREE.Group>(null);
+    const leanGroup = leanRef;
     const light = React.useRef<THREE.PointLight>(null);
     const { actions } = useAnimations(animations, model);
 
@@ -127,6 +130,8 @@ useGLTF.preload(LIGHT_CYCLE_URL);
 const TRAIL_POINTS = 240;
 const TRAIL_LENGTH = 16; // world units of trail kept behind the bike
 const TRAIL_HEIGHT = 0.78;
+/** How far behind the bike's centre the trail starts (its back wheel). */
+const TRAIL_BACK = 1.05;
 /** After the bike stops, the trail stays this long (seconds), then fades out over TRAIL_FADE. */
 const TRAIL_LINGER = 1.6;
 const TRAIL_FADE = 0.9;
@@ -167,10 +172,12 @@ const trailFragment = /* glsl */ `
  */
 export function LightTrail({
     bikeRef,
+    leanRef,
     moving,
     color
 }: {
     bikeRef: React.RefObject<THREE.Group>;
+    leanRef: React.RefObject<THREE.Group>;
     moving: React.MutableRefObject<boolean>;
     color: React.MutableRefObject<THREE.Color>;
 }) {
@@ -230,24 +237,40 @@ export function LightTrail({
     );
     const back = React.useMemo(() => new THREE.Vector3(), []);
     const forward = React.useMemo(() => new THREE.Vector3(), []);
+    const up = React.useMemo(() => new THREE.Vector3(), []);
 
     useFrame((state) => {
         const bike = bikeRef.current;
         if (!bike) return;
         material.uniforms.uColor.value.copy(color.current);
-        // The trail starts at the back wheel.
+        // The trail starts at the back wheel and leans with the bike.
         forward.set(0, 0, 1).applyQuaternion(bike.quaternion);
-        back.copy(bike.position).addScaledVector(forward, -1.05);
-        trail.update(back, moving.current, state.clock.elapsedTime);
+        back.copy(bike.position).addScaledVector(forward, -TRAIL_BACK);
+        up.set(0, 1, 0);
+        if (leanRef.current) up.applyQuaternion(leanRef.current.quaternion);
+        up.applyQuaternion(bike.quaternion);
+        trail.update(back, up, moving.current, state.clock.elapsedTime);
         material.uniforms.uOpacity.value = trail.opacity;
 
         const list = trail.points;
+        const ups = trail.ups;
         let travelled = 0;
         const span = Math.max(trail.length, TRAIL_LENGTH * 0.6);
         for (let i = 0; i < list.length; i++) {
             if (i > 0) travelled += list[i].distanceTo(list[i - 1]);
             const p = list[i];
-            positions.set([p.x, p.y + 0.02, p.z, p.x, p.y + TRAIL_HEIGHT, p.z], i * 6);
+            const u = ups[i];
+            positions.set(
+                [
+                    p.x + u.x * 0.02,
+                    p.y + u.y * 0.02,
+                    p.z + u.z * 0.02,
+                    p.x + u.x * TRAIL_HEIGHT,
+                    p.y + u.y * TRAIL_HEIGHT,
+                    p.z + u.z * TRAIL_HEIGHT
+                ],
+                i * 6
+            );
             const age = Math.min(1, travelled / span);
             ages[i * 2] = age;
             ages[i * 2 + 1] = age;

@@ -251,37 +251,35 @@ export const BIKE = {
 };
 
 /**
- * The bridge the bike takes back to the fork from a lane. It is always there (one per lane). Past the lane's last
- * panel the bike rides up a ramp that curves round until it runs back beside the lane (on the start side, outside
- * the panels); near the fork it swings round and comes down behind the start point, facing the fork.
+ * The bridge the bike takes back to the fork from a lane. It is always there (one per lane). Just past the lane's last
+ * panel the bike rides up a ramp that turns off the lane, then sweeps round in one big semicircle (on the start side)
+ * and comes down behind the start point, facing the fork. The two lanes' bridges mirror each other like wings.
  *
- *   top view (left lane)
+ *   top view
  *
- *      lane end   [P]        [P]        [P]       fork
- *    .--<--- bike rides out on the lane ---<------+
- *   (  ramp                                        |
- *    '======== bridge, raised beside the lane =====\
- *                                                  ||  start
- *                                                   '=> lands here, rides up to the fork
+ *     .----- game lane ----- fork ----- software lane -----.
+ *    /  ramp                  |                        ramp  \
+ *   |                       start                             |
+ *    \                      /   \                            /
+ *     '-------------------'      '--------------------------'
+ *        semicircle bridge           semicircle bridge
  */
 export const BRIDGE = {
     /** Height of the deck above the grid. */
     height: 4.2,
-    /** Deck width. */
-    width: 2.4,
+    /** Deck width, and how it narrows over the last stretch where the two bridges meet behind the start point. */
+    width: 6,
+    landingWidth: 3,
+    landingTaper: 8,
     /** The ramp starts this far past the bike's stop at the lane's last panel. */
     leadIn: 3,
-    /** How far beside the lane the bridge runs (on the start side, outside the panels). */
-    offset: 7,
-    /** Straight run up the ramp before it curves round. */
-    rampRun: 4,
-    /** The deck keeps climbing this far along the run beside the lane before it is at full height. */
-    climbAfterTurn: 6,
-    /** Coming down: the turn towards the start side, then the U-turn onto the trunk. */
-    descentTurn: 3,
-    descentUTurn: 2.5,
+    /** Radius of the turn off the lane at the start of the ramp (and of the turn onto the trunk at the end). */
+    rampTurn: 6,
+    /** The deck climbs over this distance from the foot of the ramp, and comes down over this distance at the end. */
+    climb: 16,
+    descent: 18,
     /** Where it lands on the trunk (just behind the start point). */
-    landZ: WORLD.trunkStart + 1
+    landZ: WORLD.trunkStart + 2
 };
 
 export const startStop = (): BikeStop => ({ lane: null, s: trunkS(WORLD.trunkStart - 1.4) });
@@ -327,72 +325,51 @@ function carvedUTurn(position: THREE.Vector3, heading: THREE.Vector3, side: 1 | 
     return points;
 }
 
-/** A "turtle" that draws arcs and straight lines on the grid, in a lane's own frame (a: out along the lane, b: across). */
-function turtle(a: number, b: number, heading: number) {
-    const points: { a: number; b: number }[] = [{ a, b }];
-    const step = 0.4;
-    return {
-        points,
-        /** Turn by `angle` (positive: towards +b when heading out along the lane) on a circle of `radius`. */
-        arc(radius: number, angle: number) {
-            const sign = Math.sign(angle);
-            const ca = a + sign * radius * -Math.sin(heading);
-            const cb = b + sign * radius * Math.cos(heading);
-            const n = Math.max(2, Math.ceil((Math.abs(angle) * radius) / step));
-            for (let k = 1; k <= n; k++) {
-                const t = heading + (angle * k) / n;
-                points.push({ a: ca - sign * radius * -Math.sin(t), b: cb - sign * radius * Math.cos(t) });
-            }
-            heading += angle;
-            ({ a, b } = points[points.length - 1]);
-        },
-        line(distance: number) {
-            const n = Math.max(1, Math.ceil(distance / step));
-            const [da, db] = [Math.cos(heading), Math.sin(heading)];
-            for (let k = 1; k <= n; k++)
-                points.push({ a: a + (da * distance * k) / n, b: b + (db * distance * k) / n });
-            a += da * distance;
-            b += db * distance;
-        }
-    };
-}
-
 /**
- * Points along the bridge for a lane (on its deck, so y is the height), from the foot of its ramp (`entryS` along
- * the lane, on the grid) to where it lands behind the start point.
+ * Points along the bridge for a lane (on its deck, so y is the height), from the foot of its ramp (`entryS` along the
+ * lane, on the grid) to where it lands behind the start point. In the lane's own frame (a: out along the lane from the
+ * junction, b: across, towards the start side) it is three arcs that all turn the same way: off the lane (rampTurn),
+ * the semicircle, and onto the trunk (rampTurn). The angle of the first turn and the radius of the semicircle are
+ * worked out so that it lands exactly on the trunk at landZ, heading for the fork.
  */
 export function bridgePoints(lane: Lane, entryS: number): THREE.Vector3[] {
     const { dir } = SIDES[lane];
     const aIn = Math.abs(routePoint(lane, entryS).x);
-    const { height, offset, rampRun, climbAfterTurn, descentTurn: d1, descentUTurn: d2, landZ } = BRIDGE;
-    const aDown = d1 + 2 * d2; // where it turns for the start point, so the U-turn ends on the trunk (a = 0)
+    const { height, rampTurn: rs, landZ, climb, descent } = BRIDGE;
+    // Landing at (0, landZ) needs: 2 (R - rs) sin(t) = aIn - rs and 2 (R - rs) cos(t) = landZ - rs.
+    const turnOff = Math.atan2(aIn - rs, landZ - rs);
+    const radius = rs + Math.hypot(aIn - rs, landZ - rs) / 2;
 
-    const path = turtle(aIn, 0, 0);
-    // Up the ramp and round (a half circle) until it runs back beside the lane, on the start side.
-    path.line(rampRun);
-    path.arc(offset / 2, Math.PI);
-    // Back beside the lane, towards the fork.
-    path.line(Math.max(0, aIn + rampRun - aDown));
-    const runEnd = path.points.length;
-    // Turn towards the start side, U-turn onto the trunk behind the start point.
-    path.arc(d1, -Math.PI / 2);
-    path.line(Math.max(0, landZ - offset - d1));
-    path.arc(d2, Math.PI);
+    const pts: { a: number; b: number }[] = [{ a: aIn, b: 0 }];
+    let a = aIn;
+    let b = 0;
+    let heading = 0;
+    const arc = (r: number, angle: number) => {
+        // turning towards +b (the start side)
+        const ca = a - r * Math.sin(heading);
+        const cb = b + r * Math.cos(heading);
+        const n = Math.max(3, Math.ceil((angle * r) / 0.4));
+        for (let k = 1; k <= n; k++) {
+            const t = heading + (angle * k) / n;
+            pts.push({ a: ca + r * Math.sin(t), b: cb - r * Math.cos(t) });
+        }
+        heading += angle;
+        ({ a, b } = pts[pts.length - 1]);
+    };
+    arc(rs, turnOff);
+    arc(radius, Math.PI);
+    arc(rs, Math.PI / 2 - turnOff);
 
-    // Heights: climb up the ramp and round, stay up beside the lane, come down on the way to the start point.
-    const pts = path.points;
+    // Heights: climb up the ramp, stay up round the semicircle, come down to land behind the start point.
     const lengths = [0];
     for (let i = 1; i < pts.length; i++)
         lengths.push(lengths[i - 1] + Math.hypot(pts[i].a - pts[i - 1].a, pts[i].b - pts[i - 1].b));
-    const climbLength = rampRun + (Math.PI * offset) / 2 + climbAfterTurn;
-    const descentStart = lengths[runEnd - 1];
-    const descentLength = lengths[lengths.length - 1] - descentStart;
+    const total = lengths[lengths.length - 1];
     return pts.map((p, i) => {
         const t = lengths[i];
-        let y = height;
-        if (t < climbLength) y = height * THREE.MathUtils.smootherstep(t / climbLength, 0, 1);
-        if (i >= runEnd) y = height * (1 - THREE.MathUtils.smootherstep((t - descentStart) / descentLength, 0, 1));
-        return new THREE.Vector3(dir * p.a, y, p.b);
+        const up = THREE.MathUtils.smootherstep(t / climb, 0, 1);
+        const down = THREE.MathUtils.smootherstep((total - t) / descent, 0, 1);
+        return new THREE.Vector3(dir * p.a, height * Math.min(up, down), p.b);
     });
 }
 
