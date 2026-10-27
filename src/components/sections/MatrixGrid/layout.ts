@@ -30,8 +30,8 @@ export const SIDES: Record<Lane, { dir: -1 | 1 }> = {
 export const WORLD = {
     /** Trunk runs from here (z) to the fork at z = 0. */
     trunkStart: 12,
-    /** Radius of the turn from the trunk into each lane. */
-    cornerRadius: 1.6,
+    /** Radius of the turn from the trunk into each lane (a true circular arc). */
+    cornerRadius: 2.6,
     /** How far each lane runs past the turn. */
     laneLength: 34,
     /** Distance along the lane (after the turn) to the first panel, and between panels. */
@@ -76,8 +76,15 @@ export function laneRoute(route: Route) {
         return path;
     }
     const { dir } = SIDES[route];
+    // A quarter circle (as a cubic Bezier) from heading down the trunk to heading out along the lane.
+    const k = 0.5523 * r;
     path.add(
-        new THREE.QuadraticBezierCurve3(trunkEnd.clone(), new THREE.Vector3(0, 0, 0), new THREE.Vector3(dir * r, 0, 0))
+        new THREE.CubicBezierCurve3(
+            trunkEnd.clone(),
+            new THREE.Vector3(0, 0, r - k),
+            new THREE.Vector3(dir * (r - k), 0, 0),
+            new THREE.Vector3(dir * r, 0, 0)
+        )
     );
     path.add(
         new THREE.LineCurve3(new THREE.Vector3(dir * r, 0, 0), new THREE.Vector3(dir * (r + WORLD.laneLength), 0, 0))
@@ -225,15 +232,52 @@ export type BikeStop = { lane: Route | null; s: number };
 export const FORK_WAIT_Z = 3.2;
 
 export const BIKE = {
-    /** Cruise speed (units per second) and the shortest a ride may take. */
-    speed: 9,
-    minRide: 1.1,
-    /** Radius of the U-turn the bike makes when it has to go back the way it came. */
-    uTurnRadius: 1.15,
+    /** Speed limits on the grid (units per second, and per second squared): see motion.ts. */
+    ride: { cruise: 11, grip: 18, accel: 13, brake: 15 },
+    /** Riding back to the fork over a bridge: a little faster on the grid, and a boost on the bridge itself. */
+    bridgeRide: {
+        ground: { cruise: 22, grip: 40, accel: 24, brake: 28 },
+        deck: { cruise: 46, grip: 170, accel: 42, brake: 44 }
+    },
+    /** Radius of the U-turn the bike carves when it has to go back the way it came (e.g. Previous project). */
+    uTurnRadius: 1.7,
+    /** Leaning into turns: lean = atan(speed * turn rate / leanGravity), at most maxLean (radians). */
+    leanGravity: 20,
+    maxLean: 0.55,
     /** Chase camera: distance behind, height above, and how far ahead it looks. */
     chase: { back: 4.6, up: 1.95, ahead: 4.5, lookUp: 0.85 },
     /** How quickly the glow changes colour when the bike enters a lane (seconds). */
     colorChange: 0.35
+};
+
+/**
+ * The bridge the bike takes back to the fork from a lane: past the lane's last panel it climbs a loop that turns it
+ * round, rides back along a bridge right above the lane, then swings round beside the trunk and comes down behind
+ * the start point, facing the fork.
+ *
+ *   top view (left lane)                       side view
+ *                                                            ______________________ deck
+ *    loop  ( )====== bridge over the lane ====\             /                        \
+ *     ^ ramp       [P]      [P]      [P]        |          /  loop                      \  down to
+ *     '---<---- bike rides out on the lane -----|  fork   ramp                        the start point
+ *                                               |
+ *                                       start   '--> lands here, rides up to the fork
+ */
+export const BRIDGE = {
+    /** Height of the deck above the grid. */
+    height: 4.6,
+    /** Deck width. */
+    width: 1.7,
+    /** The ramp starts this far past the bike's stop at the lane's last panel. */
+    leadIn: 3,
+    /** The turn-around loop: a small swing out, then a big circle back over the ramp. */
+    loopSwing: 2,
+    loopRadius: 3.2,
+    /** Coming down: the turn off the lane towards the start side, then the U-turn onto the trunk. */
+    descentTurn: 3,
+    descentUTurn: 2.5,
+    /** Where it lands on the trunk (just behind the start point). */
+    landZ: WORLD.trunkStart + 1
 };
 
 export const startStop = (): BikeStop => ({ lane: null, s: trunkS(WORLD.trunkStart - 1.4) });
@@ -254,37 +298,133 @@ function walk(points: THREE.Vector3[], lane: Route, s0: number, s1: number, step
     for (let k = 1; k <= n; k++) points.push(routePoint(lane, s0 + ((s1 - s0) * k) / n));
 }
 
-/** Points of a U-turn starting at `position` heading along `heading`, turning to the right. */
-function uTurn(position: THREE.Vector3, heading: THREE.Vector3, radius: number) {
-    const right = new THREE.Vector3(-heading.z, 0, heading.x); // heading rotated -90 degrees around y
-    const centre = position
-        .clone()
-        .addScaledVector(heading, radius * 0.6)
-        .addScaledVector(right, radius);
-    const points: THREE.Vector3[] = [position.clone().addScaledVector(heading, radius * 0.6)];
-    for (let k = 1; k <= 6; k++) {
-        const a = (Math.PI * k) / 6;
-        // start on the left of the centre (where we are) and sweep round to the far side
-        points.push(
-            centre
-                .clone()
-                .addScaledVector(right, -Math.cos(a) * radius)
-                .addScaledVector(heading, Math.sin(a) * radius)
-        );
+/**
+ * A U-turn carved like a motorbike: swing out a little, a wide half circle the other way, then ease back onto the
+ * line heading the opposite way. `side` is where the half circle goes: 1 to the right of `heading`, -1 to the left.
+ */
+function carvedUTurn(position: THREE.Vector3, heading: THREE.Vector3, side: 1 | -1, radius = BIKE.uTurnRadius) {
+    const h = heading.clone().setY(0).normalize();
+    const right = new THREE.Vector3(-h.z, 0, h.x).multiplyScalar(side);
+    const at = (along: number, across: number) =>
+        position.clone().setY(0).addScaledVector(h, along).addScaledVector(right, across);
+    const swing = radius * 0.3;
+    const entry = radius * 1.4;
+    const exit = radius * 3;
+    const points: THREE.Vector3[] = [];
+    for (let k = 1; k <= 4; k++) points.push(at((entry * k) / 4, (-swing * (1 - Math.cos((Math.PI * k) / 4))) / 2));
+    const centre = radius - swing;
+    for (let k = 1; k <= 10; k++) {
+        const a = (Math.PI * k) / 10;
+        points.push(at(entry + Math.sin(a) * radius, centre - Math.cos(a) * radius));
     }
+    const across = 2 * radius - swing;
+    for (let k = 1; k <= 8; k++)
+        points.push(at(entry - (exit * k) / 8, (across * (1 + Math.cos((Math.PI * k) / 8))) / 2));
     return points;
 }
 
+/** A "turtle" that draws arcs and straight lines on the grid, in a lane's own frame (a: out along the lane, b: across). */
+function turtle(a: number, b: number, heading: number) {
+    const points: { a: number; b: number }[] = [{ a, b }];
+    const step = 0.4;
+    return {
+        points,
+        /** Turn by `angle` (positive: towards +b when heading out along the lane) on a circle of `radius`. */
+        arc(radius: number, angle: number) {
+            const sign = Math.sign(angle);
+            const ca = a + sign * radius * -Math.sin(heading);
+            const cb = b + sign * radius * Math.cos(heading);
+            const n = Math.max(2, Math.ceil((Math.abs(angle) * radius) / step));
+            for (let k = 1; k <= n; k++) {
+                const t = heading + (angle * k) / n;
+                points.push({ a: ca - sign * radius * -Math.sin(t), b: cb - sign * radius * Math.cos(t) });
+            }
+            heading += angle;
+            ({ a, b } = points[points.length - 1]);
+        },
+        line(distance: number) {
+            const n = Math.max(1, Math.ceil(distance / step));
+            const [da, db] = [Math.cos(heading), Math.sin(heading)];
+            for (let k = 1; k <= n; k++)
+                points.push({ a: a + (da * distance * k) / n, b: b + (db * distance * k) / n });
+            a += da * distance;
+            b += db * distance;
+        }
+    };
+}
+
 /**
- * The bike's ride from where it is to a stop, on the grid (y = 0): along the lines, straight across the
- * junction when switching lanes, with a U-turn first if the way there is behind it, and a loop at the end
- * when it comes back to the fork so it waits facing the junction again.
+ * Points along the bridge for a lane (on its deck, so y is the height), from the foot of its ramp (`entryS` along
+ * the lane, on the grid) to where it lands behind the start point.
  */
-export function bikeRide(from: BikeStop, fromPosition: THREE.Vector3, heading: THREE.Vector3, to: BikeStop) {
+export function bridgePoints(lane: Lane, entryS: number): THREE.Vector3[] {
+    const { dir } = SIDES[lane];
+    const aIn = Math.abs(routePoint(lane, entryS).x);
+    const { height, loopSwing: r1, loopRadius: r2, descentTurn: d1, descentUTurn: d2, landZ } = BRIDGE;
+    const swing = Math.acos(r1 / (r1 + r2));
+    const aDown = d1 + 2 * d2; // where it leaves the lane so the U-turn ends on the trunk (a = 0)
+
+    const path = turtle(aIn, 0, 0);
+    // Loop: swing away from the start side, a big circle round, and back onto the lane's line above the ramp.
+    path.arc(r1, -swing);
+    path.arc(r2, Math.PI + 2 * swing);
+    path.arc(r1, -swing);
+    const loopEnd = path.points.length;
+    // Back above the lane, towards the junction.
+    path.line(Math.max(0, aIn - aDown));
+    const straightEnd = path.points.length;
+    // Turn towards the start side, run beside the trunk, U-turn onto it behind the start point.
+    path.arc(d1, -Math.PI / 2);
+    path.line(Math.max(0, landZ - d1));
+    path.arc(d2, Math.PI);
+
+    // Heights: climb through the loop, stay up over the lane, come down on the way to the start point.
+    const pts = path.points;
+    const lengths = [0];
+    for (let i = 1; i < pts.length; i++)
+        lengths.push(lengths[i - 1] + Math.hypot(pts[i].a - pts[i - 1].a, pts[i].b - pts[i - 1].b));
+    const loopLength = lengths[loopEnd - 1];
+    const descentStart = lengths[straightEnd - 1];
+    const descentLength = lengths[lengths.length - 1] - descentStart;
+    return pts.map((p, i) => {
+        const t = lengths[i];
+        let y = height;
+        if (i < loopEnd) y = height * THREE.MathUtils.smootherstep(t / loopLength, 0, 1);
+        else if (i >= straightEnd)
+            y = height * (1 - THREE.MathUtils.smootherstep((t - descentStart) / descentLength, 0, 1));
+        return new THREE.Vector3(dir * p.a, y, p.b);
+    });
+}
+
+/** Distance along a lane to the foot of its bridge, given the bike's stop at the lane's last panel. */
+export const bridgeEntryS = (lastStopS: number) => lastStopS + BRIDGE.leadIn;
+
+/**
+ * The bike's ride from where it is to a stop, as a curve (y is the height: 0 on the grid, above it on a bridge):
+ * along the lines, straight across the junction when switching lanes, with a carved U-turn first if the way there is
+ * behind it. Going back to the fork from a lane, pass that lane's `bridge` (bridgePoints): the bike rides on to the
+ * end of the lane, over the bridge, and up the trunk to the fork, so it never has to turn round at the fork.
+ */
+export function bikeRide(
+    from: BikeStop,
+    fromPosition: THREE.Vector3,
+    heading: THREE.Vector3,
+    to: BikeStop,
+    options: { bridge?: { points: THREE.Vector3[]; entryS: number }; turnSide?: 1 | -1 } = {}
+) {
     const route: THREE.Vector3[] = [];
     const fromLane = from.lane;
     const toLane = to.lane;
-    if (fromLane && toLane && fromLane !== toLane) {
+    const { bridge } = options;
+    if (bridge && (fromLane === 'left' || fromLane === 'right') && !toLane) {
+        // out along the lane, over the bridge, then up the trunk to the stop
+        walk(route, fromLane, from.s, bridge.entryS);
+        route.push(...bridge.points.slice(1));
+        const landZ = bridge.points[bridge.points.length - 1].z;
+        const stopZ = WORLD.trunkStart - to.s;
+        const n = Math.max(1, Math.round(landZ - stopZ));
+        for (let k = 1; k <= n; k++) route.push(new THREE.Vector3(0, 0, landZ + ((stopZ - landZ) * k) / n));
+    } else if (fromLane && toLane && fromLane !== toLane) {
         // lane to lane: back to the junction, straight across, out along the other lane
         walk(route, fromLane, from.s, junctionS(fromLane));
         route.push(new THREE.Vector3(0, 0, 0));
@@ -293,24 +433,23 @@ export function bikeRide(from: BikeStop, fromPosition: THREE.Vector3, heading: T
         walk(route, toLane ?? fromLane ?? 'left', from.s, to.s);
     }
 
-    const points: THREE.Vector3[] = [fromPosition.clone().setY(0)];
-    const first = route.find((p) => p.distanceTo(fromPosition) > 0.5);
+    const start = fromPosition.clone().setY(0);
+    const points: THREE.Vector3[] = [start];
+    let ahead = route;
+    const first = route.find((p) => p.distanceTo(start) > 0.5);
     if (first) {
-        const way = first.clone().sub(fromPosition).setY(0).normalize();
-        if (way.dot(heading) < -0.2) points.push(...uTurn(points[0], heading, BIKE.uTurnRadius));
-    }
-    points.push(...route.filter((p) => p.distanceTo(points[points.length - 1]) > 0.35));
-
-    if (!toLane) {
-        // Arriving at the fork from a lane means travelling away from the junction: loop round to face it.
-        const end = points[points.length - 1];
-        const before = points[points.length - 2] ?? end;
-        if (end.z > before.z + 0.01 && to.s === forkStop().s) {
-            const loopHeading = new THREE.Vector3(0, 0, 1);
-            const loop = uTurn(end, loopHeading, BIKE.uTurnRadius);
-            points.push(...loop, end.clone().add(new THREE.Vector3(BIKE.uTurnRadius * 0.9, 0, -0.6)));
+        const way = first.clone().sub(start).setY(0).normalize();
+        if (way.dot(heading) < -0.2) {
+            // The way there is behind: carve a U-turn, then pick the route up where the U-turn ends.
+            points.push(...carvedUTurn(start, heading, options.turnSide ?? 1));
+            const end = points[points.length - 1];
+            const back = heading.clone().setY(0).normalize().negate();
+            const index = route.findIndex((p) => p.clone().sub(end).dot(back) > 0.5);
+            ahead = index < 0 ? route.slice(-1) : route.slice(index);
         }
     }
+    const last = points[points.length - 1];
+    points.push(...ahead.filter((p) => p.distanceTo(last) > 0.35));
 
     const cleaned = points.filter((p, i) => i === 0 || p.distanceTo(points[i - 1]) > 0.2);
     if (cleaned.length < 2) cleaned.push(cleaned[0].clone().add(new THREE.Vector3(0, 0, -0.01)));
@@ -318,7 +457,7 @@ export function bikeRide(from: BikeStop, fromPosition: THREE.Vector3, heading: T
     return new THREE.CatmullRomCurve3(cleaned, false, 'centripetal');
 }
 
-/** Third-person camera behind the bike. */
+/** Third-person camera behind the bike (and above it, wherever it is: on the grid or on a bridge). */
 export function chasePose(bike: THREE.Vector3, heading: THREE.Vector3, aspect: number) {
     const portrait = aspect < 1 ? 1.45 : 1;
     const { back, up, ahead, lookUp } = BIKE.chase;
@@ -326,8 +465,11 @@ export function chasePose(bike: THREE.Vector3, heading: THREE.Vector3, aspect: n
         position: bike
             .clone()
             .addScaledVector(heading, -back * portrait)
-            .setY(up * (aspect < 1 ? 1.25 : 1)),
-        look: bike.clone().addScaledVector(heading, ahead).setY(lookUp)
+            .setY(bike.y + up * (aspect < 1 ? 1.25 : 1)),
+        look: bike
+            .clone()
+            .addScaledVector(heading, ahead)
+            .setY(bike.y + lookUp)
     };
 }
 

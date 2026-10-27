@@ -19,6 +19,7 @@ import * as React from 'react';
 import * as THREE from 'three';
 import { clone as cloneSkinned } from 'three/examples/jsm/utils/SkeletonUtils.js';
 
+import { TrailPoints } from './motion';
 import { dampFactor, useTimeline } from './timeline';
 
 export const LIGHT_CYCLE_URL = '/models/light-cycle/light-cycle.glb';
@@ -126,16 +127,22 @@ useGLTF.preload(LIGHT_CYCLE_URL);
 const TRAIL_POINTS = 240;
 const TRAIL_LENGTH = 16; // world units of trail kept behind the bike
 const TRAIL_HEIGHT = 0.78;
+/** After the bike stops, the trail stays this long (seconds), then fades out over TRAIL_FADE. */
+const TRAIL_LINGER = 1.6;
+const TRAIL_FADE = 0.9;
 
 const trailVertex = /* glsl */ `
     attribute float aAge;   // 0 at the bike, 1 at the far end
     attribute float aSide;  // 0 bottom edge, 1 top edge
     varying float vAge;
     varying float vSide;
+    varying float vDistance;
     void main() {
         vAge = aAge;
         vSide = aSide;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        vec4 viewPosition = modelViewMatrix * vec4(position, 1.0);
+        vDistance = length(viewPosition.xyz);
+        gl_Position = projectionMatrix * viewPosition;
     }
 `;
 
@@ -144,16 +151,19 @@ const trailFragment = /* glsl */ `
     uniform float uOpacity;
     varying float vAge;
     varying float vSide;
+    varying float vDistance;
     void main() {
         float along = pow(1.0 - vAge, 1.6);
         float edges = 0.45 + 1.4 * pow(vSide, 8.0) + 0.7 * pow(1.0 - vSide, 10.0);
-        gl_FragColor = vec4(uColor * along * edges * uOpacity * 1.3, 1.0);
+        // Fade out where the wall passes right by the camera (e.g. after a tight turn), so it never blocks the view.
+        float near = smoothstep(1.2, 4.0, vDistance);
+        gl_FragColor = vec4(uColor * along * edges * uOpacity * near * 1.3, 1.0);
     }
 `;
 
 /**
- * The wall of light the cycle leaves behind (a Tron "jetwall"). It follows the bike while it rides and
- * shrinks away into the bike once it stops.
+ * The wall of light the cycle leaves behind (a Tron "jetwall"). It follows the bike while it rides (up onto bridges
+ * too), stays for a moment once the bike stops, then fades away. The points are kept by TrailPoints (motion.ts).
  */
 export function LightTrail({
     bikeRef,
@@ -207,57 +217,38 @@ export function LightTrail({
         [geometry, material]
     );
 
-    const points = React.useRef<THREE.Vector3[]>([]);
+    const trail = React.useMemo(
+        () =>
+            new TrailPoints({
+                spacing: 0.12,
+                maxLength: TRAIL_LENGTH,
+                maxPoints: TRAIL_POINTS,
+                linger: TRAIL_LINGER,
+                fade: TRAIL_FADE
+            }),
+        []
+    );
     const back = React.useMemo(() => new THREE.Vector3(), []);
     const forward = React.useMemo(() => new THREE.Vector3(), []);
 
-    useFrame((_, delta) => {
+    useFrame((state) => {
         const bike = bikeRef.current;
         if (!bike) return;
         material.uniforms.uColor.value.copy(color.current);
         // The trail starts at the back wheel.
         forward.set(0, 0, 1).applyQuaternion(bike.quaternion);
-        back.copy(bike.position).addScaledVector(forward, -1.05).setY(0);
-        const list = points.current;
-        if (moving.current) {
-            if (!list.length || list[0].distanceTo(back) > 0.12) list.unshift(back.clone());
-            else list[0].copy(back);
-        } else if (list.length) {
-            // Stopped: reel the trail in from the far end.
-            const reel = delta * 14;
-            let remaining = reel;
-            while (list.length > 1 && remaining > 0) {
-                const end = list[list.length - 1];
-                const prev = list[list.length - 2];
-                const d = end.distanceTo(prev);
-                if (d <= remaining) {
-                    list.pop();
-                    remaining -= d;
-                } else {
-                    end.lerp(prev, remaining / d);
-                    remaining = 0;
-                }
-            }
-            if (list.length === 1) list.pop();
-        }
+        back.copy(bike.position).addScaledVector(forward, -1.05);
+        trail.update(back, moving.current, state.clock.elapsedTime);
+        material.uniforms.uOpacity.value = trail.opacity;
 
-        // Keep at most TRAIL_LENGTH of trail.
-        let total = 0;
-        for (let i = 1; i < list.length; i++) {
-            total += list[i].distanceTo(list[i - 1]);
-            if (total > TRAIL_LENGTH || i >= TRAIL_POINTS) {
-                list.length = i;
-                break;
-            }
-        }
-
+        const list = trail.points;
         let travelled = 0;
-        const length = Math.max(total, 1e-3);
+        const span = Math.max(trail.length, TRAIL_LENGTH * 0.6);
         for (let i = 0; i < list.length; i++) {
             if (i > 0) travelled += list[i].distanceTo(list[i - 1]);
             const p = list[i];
-            positions.set([p.x, 0.02, p.z, p.x, TRAIL_HEIGHT, p.z], i * 6);
-            const age = Math.min(1, travelled / Math.max(length, TRAIL_LENGTH * 0.6));
+            positions.set([p.x, p.y + 0.02, p.z, p.x, p.y + TRAIL_HEIGHT, p.z], i * 6);
+            const age = Math.min(1, travelled / span);
             ages[i * 2] = age;
             ages[i * 2 + 1] = age;
         }

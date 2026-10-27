@@ -9,7 +9,8 @@
  *   timeline.ts    the intro (rain -> grid)
  *   Environment    grid floor, sky, lane lights
  *   Panels         project panels and fork signs
- *   Rider          the light cycle and the camera
+ *   Bridge         the raised road back to the fork from each lane
+ *   Rider          the light cycle and the camera (motion.ts: speed and trail)
  *   Hud            buttons and labels on top of the canvas
  */
 
@@ -23,9 +24,10 @@ import MatrixRain3D from '@/components/three/MatrixRain3D';
 import type { MatrixProject } from '@/types';
 import { GridFloor, LaneLights, Sky } from './Environment';
 import { Hud } from './Hud';
-import { Lane, placePanels, routePoint, WORLD } from './layout';
+import { Bridge } from './Bridge';
+import { bridgeEntryS, bridgePoints, Lane, panelStop, placePanels, routePoint, WORLD } from './layout';
 import { ExitPortal, ForkSign, ProjectPanel } from './Panels';
-import { Rider } from './Rider';
+import { LaneBridge, Rider } from './Rider';
 import { projectSlug, Target, useGridStore } from './store';
 import { advanceTimeline, createTimeline, INTRO, TimelineContext, useTimeline } from './timeline';
 import { sideForKey, WorldConfig } from './worlds';
@@ -137,6 +139,17 @@ function Scene({
         () => [...placePanels('left', lanes.left), ...placePanels('right', lanes.right)],
         [lanes]
     );
+    // Each lane's bridge back to the fork starts just past its last panel.
+    const bridges = React.useMemo(() => {
+        const result: Partial<Record<Lane, LaneBridge>> = {};
+        for (const lane of ['left', 'right'] as const) {
+            const stops = panels.filter((p) => p.lane === lane).map((p) => panelStop(p).s);
+            if (!stops.length) continue;
+            const entryS = bridgeEntryS(Math.max(...stops));
+            result[lane] = { points: bridgePoints(lane, entryS), entryS };
+        }
+        return result;
+    }, [panels]);
     const connectors = React.useMemo(
         () =>
             panels.map((p) => ({ lane: p.lane, from: routePoint(p.lane, p.s + WORLD.panelLead), to: p.base.clone() })),
@@ -191,7 +204,18 @@ function Scene({
                         stagger={0.08 * (panel.index + (panel.lane === 'right' ? 0.5 : 0))}
                     />
                 ))}
-                <Rider panels={panels} reducedMotion={reducedMotion} />
+                {(['left', 'right'] as const).map(
+                    (lane) =>
+                        bridges[lane] && (
+                            <Bridge
+                                key={lane}
+                                lane={lane}
+                                points={bridges[lane]!.points}
+                                color={world.lanes[lane].color}
+                            />
+                        )
+                )}
+                <Rider panels={panels} bridges={bridges} reducedMotion={reducedMotion} />
                 {/* Inside the Suspense boundary: the intro only starts once the bike and fonts have loaded. */}
                 <IntroDirector timeline={timeline} reducedMotion={reducedMotion} initialTarget={initialTarget} />
             </React.Suspense>
