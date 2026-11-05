@@ -78,6 +78,8 @@ This work is based on "TRON: Uprising - ArgonCity Light Cycle"
   streaks stretching out from the centre, the colour shifts to cyan, a dark streaked tunnel, then black.
 - The code rain follows the look of _The Matrix_ (1999) titles: mirrored half-width katakana and digits.
 - The grids, light cycle, light trail, lane lights and the exit portal follow _Tron_ (1982) / _Tron: Legacy_ (2010).
+- The bridges follow the light cycle arena in _Tron: Legacy_: floating, see-through glass levels and ramps carrying the
+  floor's glowing grid (https://tron.fandom.com/wiki/Light_Cycle_Grid).
 
 ---
 
@@ -98,34 +100,45 @@ If WebGL is unavailable or the model fails to load, the home page falls back to 
 
 # Editing the grids (/projectChoice and /experienceChoice)
 
-The blue pill dives into the projects grid, the red pill into the experience grid. Both are the same component
+The blue pill dives into the projects grid, the red pill (and the "Experience" link in the header) into the
+experience grid. The white straight lanes ride from one grid into the other. Both are the same component
 (`src/components/sections/MatrixGrid/`), set up by `world:` in the page's content file.
 
-| Grid                                               | Left lane (colour)    | Right lane (colour)       | Straight ahead (colour)                       |
-| -------------------------------------------------- | --------------------- | ------------------------- | --------------------------------------------- |
-| `projects` (`content/pages/projectChoice.md`)      | Game projects (blue)  | Software projects (green) | All projects, rides off to `/projects` (pink) |
-| `experience` (`content/pages/experienceChoice.md`) | Work experience (red) | Education (yellow)        | none                                          |
+| Grid                                               | Left lane (colour)    | Right lane (colour)       | Straight ahead (colour)                            |
+| -------------------------------------------------- | --------------------- | ------------------------- | -------------------------------------------------- |
+| `projects` (`content/pages/projectChoice.md`)      | Game projects (blue)  | Software projects (green) | Experience, rides into the experience grid (white) |
+| `experience` (`content/pages/experienceChoice.md`) | Work experience (red) | Education (yellow)        | Projects, rides into the projects grid (white)     |
 
-| What                                                            | Where                                                                                                                   |
-| --------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Lane names, sign text, colours, which items go in which lane    | `WORLDS` and `COLORS` in `src/components/sections/MatrixGrid/worlds.ts`                                                 |
-| Add, remove or retarget the straight lane                       | `straight` in a world in `worlds.ts` (`href` is the page it rides to; delete `straight` to remove the lane)             |
-| Which projects appear, and in which lane                        | `content/pages/projects/*.md`: `filter: game` goes left, anything else goes right                                       |
-| Which work / education entries appear, and in which lane        | `content/pages/workXP/*.md`: `filter: education` goes right (Education), anything else goes left (Work experience)      |
-| Add another school or course                                    | copy `content/pages/workXP/3-Dalhousie.md` and keep `filter: education`                                                 |
-| Order of the panels                                             | newest `startdate` first (`getAllProjectsSorted` / `getAllWorkXPSorted` in `src/utils/static-props-resolvers.ts`)       |
-| Use the old flat "Choose your path" page instead                | `content/pages/projectChoice.md`: change `type: MatrixGrid` to `type: ProjectChoiceSection`                             |
-| Where the red pill goes                                         | `url` in `content/pages/pillOptions/work-experience.md` (now `/experienceChoice`; the old Tron-disk page was `/workXP`) |
-| Positions, spacing, signs, exit portal, panel sizes, cameras    | `WORLD` in `src/components/sections/MatrixGrid/layout.ts`                                                               |
-| Light cycle speed, how fast its colour changes, chase camera    | `BIKE` in the same file (`colorChange` is the colour fade time in seconds)                                              |
-| Intro timing (rain turning into the grid)                       | `INTRO` in `timeline.ts`                                                                                                |
-| Panel look and text, signs, exit portal                         | `Panels.tsx`                                                                                                            |
-| Lane lines on the floor                                         | `Environment.tsx`                                                                                                       |
-| Buttons and labels on top of the scene                          | `Hud.tsx`, styles in `src/css/main.css` (section "The grid in 3D")                                                      |
-| Look at the scene from anywhere while tuning (development only) | browser console: `window.__gridCamera = { position: [x, y, z], look: [x, y, z] }`, `delete window.__gridCamera` to stop |
+| What                                                               | Where                                                                                                                                                                                       |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Lane names, sign text, colours, which items go in which lane       | `WORLDS` and `COLORS` in `src/components/sections/MatrixGrid/worlds.ts`                                                                                                                     |
+| Add, remove or retarget the straight lane                          | `straight` in a world in `worlds.ts` (`href` is the page it rides to; delete `straight` to remove the lane)                                                                                 |
+| Which projects appear, and in which lane                           | `content/pages/projects/*.md`: `filter: game` goes left, anything else goes right                                                                                                           |
+| Which work / education entries appear, and in which lane           | `content/pages/workXP/*.md`: `filter: education` goes right (Education), anything else goes left (Work experience)                                                                          |
+| Add another school or course                                       | copy `content/pages/workXP/3-Dalhousie.md` and keep `filter: education`                                                                                                                     |
+| Order of the panels                                                | newest `startdate` first (`getAllProjectsSorted` / `getAllWorkXPSorted` in `src/utils/static-props-resolvers.ts`)                                                                           |
+| Header links (Info, Projects, Experience)                          | `primaryLinks` in `content/data/config.json`                                                                                                                                                |
+| Where the red pill goes                                            | `url` in `content/pages/pillOptions/work-experience.md` (now `/experienceChoice`)                                                                                                           |
+| Positions, spacing, signs, exit portal, panel sizes, cameras       | `WORLD` in `src/components/sections/MatrixGrid/layout.ts`                                                                                                                                   |
+| Light cycle speeds, braking, lean, U-turn size, chase camera       | `BIKE` in the same file: `ride` (top speed, grip in turns, acceleration, braking), `uTurnRadius`, `leanGravity` / `maxLean`, `colorChange` (colour fade in seconds)                         |
+| The bridges back to the fork (path, height, width, landing, boost) | `BRIDGE` and `BIKE.bridgeRide` in the same file; their glass look (how see-through the glass and the inner grid lines are, grid cells, banking, edge): constants at the top of `Bridge.tsx` |
+| How the speed along a ride is worked out                           | `planSpeed` in `motion.ts`                                                                                                                                                                  |
+| Light trail (height, length, how long it lingers and fades)        | `TRAIL_*` at the top of the trail section in `LightCycle.tsx`                                                                                                                               |
+| Intro timing (rain turning into the grid)                          | `INTRO` in `timeline.ts`                                                                                                                                                                    |
+| Panel look and text, signs, exit portal                            | `Panels.tsx`                                                                                                                                                                                |
+| Lane lines on the floor                                            | `Environment.tsx`                                                                                                                                                                           |
+| Buttons and labels on top of the scene                             | `Hud.tsx`, styles in `src/css/main.css` (section "The grid in 3D")                                                                                                                          |
+| Look at the scene from anywhere while tuning (development only)    | browser console: `window.__gridCamera = { position: [x, y, z], look: [x, y, z] }`, `delete window.__gridCamera` to stop                                                                     |
+| Watch rides in slow motion (development only)                      | browser console: `window.__gridTimeScale = 0.25`, back to `1` for normal speed                                                                                                              |
 
 Controls: arrow keys (Up at the fork takes the straight lane), mouse wheel, swipes, clicking panels and signs, Enter to
-open, Esc to go back. The address bar follows the bike (`?lane=game&project=3-Gambit`, `?lane=education`), so a link
-opens straight at that item. Without WebGL the old flat pages are shown (for the experience grid: two buttons leading to
-`/workXP?filter=work` and `/workXP?filter=education`), and a plain list of the items is always in the page for screen
-readers.
+open, Esc to go back. Going back to the fork from a lane, the bike rides on past the last panel and up a ramp that
+turns off the lane onto that lane's bridge (always there), which sweeps round in one big semicircle and lands behind
+the start point; going to the previous panel it carves a U-turn. The address bar follows the bike (`?lane=game&project=3-Gambit`, `?lane=education`), so a link
+opens straight at that item. Without WebGL (or if the 3D scene fails) the same items are shown as a flat list with the
+lanes side by side (`ItemList` in `MatrixGrid/index.tsx`, styles under "Flat version of a grid" in `main.css`); that
+list is also always in the page, hidden, for screen readers.
+
+The old list pages `/projects` and `/workXP` were removed (the grids replace them). Old links to them redirect to the
+grids (`redirects` in `next.config.js`). Each project and work / education entry still has its own full page
+(`/projects/<name>`, `/workXP/<name>`), opened from its panel on the grid.

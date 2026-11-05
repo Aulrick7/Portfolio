@@ -57,7 +57,15 @@ export const useGridStore = create<GridState>((set, get) => ({
     hovered: null,
 
     reset: (world, lanes) =>
-        set({ world, lanes, phase: 'intro', target: { kind: 'start' }, moving: false, exiting: false, hovered: null }),
+        set({
+            world,
+            lanes,
+            phase: 'intro',
+            target: { kind: 'start' },
+            moving: false,
+            exiting: false,
+            hovered: null
+        }),
     setPhase: (phase) => set({ phase }),
     setMoving: (moving) => set({ moving }),
     setExiting: (exiting) => set({ exiting }),

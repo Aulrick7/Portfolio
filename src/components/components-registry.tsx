@@ -61,7 +61,6 @@ const components = {
     MediaGallerySection: dynamic(() => import('./sections/MediaGallerySection')),
     MatrixPillChoice: dynamic(() => import('./sections/MatrixPillChoice')),
     MatrixGrid: dynamic(() => import('./sections/MatrixGrid')),
-    ProjectChoiceSection: dynamic(() => import('./sections/ProjectChoiceSection')),
     TronTransition: dynamic(() => import('./sections/TronTransition')),
     PostFeedSection: dynamic(() => import('./sections/PostFeedSection')),
     ProjectFeedSection: dynamic(() => import('./sections/ProjectFeedSection')),
@@ -83,6 +82,5 @@ const components = {
     ProjectLayout: dynamic(() => import('./layouts/ProjectLayout')),
     ProjectFeedLayout: dynamic(() => import('./layouts/ProjectFeedLayout')),
     WorkXPLayout: dynamic(() => import('./layouts/WorkXPLayout')),
-    WorkXPFeedLayout: dynamic(() => import('./layouts/WorkXPFeedLayout')),
-    PillLayout: dynamic(() => import('./layouts/PillLayout'))
+    WorkXPFeedLayout: dynamic(() => import('./layouts/WorkXPFeedLayout'))
 };
